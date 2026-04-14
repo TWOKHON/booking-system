@@ -1,10 +1,14 @@
+"use client";
+
 import { Safari } from "@/components/animated-ui/Safari";
 import { AnimatedShinyText } from "@/components/animated-ui/AnimatedShinyText";
 import { cn } from "@/lib/utils";
 import { ArrowRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export function HeroSection() {
+  const router = useRouter();
   return (
     <div>
       <div
@@ -27,7 +31,7 @@ export function HeroSection() {
         owners.
       </p>
       <div className="flex items-center gap-3">
-        <Button size="lg" className="h-11 px-4">
+        <Button onClick={() => router.push("/auth/sign-in")} size="lg" className="h-11 px-4">
           Try ResortCloud for free <ArrowRightIcon className="size-4" />
         </Button>
         <Button size="lg" className="h-11 px-4" variant="outline">

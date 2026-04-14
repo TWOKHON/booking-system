@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useMemo, useState } from "react";
 import {
   BedDouble,
@@ -8,10 +7,14 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleCheckBig,
+  CreditCard,
   Hotel,
+  LogOut,
   MapPin,
+  Settings,
   ShieldCheck,
   Sparkles,
+  User,
   Users,
 } from "lucide-react";
 
@@ -20,7 +23,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { OnboardingHeader } from "./OnboardingHeader";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { FileUpload } from "@/components/animated-ui/FileUpload";
 
 const steps = [
   {
@@ -82,26 +95,25 @@ const inventory = [
   {
     name: "Garden Villa",
     description: "Private patio, king bed, and direct garden access",
-    rate: "$420",
+    rate: "₱1,500.00",
     occupancy: "2 guests",
   },
   {
     name: "Ocean Suite",
     description: "Ocean-facing balcony with lounge area",
-    rate: "$680",
+    rate: "₱3,200.00",
     occupancy: "3 guests",
   },
   {
     name: "Family Residence",
     description: "Two bedrooms with dining and pool view",
-    rate: "$860",
+    rate: "₱5,999.00",
     occupancy: "5 guests",
   },
 ] as const;
 
 const integrations = [
   "Guest messaging",
-  "Reservations dashboard",
   "Team roles & permissions",
   "Rate and inventory controls",
 ] as const;
@@ -111,7 +123,7 @@ function StepSidebar({ currentStep }: { currentStep: number }) {
     <aside className="border-b border-zinc-200 bg-zinc-50/70 lg:min-h-[calc(100vh-73px)] lg:border-b-0 lg:border-r">
       <div className="flex h-full flex-col px-5 py-6 sm:px-8 lg:px-6 lg:py-8">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500">
+          <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
             Onboarding
           </p>
           <p className="mt-3 text-2xl font-semibold tracking-tight text-zinc-950">
@@ -132,7 +144,7 @@ function StepSidebar({ currentStep }: { currentStep: number }) {
               <div
                 key={step.id}
                 className={[
-                  "flex items-center gap-3 rounded-2xl border px-4 py-3 transition",
+                  "flex items-center gap-3 border px-4 py-3 transition",
                   isActive
                     ? "border-zinc-300 bg-white text-zinc-950 shadow-[0_12px_30px_rgba(15,23,42,0.06)]"
                     : "border-transparent text-zinc-500",
@@ -140,7 +152,7 @@ function StepSidebar({ currentStep }: { currentStep: number }) {
               >
                 <div
                   className={[
-                    "flex size-10 items-center justify-center rounded-full border",
+                    "flex size-10 items-center justify-center border",
                     isActive
                       ? "border-zinc-950 bg-zinc-950 text-white"
                       : isComplete
@@ -148,7 +160,11 @@ function StepSidebar({ currentStep }: { currentStep: number }) {
                         : "border-zinc-200 bg-white text-zinc-400",
                   ].join(" ")}
                 >
-                  {isComplete ? <Check className="size-4" /> : <Icon className="size-4" />}
+                  {isComplete ? (
+                    <Check className="size-4" />
+                  ) : (
+                    <Icon className="size-4" />
+                  )}
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-semibold">{step.label}</p>
@@ -159,39 +175,89 @@ function StepSidebar({ currentStep }: { currentStep: number }) {
           })}
         </nav>
 
-        <Card className="mt-8 rounded-[28px] border border-zinc-200 bg-white py-0 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
-          <CardContent className="space-y-4 px-5 py-5">
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-2xl border border-zinc-200 bg-zinc-950 text-white">
-                <Sparkles className="size-4.5" />
+        <div className="mt-auto -mb-4 space-y-6">
+          <Card className="border border-zinc-200 bg-white py-0 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
+            <CardContent className="space-y-4 px-5 py-5">
+              <div className="flex items-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-2xl border border-zinc-200 bg-zinc-950 text-white">
+                  <Sparkles className="size-4.5" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-zinc-950">
+                    Digital Concierge
+                  </p>
+                  <p className="text-xs text-zinc-500">Launch checklist</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-semibold text-zinc-950">
-                  Digital Concierge
-                </p>
-                <p className="text-xs text-zinc-500">Launch checklist</p>
-              </div>
-            </div>
-            <p className="text-sm leading-6 text-zinc-600">
-              We kept the setup focused so your team can move from onboarding to
-              operations without extra complexity.
-            </p>
-          </CardContent>
-        </Card>
+              <p className="text-sm leading-6 text-zinc-600">
+                We kept the setup focused so your team can move from onboarding
+                to operations without extra complexity.
+              </p>
+            </CardContent>
+          </Card>
 
-        <div className="mt-auto hidden rounded-[28px] border border-zinc-200 bg-white p-5 lg:block">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-zinc-400">
-            Current role
-          </p>
-          <div className="mt-4 flex items-center gap-3">
-            <div className="flex size-11 items-center justify-center rounded-full bg-zinc-950 text-sm font-semibold text-white">
-              AR
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-zinc-950">Admin</p>
-              <p className="text-xs text-zinc-500">Property Manager</p>
-            </div>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className=" flex items-center gap-2"
+                aria-label="Open account menu"
+              >
+                <Avatar
+                  size="lg"
+                  className="border border-zinc-300 bg-white shadow-sm"
+                >
+                  <AvatarFallback className="bg-zinc-950 font-medium text-white">
+                    KL
+                  </AvatarFallback>
+                </Avatar>
+                <div className="space-y-1 text-left">
+                  <p className="text-sm font-semibold text-zinc-950">
+                    Kyle Andre Lim
+                  </p>
+                  <p className="text-xs text-zinc-500">
+                    kylecoder@resortcloud.com
+                  </p>
+                </div>
+              </button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent
+              align="end"
+              className="w-64 rounded-2xl border border-zinc-200 bg-white p-2 shadow-[0_18px_40px_rgba(15,23,42,0.08)]"
+            >
+              <DropdownMenuLabel className="px-3 py-2">
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold text-zinc-950">
+                    Kyle Andre Lim
+                  </p>
+                  <p className="text-xs text-zinc-500">
+                    kylecoder@resortcloud.com
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem className="rounded-xl px-3 py-2 text-zinc-700">
+                  <User className="size-4" />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem className="rounded-xl px-3 py-2 text-zinc-700">
+                  <Settings className="size-4" />
+                  Account settings
+                </DropdownMenuItem>
+                <DropdownMenuItem className="rounded-xl px-3 py-2 text-zinc-700">
+                  <CreditCard className="size-4" />
+                  Billing
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="rounded-xl px-3 py-2 text-zinc-700">
+                <LogOut className="size-4" />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </aside>
@@ -209,7 +275,7 @@ function SectionHeading({
 }) {
   return (
     <div className="max-w-3xl">
-      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-zinc-500">
+      <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
         {eyebrow}
       </p>
       <h1 className="mt-3 text-4xl font-semibold tracking-tight text-zinc-950 sm:text-5xl">
@@ -247,7 +313,7 @@ function TextArea(props: React.ComponentProps<"textarea">) {
     <textarea
       {...rest}
       className={[
-        "min-h-28 w-full rounded-2xl border border-zinc-200 bg-zinc-50/70 px-4 py-3 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-zinc-300 focus:bg-white focus:ring-4 focus:ring-zinc-200/60",
+        "min-h-28 w-full border border-zinc-200 bg-zinc-50/70 px-4 py-3 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-zinc-300 focus:bg-white focus:ring-4 focus:ring-zinc-200/60",
         className,
       ]
         .filter(Boolean)
@@ -263,7 +329,7 @@ function Select(props: React.ComponentProps<"select">) {
     <select
       {...rest}
       className={[
-        "h-12 w-full rounded-2xl border border-zinc-200 bg-zinc-50/70 px-4 text-sm text-zinc-900 outline-none transition focus:border-zinc-300 focus:bg-white focus:ring-4 focus:ring-zinc-200/60",
+        "h-12 w-full border border-zinc-200 bg-zinc-50/70 px-4 text-sm text-zinc-900 outline-none transition focus:border-zinc-300 focus:bg-white focus:ring-4 focus:ring-zinc-200/60",
         className,
       ]
         .filter(Boolean)
@@ -273,8 +339,14 @@ function Select(props: React.ComponentProps<"select">) {
 }
 
 function IdentityStep() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [files, setFiles] = useState<File[]>([]);
+  const handleFileUpload = (files: File[]) => {
+    setFiles(files);
+    console.log(files);
+  };
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_320px]">
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_450px] items-end">
       <div className="space-y-6">
         <SectionHeading
           eyebrow="Step 01"
@@ -282,12 +354,12 @@ function IdentityStep() {
           description="Define the foundational details of your resort. This information powers guest communication, internal references, and your branded workspace."
         />
 
-        <Card className="rounded-[32px] border border-zinc-200 bg-white py-0 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
-          <CardContent className="grid gap-5 px-6 py-6 sm:px-8 sm:py-8">
+        <Card className="border border-zinc-200 bg-white py-0 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
+          <CardContent className="grid gap-5 px-6 py-6">
             <div className="grid gap-5 md:grid-cols-2">
               <FieldShell label="Resort name">
                 <Input
-                  placeholder="e.g. Alrio Seaside Resort"
+                  placeholder="e.g. Alrio Private Resort"
                   className="h-12 rounded-2xl border-zinc-200 bg-zinc-50/70 px-4 shadow-none"
                 />
               </FieldShell>
@@ -306,7 +378,7 @@ function IdentityStep() {
             <div className="grid gap-5 md:grid-cols-2">
               <FieldShell label="Primary location">
                 <Input
-                  placeholder="e.g. El Nido, Palawan"
+                  placeholder="e.g. General Trias City, Cavite"
                   className="h-12 rounded-2xl border-zinc-200 bg-zinc-50/70 px-4 shadow-none"
                 />
               </FieldShell>
@@ -331,38 +403,13 @@ function IdentityStep() {
       </div>
 
       <div className="space-y-6">
-        <Card className="rounded-[32px] border border-dashed border-zinc-300 bg-zinc-50/70 py-0 shadow-[0_18px_40px_rgba(15,23,42,0.04)]">
-          <CardContent className="flex min-h-[250px] flex-col items-center justify-center px-6 py-8 text-center">
-            <div className="flex size-16 items-center justify-center rounded-3xl border border-zinc-200 bg-white text-zinc-950 shadow-sm">
-              <Hotel className="size-7" />
-            </div>
-            <p className="mt-5 text-lg font-semibold text-zinc-950">Resort Logo</p>
-            <p className="mt-2 max-w-xs text-sm leading-6 text-zinc-500">
-              Drop SVG or high-resolution PNG to personalize your dashboard and
-              guest materials.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="overflow-hidden rounded-[32px] border border-zinc-200 bg-white py-0 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
-          <div className="relative h-52">
-            <Image
-              src="/stitch-preview.png"
-              alt="Resort preview"
-              fill
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/72 via-zinc-950/18 to-transparent grayscale" />
-            <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/70">
-                Brand direction
-              </p>
-              <p className="mt-2 text-xl font-semibold">
-                Bright editorial hospitality
-              </p>
-            </div>
-          </div>
-        </Card>
+        <div className="w-full min-h-90 border-2 border-dashed bg-white dark:bg-black border-zinc-300">
+          <FileUpload
+            onChange={handleFileUpload}
+            title="Upload Your Resort Logo"
+            description="Use a high-quality logo (PNG or JPG, min. 512×512px, max. 2MB) for best results."
+          />
+        </div>
       </div>
     </div>
   );
@@ -378,7 +425,7 @@ function PropertyStep() {
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
-        <Card className="rounded-[32px] border border-zinc-200 bg-white py-0 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
+        <Card className="border border-zinc-200 bg-white py-0 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
           <CardContent className="grid gap-5 px-6 py-6 sm:px-8 sm:py-8">
             <div className="grid gap-5 md:grid-cols-2">
               <FieldShell label="Check-in time">
@@ -419,14 +466,14 @@ function PropertyStep() {
         </Card>
 
         <div className="space-y-4">
-          <Card className="rounded-[32px] border border-zinc-200 bg-white py-0 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
-            <CardContent className="space-y-4 px-6 py-6">
+          <Card className="border border-zinc-200 bg-white py-0 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
+            <CardContent className="space-y-4 px-5 py-5">
               <div className="flex items-center gap-3">
                 <div className="flex size-11 items-center justify-center rounded-2xl border border-zinc-200 bg-zinc-950 text-white">
                   <Users className="size-5" />
                 </div>
                 <div>
-                  <p className="text-lg font-semibold text-zinc-950">
+                  <p className="text-base font-semibold text-zinc-950">
                     Invite Your Team
                   </p>
                   <p className="text-sm text-zinc-500">
@@ -439,7 +486,7 @@ function PropertyStep() {
                 {teamMembers.map((member) => (
                   <div
                     key={member.email}
-                    className="rounded-2xl border border-zinc-200 bg-zinc-50/70 p-4"
+                    className="border border-zinc-200 bg-zinc-50/70 p-4"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
@@ -450,11 +497,11 @@ function PropertyStep() {
                           {member.email}
                         </p>
                       </div>
-                      <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-zinc-600 ring-1 ring-zinc-200">
+                      <span className="bg-white px-3 py-1 text-xs font-medium text-zinc-600 ring-1 ring-zinc-200">
                         {member.role}
                       </span>
                     </div>
-                    <p className="mt-3 text-xs font-medium uppercase tracking-[0.18em] text-zinc-400">
+                    <p className="mt-2 text-xs font-medium uppercase tracking-wide text-zinc-400">
                       {member.status}
                     </p>
                   </div>
@@ -478,7 +525,7 @@ function RoomsStep() {
       />
 
       <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
-        <Card className="rounded-[32px] border border-zinc-200 bg-white py-0 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
+        <Card className="border border-zinc-200 bg-white py-0 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
           <CardContent className="space-y-5 px-6 py-6">
             <FieldShell label="Category name">
               <Input
@@ -489,7 +536,7 @@ function RoomsStep() {
             <div className="grid gap-4 sm:grid-cols-2">
               <FieldShell label="Base rate">
                 <Input
-                  placeholder="$ 0.00"
+                  placeholder="₱0.00"
                   className="h-12 rounded-2xl border-zinc-200 bg-zinc-50/70 px-4 shadow-none"
                 />
               </FieldShell>
@@ -512,9 +559,9 @@ function RoomsStep() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-[32px] border border-zinc-200 bg-white py-0 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
-          <CardContent className="px-6 py-6 sm:px-8 sm:py-8">
-            <div className="flex items-center justify-between gap-4 border-b border-zinc-200 pb-5">
+        <Card className="border border-zinc-200 bg-white py-0 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
+          <CardContent className="px-6 py-6">
+            <div className="flex items-center justify-between gap-4 border-zinc-200 pb-5">
               <div>
                 <p className="text-lg font-semibold text-zinc-950">
                   Active Categories
@@ -525,11 +572,11 @@ function RoomsStep() {
               </div>
             </div>
 
-            <div className="mt-5 space-y-4">
+            <div className="mt-3 space-y-4">
               {inventory.map((room) => (
                 <div
                   key={room.name}
-                  className="flex flex-col gap-4 rounded-[28px] border border-zinc-200 bg-zinc-50/70 p-5 md:flex-row md:items-center md:justify-between"
+                  className="flex flex-col gap-4 border border-zinc-200 bg-zinc-50/70 p-5 md:flex-row md:items-center md:justify-between"
                 >
                   <div className="flex items-start gap-4">
                     <div className="flex size-14 items-center justify-center rounded-2xl bg-white text-zinc-900 shadow-sm">
@@ -544,9 +591,9 @@ function RoomsStep() {
                       </p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4 text-sm md:min-w-[220px]">
+                  <div className="grid grid-cols-2 gap-4 text-sm md:min-w-55">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
                         Rate
                       </p>
                       <p className="mt-1 font-semibold text-zinc-950">
@@ -554,7 +601,7 @@ function RoomsStep() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
                         Occupancy
                       </p>
                       <p className="mt-1 font-semibold text-zinc-950">
@@ -582,22 +629,22 @@ function FinalizeStep() {
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_360px]">
-        <Card className="overflow-hidden rounded-[36px] border border-zinc-200 bg-white py-0 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
-          <div className="relative h-44 bg-[linear-gradient(135deg,#fafafa_0%,#f4f4f5_32%,#e4e4e7_52%,#fafafa_100%)]">
+        <Card className="overflow-hidden border border-zinc-200 bg-white py-0 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
+          <div className="relative h-35 bg-[linear-gradient(135deg,#fafafa_0%,#f4f4f5_32%,#e4e4e7_52%,#fafafa_100%)]">
             <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0,transparent_18%,rgba(24,24,27,0.05)_18%,rgba(24,24,27,0.05)_36%,transparent_36%,transparent_56%,rgba(24,24,27,0.05)_56%,rgba(24,24,27,0.05)_74%,transparent_74%,transparent_100%)]" />
           </div>
-          <CardContent className="space-y-6 px-6 py-6 sm:px-8 sm:py-8">
+          <CardContent className="space-y-5 px-6 pb-6 pt-3">
             <div className="grid gap-5 md:grid-cols-2">
-              <div className="rounded-[28px] border border-zinc-200 bg-zinc-50/70 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">
+              <div className="border border-zinc-200 bg-zinc-50/70 p-5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                   Property name
                 </p>
                 <p className="mt-3 text-xl font-semibold text-zinc-950">
                   Alrio Seaside Resort
                 </p>
               </div>
-              <div className="rounded-[28px] border border-zinc-200 bg-zinc-50/70 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">
+              <div className="border border-zinc-200 bg-zinc-50/70 p-5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                   Primary location
                 </p>
                 <p className="mt-3 text-xl font-semibold text-zinc-950">
@@ -606,34 +653,40 @@ function FinalizeStep() {
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="rounded-[28px] border border-zinc-200 bg-white p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">
+            <div className="grid gap-5 sm:grid-cols-3">
+              <div className="border border-zinc-200 bg-white p-5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                   Team members
                 </p>
-                <p className="mt-3 text-3xl font-semibold text-zinc-950">12</p>
+                <p className="mt-3 text-2xl font-semibold text-zinc-950">12</p>
                 <p className="mt-1 text-sm text-zinc-500">Invited for launch</p>
               </div>
-              <div className="rounded-[28px] border border-zinc-200 bg-white p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">
+              <div className="border border-zinc-200 bg-white p-5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                   Room categories
                 </p>
-                <p className="mt-3 text-3xl font-semibold text-zinc-950">08</p>
-                <p className="mt-1 text-sm text-zinc-500">Base inventory defined</p>
+                <p className="mt-3 text-2xl font-semibold text-zinc-950">08</p>
+                <p className="mt-1 text-sm text-zinc-500">
+                  Base inventory defined
+                </p>
               </div>
-              <div className="rounded-[28px] border border-zinc-200 bg-white p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">
+              <div className="border border-zinc-200 bg-white p-5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                   Readiness
                 </p>
-                <p className="mt-3 text-3xl font-semibold text-zinc-950">100%</p>
-                <p className="mt-1 text-sm text-zinc-500">Launch checklist complete</p>
+                <p className="mt-3 text-2xl font-semibold text-zinc-950">
+                  100%
+                </p>
+                <p className="mt-1 text-sm text-zinc-500">
+                  Launch checklist complete
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <div className="space-y-4">
-          <Card className="rounded-[32px] border border-zinc-200 bg-white py-0 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
+          <Card className="border border-zinc-200 bg-white py-0 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
             <CardContent className="space-y-5 px-6 py-6">
               <div className="flex items-center gap-3">
                 <div className="flex size-11 items-center justify-center rounded-2xl border border-zinc-200 bg-zinc-950 text-white">
@@ -661,15 +714,14 @@ function FinalizeStep() {
                 ))}
               </div>
 
-              <Button className="h-12 w-full rounded-2xl bg-zinc-950 text-white hover:bg-zinc-800">
-                Launch Dashboard
-              </Button>
-              <Button
-                variant="outline"
-                className="h-12 w-full rounded-2xl border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-50"
-              >
-                Download setup summary
-              </Button>
+              <div className="space-y-3">
+                <Button size="lg" className="w-full h-11">
+                  Launch Dashboard
+                </Button>
+                <Button size="lg" variant="outline" className="w-full h-11">
+                  Download setup summary
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -683,27 +735,26 @@ export function OnboardingWizard() {
 
   const progress = useMemo(
     () => ((currentStep + 1) / steps.length) * 100,
-    [currentStep]
+    [currentStep],
   );
 
   const canGoBack = currentStep > 0;
   const isLastStep = currentStep === steps.length - 1;
 
-  const goNext = () => setCurrentStep((step) => Math.min(step + 1, steps.length - 1));
+  const goNext = () =>
+    setCurrentStep((step) => Math.min(step + 1, steps.length - 1));
   const goBack = () => setCurrentStep((step) => Math.max(step - 1, 0));
 
   return (
     <main className="min-h-screen bg-white text-zinc-950">
-      <OnboardingHeader />
-
-      <div className="mx-auto grid min-h-[calc(100vh-73px)] max-w-[1600px] lg:grid-cols-[300px_minmax(0,1fr)]">
+      <div className="grid min-h-screen lg:grid-cols-[300px_minmax(0,1fr)]">
         <StepSidebar currentStep={currentStep} />
 
-        <section className="bg-[linear-gradient(180deg,#ffffff_0%,#fcfcfc_100%)] px-5 py-6 sm:px-8 lg:px-10 lg:py-8">
-          <div className="mx-auto flex max-w-6xl flex-col gap-8">
-            <div className="overflow-hidden rounded-full border border-zinc-200 bg-zinc-100">
+        <section className="bg-[linear-gradient(180deg,#ffffff_0%,#fcfcfc_100%)] px-6 py-6">
+          <div className="mx-auto h-full flex max-w-6xl flex-col gap-8">
+            <div className="overflow-hidden border border-zinc-200 bg-zinc-100">
               <div
-                className="h-2 rounded-full bg-zinc-950 transition-all duration-300"
+                className="h-2 bg-zinc-950 transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -713,13 +764,13 @@ export function OnboardingWizard() {
             {currentStep === 2 ? <RoomsStep /> : null}
             {currentStep === 3 ? <FinalizeStep /> : null}
 
-            <div className="flex flex-col gap-4 border-t border-zinc-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-4 border-zinc-200 mt-auto sm:flex-row sm:items-center sm:justify-between">
               <Button
                 type="button"
                 variant="outline"
+                size="lg"
                 onClick={goBack}
                 disabled={!canGoBack}
-                className="h-11 rounded-2xl border-zinc-300 bg-white px-5 text-zinc-900 hover:bg-zinc-50"
               >
                 <ChevronLeft className="size-4" />
                 Back
@@ -735,7 +786,7 @@ export function OnboardingWizard() {
                 type="button"
                 onClick={goNext}
                 disabled={isLastStep}
-                className="h-11 rounded-2xl bg-zinc-950 px-5 text-white hover:bg-zinc-800"
+                size="lg"
               >
                 {isLastStep ? "Completed" : "Save and continue"}
                 {!isLastStep ? <ChevronRight className="size-4" /> : null}
