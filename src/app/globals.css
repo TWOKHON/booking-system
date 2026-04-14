@@ -46,6 +46,153 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  --animate-shiny-text: shiny-text 8s infinite;
+  --animate-marquee: marquee var(--duration) infinite linear;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+  --animate-aurora: aurora 60s linear infinite;
+
+  @keyframes shiny-text {
+    0%,
+    90%,
+    100% {
+      background-position: calc(-100% - var(--shiny-width)) 0;
+    }
+    30%,
+    60% {
+      background-position: calc(100% + var(--shiny-width)) 0;
+    }
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+  @keyframes marquee-vertical {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
+    }
+  }
+
+  @keyframes flow-line {
+    from {
+      stroke-dashoffset: 0;
+    }
+    to {
+      stroke-dashoffset: -48;
+    }
+  }
+
+  @keyframes float-soft {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  @keyframes drift-soft {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(6px);
+    }
+  }
+
+  @keyframes breathe-soft {
+    0%,
+    100% {
+      opacity: 0.7;
+      transform: scaleX(0.96);
+    }
+    50% {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+  }
+
+  @keyframes stack-card-primary {
+    0%,
+    24% {
+      transform: translateY(0);
+    }
+    38%,
+    100% {
+      transform: translateY(5.5rem);
+    }
+  }
+
+  @keyframes stack-card-reveal {
+    0%,
+    24% {
+      opacity: 0;
+      transform: translateY(1.4rem) scale(0.98);
+    }
+    38%,
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes stack-card-primary-sm {
+    0%,
+    24% {
+      transform: translateY(0);
+    }
+    38%,
+    100% {
+      transform: translateY(4rem);
+    }
+  }
+
+  @keyframes stack-card-primary-xs {
+    0%,
+    24% {
+      transform: translateY(0);
+    }
+    38%,
+    100% {
+      transform: translateY(3rem);
+    }
+  }
+
+  @keyframes stack-pill-reveal {
+    0%,
+    24% {
+      opacity: 0;
+      transform: translateY(1rem) scale(0.96);
+    }
+    38%,
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes aurora {
+    from {
+      background-position:
+        50% 50%,
+        50% 50%;
+    }
+    to {
+      background-position:
+        350% 50%,
+        350% 50%;
+    }
+  }
 }
 
 :root {
@@ -72,7 +219,7 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
+  --radius: 0;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -127,4 +274,14 @@
   html {
     @apply font-sans;
   }
+}
+
+.no-visible-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+ 
+.no-visible-scrollbar::-webkit-scrollbar {
+  display: none;
 }
