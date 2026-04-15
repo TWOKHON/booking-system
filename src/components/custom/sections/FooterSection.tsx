@@ -3,12 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 
 const footerLinks = [
-  { label: "Features", href: "#features" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "How it works", href: "#how-it-works" },
-  { label: "FAQs", href: "#faqs" },
-  { label: "Sign in", href: "/sign-in" },
-  { label: "Get Started", href: "/register" },
+  { label: "Features", href: "/#features" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "How it works", href: "/#how-it-works" },
+  { label: "FAQs", href: "/#faqs" },
+  { label: "Sign in", href: "/auth/sign-in" },
+  { label: "Get Started", href: "/auth/sign-up" },
 ];
 
 export function FooterSection() {
