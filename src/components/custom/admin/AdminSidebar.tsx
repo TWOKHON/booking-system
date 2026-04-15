@@ -30,7 +30,7 @@ export function AdminSidebar() {
     >
       <SidebarHeader className="h-14 justify-center border-b px-2">
         <SidebarMenuButton asChild>
-          <a href="#link">
+          <a href="/admin/dashboard">
             {/* Light logo */}
               <Image
                 src="/main/logo-light.png"
