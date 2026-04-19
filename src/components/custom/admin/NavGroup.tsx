@@ -26,7 +26,9 @@ export function NavGroup({ label, items }: SidebarNavGroup) {
             asChild
             className="group/collapsible"
             defaultOpen={
-              !!item.isActive || item.subItems?.some((i) => !!i.isActive)
+              !!item.isActive ||
+              !!item.hasActiveSubItem ||
+              item.subItems?.some((i) => !!i.isActive)
             }
             key={item.title}
           >

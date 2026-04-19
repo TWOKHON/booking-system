@@ -18,6 +18,7 @@ export type SidebarNavItem = {
   path?: string;
   icon?: ReactNode;
   isActive?: boolean;
+  hasActiveSubItem?: boolean;
   subItems?: SidebarNavItem[];
 };
 
@@ -36,6 +37,16 @@ const isPathActive = (pathname: string, path?: string) => {
   }
 
   return pathname === path || pathname.startsWith(`${path}/`);
+};
+
+const getBestMatchedPath = (pathname: string, items: SidebarNavItem[]) => {
+  const matches = items
+    .filter((item) => isPathActive(pathname, item.path))
+    .map((item) => item.path)
+    .filter((path): path is string => Boolean(path))
+    .sort((a, b) => b.length - a.length);
+
+  return matches[0];
 };
 
 /**
@@ -221,17 +232,17 @@ export const getNavGroups = (pathname: string): SidebarNavGroup[] =>
   navGroups.map((group) => ({
     ...group,
     items: group.items.map((item) => {
+      const bestSubItemPath = getBestMatchedPath(pathname, item.subItems ?? []);
       const activeSubItems =
         item.subItems?.map((subItem) => ({
           ...subItem,
-          isActive: isPathActive(pathname, subItem.path),
+          isActive: subItem.path === bestSubItemPath,
         })) ?? [];
 
       return {
         ...item,
-        isActive:
-          isPathActive(pathname, item.path) ||
-          activeSubItems.some((subItem) => subItem.isActive),
+        isActive: isPathActive(pathname, item.path),
+        hasActiveSubItem: activeSubItems.some((subItem) => subItem.isActive),
         subItems: activeSubItems.length ? activeSubItems : item.subItems,
       };
     }),
