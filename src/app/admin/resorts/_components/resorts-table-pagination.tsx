@@ -9,20 +9,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SuspendedClient } from "./suspended-clients-data";
+import { ResortRecord } from "./resorts-data";
 
-type SuspendedClientsTablePaginationProps = {
-  table: Table<SuspendedClient>;
+type ResortsTablePaginationProps = {
+  table: Table<ResortRecord>;
 };
 
-export const SuspendedClientsTablePagination = ({
-  table,
-}: SuspendedClientsTablePaginationProps) => {
+export const ResortsTablePagination = ({ table }: ResortsTablePaginationProps) => {
   return (
     <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="text-sm text-muted-foreground">
         {table.getFilteredSelectedRowModel().rows.length} of{" "}
-        {table.getFilteredRowModel().rows.length} suspended tenant(s) selected
+        {table.getFilteredRowModel().rows.length} resort(s) selected
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -32,7 +30,7 @@ export const SuspendedClientsTablePagination = ({
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => table.setPageSize(Number(value))}
           >
-            <SelectTrigger className="w-22">
+            <SelectTrigger className="w-[88px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
