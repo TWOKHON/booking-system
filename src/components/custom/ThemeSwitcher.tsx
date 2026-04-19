@@ -62,7 +62,7 @@ export const ThemeSwitcher = ({
   return (
     <div
       className={cn(
-        "fixed bottom-4 right-4 isolate flex h-8 rounded-full bg-background p-1 ring-1 ring-border",
+        "fixed bottom-4 z-100 right-4 isolate flex h-8 rounded-full bg-background p-1 ring-1 ring-border",
         className
       )}
     >
@@ -77,7 +77,7 @@ export const ThemeSwitcher = ({
             onClick={() =>
               handleThemeClick(key as "light" | "dark" | "system")
             }
-            className="relative h-6 w-6 rounded-full"
+            className="relative h-6 w-6 rounded-full cursor-pointer"
           >
             {isActive && (
               <motion.div
