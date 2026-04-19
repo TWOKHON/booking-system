@@ -26,6 +26,18 @@ export type SidebarNavGroup = {
   items: SidebarNavItem[];
 };
 
+const isPathActive = (pathname: string, path?: string) => {
+  if (!path || path === "#" || path.startsWith("#")) {
+    return false;
+  }
+
+  if (path === "/") {
+    return pathname === path;
+  }
+
+  return pathname === path || pathname.startsWith(`${path}/`);
+};
+
 /**
  * ===============================
  * SIDEBAR NAV GROUPS (SaaS Admin)
@@ -37,20 +49,18 @@ export const navGroups: SidebarNavGroup[] = [
     items: [
       {
         title: "Dashboard",
-        path: "#/dashboard",
+        path: "/admin/dashboard",
         icon: <LayoutGridIcon />,
-        isActive: true,
       },
       {
         title: "Platform Analytics",
-        path: "#/analytics",
+        path: "#",
         icon: <BarChart3Icon />,
         subItems: [
-          { title: "Overview", path: "#/analytics" },
-          { title: "Revenue (SaaS)", path: "#/analytics/revenue" },
-          { title: "Active Resorts", path: "#/analytics/resorts" },
-          { title: "Subscriptions", path: "#/analytics/subscriptions" },
-          { title: "System Usage", path: "#/analytics/usage" },
+          { title: "Revenue", path: "/admin/analytics/revenue" },
+          { title: "Active Resorts", path: "/admin/analytics/resorts" },
+          { title: "Subscriptions", path: "/admin/analytics/subscriptions" },
+          { title: "System Usage", path: "/admin/analytics/usage" },
         ],
       },
     ],
@@ -61,24 +71,24 @@ export const navGroups: SidebarNavGroup[] = [
     items: [
       {
         title: "Resort Clients",
-        path: "#/clients",
+        path: "#",
         icon: <UsersIcon />,
         subItems: [
-          { title: "All Clients", path: "#/clients" },
-          { title: "Active Subscriptions", path: "#/clients/active" },
-          { title: "Trial Users", path: "#/clients/trials" },
-          { title: "Suspended", path: "#/clients/suspended" },
+          { title: "All Clients", path: "/admin/clients" },
+          { title: "Active Subscriptions", path: "/admin/clients/active" },
+          { title: "Trial Users", path: "/admin/clients/trials" },
+          { title: "Suspended", path: "/admin/clients/suspended" },
         ],
       },
       {
         title: "Resort Management",
-        path: "#/resorts",
+        path: "#",
         icon: <CalendarDaysIcon />,
         subItems: [
-          { title: "All Resorts", path: "#/resorts" },
-          { title: "Rooms & Units", path: "#/resorts/rooms" },
-          { title: "Rates & Pricing", path: "#/resorts/rates" },
-          { title: "Availability Calendar", path: "#/resorts/calendar" },
+          { title: "All Resorts", path: "/admin/resorts" },
+          { title: "Rooms & Units", path: "/admin/resorts/rooms" },
+          { title: "Rates & Pricing", path: "/admin/resorts/rates" },
+          { title: "Availability Calendar", path: "/admin/resorts/calendar" },
         ],
       },
     ],
@@ -89,24 +99,24 @@ export const navGroups: SidebarNavGroup[] = [
     items: [
       {
         title: "Reservations",
-        path: "#/reservations",
+        path: "#",
         icon: <CalendarDaysIcon />,
         subItems: [
-          { title: "All Bookings", path: "#/reservations" },
-          { title: "Calendar View", path: "#/reservations/calendar" },
-          { title: "Pending Approvals", path: "#/reservations/pending" },
-          { title: "Cancellations", path: "#/reservations/cancellations" },
+          { title: "All Bookings", path: "/admin/reservations" },
+          { title: "Calendar View", path: "/admin/reservations/calendar" },
+          { title: "Pending Approvals", path: "/admin/reservations/pending" },
+          { title: "Cancellations", path: "/admin/reservations/cancellations" },
         ],
       },
       {
         title: "Operations",
-        path: "#/operations",
+        path: "#",
         icon: <ClipboardListIcon />,
         subItems: [
-          { title: "Front Desk", path: "#/operations/frontdesk" },
-          { title: "Housekeeping", path: "#/operations/housekeeping" },
-          { title: "Maintenance", path: "#/operations/maintenance" },
-          { title: "Amenities & Services", path: "#/operations/amenities" },
+          { title: "Front Desk", path: "/admin/operations/frontdesk" },
+          { title: "Housekeeping", path: "/admin/operations/housekeeping" },
+          { title: "Maintenance", path: "/admin/operations/maintenance" },
+          { title: "Amenities & Services", path: "/admin/operations/amenities" },
         ],
       },
     ],
@@ -117,24 +127,24 @@ export const navGroups: SidebarNavGroup[] = [
     items: [
       {
         title: "Communication",
-        path: "#/communications",
+        path: "#",
         icon: <MessageSquareIcon />,
         subItems: [
-          { title: "Guest Messaging", path: "#/communications/messages" },
-          { title: "Notifications", path: "#/communications/notifications" },
-          { title: "Email & SMS", path: "#/communications/email-sms" },
-          { title: "Reviews & Ratings", path: "#/communications/reviews" },
+          { title: "Guest Messaging", path: "/admin/communications/messages" },
+          { title: "Notifications", path: "/admin/communications/notifications" },
+          { title: "Email & SMS", path: "/admin/communications/email-sms" },
+          { title: "Reviews & Ratings", path: "/admin/communications/reviews" },
         ],
       },
       {
         title: "Guest CRM",
-        path: "#/crm",
+        path: "#",
         icon: <UsersIcon />,
         subItems: [
-          { title: "Guest Profiles", path: "#/crm" },
-          { title: "Stay History", path: "#/crm/history" },
-          { title: "Loyalty Programs", path: "#/crm/loyalty" },
-          { title: "Segments & Tags", path: "#/crm/segments" },
+          { title: "Guest Profiles", path: "/admin/crm" },
+          { title: "Stay History", path: "/admin/crm/history" },
+          { title: "Loyalty Programs", path: "/admin/crm/loyalty" },
+          { title: "Segments & Tags", path: "/admin/crm/segments" },
         ],
       },
     ],
@@ -145,35 +155,35 @@ export const navGroups: SidebarNavGroup[] = [
     items: [
       {
         title: "Subscriptions & Plans",
-        path: "#/subscriptions",
+        path: "#",
         icon: <CreditCardIcon />,
         subItems: [
-          { title: "Plans", path: "#/subscriptions/plans" },
-          { title: "Client Billing", path: "#/subscriptions/billing" },
-          { title: "Invoices", path: "#/subscriptions/invoices" },
-          { title: "Transactions", path: "#/subscriptions/transactions" },
+          { title: "Plans", path: "/admin/subscriptions/plans" },
+          { title: "Client Billing", path: "/admin/subscriptions/billing" },
+          { title: "Invoices", path: "/admin/subscriptions/invoices" },
+          { title: "Transactions", path: "/admin/subscriptions/transactions" },
         ],
       },
       {
         title: "Integrations",
-        path: "#/integrations",
+        path: "#",
         icon: <PlugIcon />,
         subItems: [
-          { title: "Payment Gateways", path: "#/integrations/payments" },
-          { title: "OTA & Channels", path: "#/integrations/ota" },
-          { title: "API Keys", path: "#/integrations/api-keys" },
-          { title: "Webhooks", path: "#/integrations/webhooks" },
+          { title: "Payment Gateways", path: "/admin/integrations/payments" },
+          { title: "OTA & Channels", path: "/admin/integrations/ota" },
+          { title: "API Keys", path: "/admin/integrations/api-keys" },
+          { title: "Webhooks", path: "/admin/integrations/webhooks" },
         ],
       },
       {
         title: "System Settings",
-        path: "#/settings",
+        path: "#settings",
         icon: <SettingsIcon />,
         subItems: [
-          { title: "Platform Branding", path: "#/settings/branding" },
-          { title: "User Roles & Access", path: "#/settings/roles" },
-          { title: "Taxes & Policies", path: "#/settings/policies" },
-          { title: "Audit Logs", path: "#/settings/audit" },
+          { title: "Platform Branding", path: "/admin/settings/branding" },
+          { title: "User Roles & Access", path: "/admin/settings/roles" },
+          { title: "Taxes & Policies", path: "/admin/settings/policies" },
+          { title: "Audit Logs", path: "/admin/settings/audit" },
         ],
       },
     ],
@@ -188,7 +198,7 @@ export const navGroups: SidebarNavGroup[] = [
 export const footerNavLinks: SidebarNavItem[] = [
   {
     title: "Help & Docs",
-    path: "#/help",
+    path: "/admin/help",
     icon: <HelpCircleIcon />,
   },
 ];
@@ -206,3 +216,29 @@ export const navLinks: SidebarNavItem[] = [
   ),
   ...footerNavLinks,
 ];
+
+export const getNavGroups = (pathname: string): SidebarNavGroup[] =>
+  navGroups.map((group) => ({
+    ...group,
+    items: group.items.map((item) => {
+      const activeSubItems =
+        item.subItems?.map((subItem) => ({
+          ...subItem,
+          isActive: isPathActive(pathname, subItem.path),
+        })) ?? [];
+
+      return {
+        ...item,
+        isActive:
+          isPathActive(pathname, item.path) ||
+          activeSubItems.some((subItem) => subItem.isActive),
+        subItems: activeSubItems.length ? activeSubItems : item.subItems,
+      };
+    }),
+  }));
+
+export const getFooterNavLinks = (pathname: string): SidebarNavItem[] =>
+  footerNavLinks.map((item) => ({
+    ...item,
+    isActive: isPathActive(pathname, item.path),
+  }));

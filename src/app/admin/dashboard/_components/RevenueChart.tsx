@@ -1,7 +1,6 @@
 "use client";
 
-import * as React from "react";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import * as React from "react"
 
 import {
   Card,
@@ -27,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
 // 💰 Sample Finance Data (replace later with real data)
 const chartData = [
@@ -49,7 +49,7 @@ const chartConfig = {
   },
   expenses: {
     label: "Expenses",
-    color: "var(--chart-3)",
+    color: "var(--chart-3",
   },
 } satisfies ChartConfig;
 

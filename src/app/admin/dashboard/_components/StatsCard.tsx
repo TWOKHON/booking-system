@@ -10,7 +10,7 @@ interface Props {
 
 export const StatsCard = ({ title, value, change, icon: Icon }: Props) => {
   return (
-    <div className="rounded-2xl border bg-white dark:bg-neutral-900 p-5 shadow-sm">
+    <div className="border bg-white dark:bg-neutral-900 p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <span className="text-sm text-muted-foreground">{title}</span>
         <Icon className="w-5 h-5 opacity-70" />

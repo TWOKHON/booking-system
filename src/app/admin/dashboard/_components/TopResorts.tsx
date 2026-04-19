@@ -6,7 +6,7 @@ const resorts = [
 
 export const TopResorts = () => {
   return (
-    <div className="rounded-2xl border bg-white dark:bg-neutral-900 p-6">
+    <div className="rounded-2xl border bg-white dark:bg-neutral-900 p-5">
       <h2 className="font-semibold text-lg mb-4">Top Resorts</h2>
 
       <div className="space-y-4">

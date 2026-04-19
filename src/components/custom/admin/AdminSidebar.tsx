@@ -11,13 +11,18 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import {
-  footerNavLinks,
-  navGroups,
+  getFooterNavLinks,
+  getNavGroups,
 } from "@/components/custom/admin/AdminAppShared";
 import { NavGroup } from "@/components/custom/admin/NavGroup";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 export function AdminSidebar() {
+  const pathname = usePathname();
+  const navGroups = getNavGroups(pathname);
+  const footerNavLinks = getFooterNavLinks(pathname);
+
   return (
     <Sidebar
       className={cn(
