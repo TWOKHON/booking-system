@@ -99,7 +99,7 @@ export const navGroups: SidebarNavGroup[] = [
           { title: "All Resorts", path: "/admin/resorts" },
           { title: "Rooms & Units", path: "/admin/resorts/rooms" },
           { title: "Rates & Pricing", path: "/admin/resorts/rates" },
-          { title: "Availability Calendar", path: "/admin/resorts/calendar" },
+          { title: "Booking Schedule", path: "/admin/resorts/calendar" },
         ],
       },
     ],
