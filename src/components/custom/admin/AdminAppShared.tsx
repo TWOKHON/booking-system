@@ -113,7 +113,7 @@ export const navGroups: SidebarNavGroup[] = [
           { title: "Amenities & Services", path: "/admin/operations/amenities" },
           { title: "Human Resources", path: "/admin/operations/hr" },
           { title: "Finance", path: "/admin/operations/finance" },
-          { title: "Human Resources", path: "/admin/operations/hr" },
+          { title: "Sales & Marketing", path: "/admin/operations/sales-marketing" },
         ],
       },
     ],
