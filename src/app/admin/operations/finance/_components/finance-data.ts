@@ -1,0 +1,173 @@
+export type FinanceRecord = {
+  id: string;
+  accountName: string;
+  resortName: string;
+  tenantName: string;
+  ledgerType:
+    | "Guest Balance"
+    | "OTA Settlement"
+    | "Owner Payout"
+    | "Vendor Billing"
+    | "Daily Reconciliation";
+  financeStatus: "Open" | "Pending Collection" | "For Reconciliation" | "Payout Hold" | "Closed";
+  paymentHealth: "Clear" | "Watch" | "At Risk";
+  amount: number;
+  dueWindow: string;
+  assignedTo: string;
+  exceptionNote: string;
+  lastUpdated: string;
+  priority: boolean;
+};
+
+export const financeRecords: FinanceRecord[] = [
+  {
+    id: "FN-9101",
+    accountName: "Andrea Santos",
+    resortName: "Alrio Resort Batangas",
+    tenantName: "Alrio Hospitality Group",
+    ledgerType: "Guest Balance",
+    financeStatus: "Pending Collection",
+    paymentHealth: "At Risk",
+    amount: 18400,
+    dueWindow: "Before checkout today",
+    assignedTo: "Kara Mendoza",
+    exceptionNote: "Arrival deposit was partial and final charge is still unpaid",
+    lastUpdated: "6 mins ago",
+    priority: true,
+  },
+  {
+    id: "FN-9102",
+    accountName: "Azure Palms OTA Batch",
+    resortName: "Azure Palms Resort",
+    tenantName: "Azure Palms Hospitality",
+    ledgerType: "OTA Settlement",
+    financeStatus: "For Reconciliation",
+    paymentHealth: "Watch",
+    amount: 126500,
+    dueWindow: "Settlement run at 4:00 PM",
+    assignedTo: "Liza Ong",
+    exceptionNote: "Two channel adjustments still need booking reference match",
+    lastUpdated: "14 mins ago",
+    priority: true,
+  },
+  {
+    id: "FN-9103",
+    accountName: "Casa Verde April Owner Share",
+    resortName: "Casa Verde Private Villas",
+    tenantName: "Casa Verde Leisure",
+    ledgerType: "Owner Payout",
+    financeStatus: "Payout Hold",
+    paymentHealth: "Watch",
+    amount: 214000,
+    dueWindow: "Awaiting release this cycle",
+    assignedTo: "Mira Valdez",
+    exceptionNote: "Payout release is paused pending tax form validation",
+    lastUpdated: "18 mins ago",
+    priority: true,
+  },
+  {
+    id: "FN-9104",
+    accountName: "Blue Reef Linen Services",
+    resortName: "Blue Reef Escapes",
+    tenantName: "Blue Reef Escapes",
+    ledgerType: "Vendor Billing",
+    financeStatus: "Open",
+    paymentHealth: "Clear",
+    amount: 38200,
+    dueWindow: "Due in 3 days",
+    assignedTo: "Janine Castro",
+    exceptionNote: "Invoice batch uploaded and waiting approval routing",
+    lastUpdated: "11 mins ago",
+    priority: false,
+  },
+  {
+    id: "FN-9105",
+    accountName: "Coral Peak Daily Cash Count",
+    resortName: "Coral Peak Resorts",
+    tenantName: "Coral Peak Resorts",
+    ledgerType: "Daily Reconciliation",
+    financeStatus: "For Reconciliation",
+    paymentHealth: "At Risk",
+    amount: 58750,
+    dueWindow: "Before end-of-day close",
+    assignedTo: "Mina Torres",
+    exceptionNote: "POS summary and cash envelope totals still differ",
+    lastUpdated: "21 mins ago",
+    priority: true,
+  },
+  {
+    id: "FN-9106",
+    accountName: "Mara Ong",
+    resortName: "Bayfront Hideaway",
+    tenantName: "Bayfront Hideaway",
+    ledgerType: "Guest Balance",
+    financeStatus: "Open",
+    paymentHealth: "Watch",
+    amount: 9400,
+    dueWindow: "Before 6:00 PM",
+    assignedTo: "Noel Ramos",
+    exceptionNote: "Mini bar and late checkout fees still unposted",
+    lastUpdated: "9 mins ago",
+    priority: false,
+  },
+  {
+    id: "FN-9107",
+    accountName: "Isla Jardin OTA Batch",
+    resortName: "Isla Jardin Suites",
+    tenantName: "Isla Jardin Retreats",
+    ledgerType: "OTA Settlement",
+    financeStatus: "Closed",
+    paymentHealth: "Clear",
+    amount: 89300,
+    dueWindow: "Cleared this morning",
+    assignedTo: "Rica Flores",
+    exceptionNote: "Settlement posted with no variance",
+    lastUpdated: "8 mins ago",
+    priority: false,
+  },
+  {
+    id: "FN-9108",
+    accountName: "Peak Wellness Spa Vendor",
+    resortName: "Coral Peak Resorts",
+    tenantName: "Coral Peak Resorts",
+    ledgerType: "Vendor Billing",
+    financeStatus: "Payout Hold",
+    paymentHealth: "Watch",
+    amount: 46300,
+    dueWindow: "Awaiting approval before release",
+    assignedTo: "Mina Torres",
+    exceptionNote: "Service proof sheet is still missing two signatures",
+    lastUpdated: "25 mins ago",
+    priority: false,
+  },
+  {
+    id: "FN-9109",
+    accountName: "Leo Gutierrez",
+    resortName: "Blue Reef Escapes",
+    tenantName: "Blue Reef Escapes",
+    ledgerType: "Guest Balance",
+    financeStatus: "Closed",
+    paymentHealth: "Clear",
+    amount: 12800,
+    dueWindow: "Settled at front desk",
+    assignedTo: "Janine Castro",
+    exceptionNote: "Card settlement confirmed with folio match",
+    lastUpdated: "7 mins ago",
+    priority: false,
+  },
+  {
+    id: "FN-9110",
+    accountName: "Alrio Daily Revenue Wrap",
+    resortName: "Alrio Resort Batangas",
+    tenantName: "Alrio Hospitality Group",
+    ledgerType: "Daily Reconciliation",
+    financeStatus: "For Reconciliation",
+    paymentHealth: "Watch",
+    amount: 142600,
+    dueWindow: "Before midnight close",
+    assignedTo: "Kara Mendoza",
+    exceptionNote: "Restaurant and room charge exports need final posting sync",
+    lastUpdated: "13 mins ago",
+    priority: true,
+  },
+];
