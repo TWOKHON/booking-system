@@ -102,23 +102,6 @@ export const navGroups: SidebarNavGroup[] = [
           { title: "Booking Schedule", path: "/admin/resorts/calendar" },
         ],
       },
-    ],
-  },
-
-  {
-    label: "Reservations & Operations",
-    items: [
-      {
-        title: "Reservations",
-        path: "#",
-        icon: <CalendarDaysIcon />,
-        subItems: [
-          { title: "All Bookings", path: "/admin/reservations" },
-          { title: "Calendar View", path: "/admin/reservations/calendar" },
-          { title: "Pending Approvals", path: "/admin/reservations/pending" },
-          { title: "Cancellations", path: "/admin/reservations/cancellations" },
-        ],
-      },
       {
         title: "Operations",
         path: "#",

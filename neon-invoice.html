@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Neon Invoice – EROHEG-00012</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #666666;
+      --border: #e0e0e0;
+      --green: #00c853;
+      --accent: #1a1a1a;
+      --card-bg: #f9f9f9;
+      --font: 'DM Sans', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: #ececec;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 16px;
+    }
+
+    .page {
+      background: var(--bg);
+      width: 100%;
+      max-width: 780px;
+      padding: 48px 52px;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.10);
+      border-radius: 4px;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 36px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-icon svg { width: 22px; height: 22px; }
+
+    .logo-text {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--accent);
+    }
+
+    .invoice-title {
+      font-size: 26px;
+      font-weight: 300;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── Address block ── */
+    .address-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 40px;
+      margin-bottom: 36px;
+    }
+
+    .address-block p {
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    .address-block strong {
+      color: var(--text);
+      display: block;
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
+
+    .meta-table {
+      font-size: 13px;
+      line-height: 1.9;
+    }
+
+    .meta-table tr td:first-child {
+      color: var(--muted);
+      padding-right: 20px;
+      white-space: nowrap;
+    }
+
+    .meta-table tr td:last-child {
+      font-weight: 500;
+      text-align: right;
+    }
+
+    .amount-due td:last-child {
+      color: var(--text) !important;
+      font-size: 15px;
+      font-weight: 600 !important;
+    }
+
+    .amount-due td:first-child {
+      font-weight: 600 !important;
+      color: var(--text) !important;
+    }
+
+    /* ── Divider ── */
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 24px 0;
+    }
+
+    /* ── Plan Card ── */
+    .plan-card {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 18px 24px 16px;
+      margin-bottom: 32px;
+    }
+
+    .plan-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .plan-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .plan-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .plan-sub {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .plan-price-block {
+      text-align: right;
+    }
+
+    .plan-usd {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 1px;
+    }
+
+    .plan-peso {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      font-family: var(--mono);
+    }
+
+    .plan-per {
+      font-size: 11.5px;
+      color: var(--muted);
+    }
+
+    .plan-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0 24px;
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+    }
+
+    .plan-feature {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .plan-feature::before {
+      content: '·';
+      margin-right: 5px;
+      color: #bbb;
+    }
+
+    /* ── Invoice Table ── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    table.invoice {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    table.invoice thead tr th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 11.5px;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      border-bottom: 1.5px solid var(--border);
+      padding: 8px 6px;
+      text-transform: uppercase;
+    }
+
+    table.invoice thead tr th:not(:first-child) {
+      text-align: right;
+    }
+
+    table.invoice tbody tr.group-header td {
+      padding: 14px 6px 4px;
+      font-weight: 600;
+      font-size: 12.5px;
+      color: var(--text);
+      font-family: var(--mono);
+    }
+
+    table.invoice tbody tr.item td {
+      padding: 5px 6px;
+      color: var(--muted);
+      vertical-align: top;
+    }
+
+    table.invoice tbody tr.item td:not(:first-child) {
+      text-align: right;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    table.invoice tbody tr.item td:first-child {
+      padding-left: 14px;
+    }
+
+    table.invoice tbody tr.sep td {
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Totals ── */
+    .totals {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0;
+    }
+
+    .totals-table {
+      width: 320px;
+      font-size: 13px;
+      border-collapse: collapse;
+    }
+
+    .totals-table tr td {
+      padding: 5px 6px;
+    }
+
+    .totals-table tr td:first-child {
+      color: var(--muted);
+    }
+
+    .totals-table tr td:last-child {
+      text-align: right;
+      font-family: var(--mono);
+      font-weight: 500;
+    }
+
+    .totals-table tr.total-row {
+      border-top: 1.5px solid var(--border);
+    }
+
+    .totals-table tr.total-row td {
+      padding-top: 10px;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text);
+    }
+
+    .totals-table tr.total-row td:last-child {
+      color: var(--text);
+    }
+
+    .sub-note {
+      font-size: 11px;
+      color: #aaa;
+      text-align: right;
+      margin-top: 3px;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 40px;
+      font-size: 11.5px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .page { box-shadow: none; padding: 32px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <img src="/neon.svg" />
+    </div>
+    <div class="invoice-title">Invoice</div>
+  </div>
+
+  <!-- Address -->
+  <div class="address-row">
+    <div class="address-block">
+      <strong>Neon</strong>
+      <p>209 Orange Street<br>Wilmington, DE 19801</p>
+    </div>
+    <div class="address-block">
+      <strong>Ship to:</strong>
+      <p>Dasmarinas City, Cavite<br>Philippines 4114</p>
+    </div>
+    <div>
+      <table class="meta-table">
+        <tr><td>Invoice number</td><td>EXMHEP-00627</td></tr>
+        <tr><td>Date of issue</td><td>Apr 21, 2026</td></tr>
+        <tr><td>Due date</td><td>Apr 21, 2026</td></tr>
+        <tr class="amount-due"><td><strong>Amount due</strong></td><td><strong>₱4,968.16</strong></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- Plan Card -->
+  <div class="plan-card">
+    <div class="plan-header">
+      <div>
+        <div class="plan-label">Availed Plan</div>
+        <div class="plan-name">Usage-based · Medium Load</div>
+        <div class="plan-sub">10 GB Storage &nbsp;·&nbsp; Billing period: Apr 2026</div>
+      </div>
+      <div class="plan-price-block">
+        <div class="plan-peso">₱4,850</div>
+        <div class="plan-per">per month</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invoice Table -->
+  <div class="section-label">Usage Breakdown</div>
+  <table class="invoice">
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Quantity</th>
+        <th>Rate (excl. tax)</th>
+        <th>Tax</th>
+        <th>Amount (excl. tax)</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <!-- pearl-of-the-orient-database -->
+      <tr class="group-header"><td colspan="5">pearl-of-the-orient-database</td></tr>
+      <tr class="item">
+        <td>Compute time, Hour aws-ap-southeast-1</td>
+        <td>720.00</td><td>₱6.30</td><td>0%</td><td>₱4,538.16</td>
+      </tr>
+      <tr class="item">
+        <td>Data storage, GB-Hour aws-ap-southeast-1</td>
+        <td>7,200.00</td><td>₱0.0098</td><td>0%</td><td>₱70.21</td>
+      </tr>
+      <tr class="item">
+        <td>Data transfer, GB aws-ap-southeast-1</td>
+        <td>27.56</td><td>₱5.35</td><td>0%</td><td>₱147.48</td>
+      </tr>
+      <tr class="item">
+        <td>Written data, GB aws-ap-southeast-1</td>
+        <td>0.24</td><td>₱5.35</td><td>0%</td><td>₱1.28</td>
+      </tr>
+      <tr class="item">
+        <td>Platform & billing adjustment</td>
+        <td>-</td><td>-</td><td>0%</td><td>₱92.87</td>
+      </tr>
+
+    </tbody>
+  </table>
+
+  <!-- Totals -->
+  <div class="totals">
+    <table class="totals-table">
+      <tr>
+        <td>Subscription (Usage-based, 10 GB)</td>
+        <td>₱4,850.00</td>
+      </tr>
+      <tr>
+        <td>Usage charges (compute + storage + transfer)</td>
+        <td>₱&nbsp;0.00</td>
+      </tr>
+      <tr>
+        <td>Transaction fee</td>
+        <td>₱&nbsp;105.50</td>
+      </tr>
+      <tr>
+        <td>VAT 12% (on transaction fee)</td>
+        <td>₱&nbsp;12.66</td>
+      </tr>
+      <tr class="total-row">
+        <td>Total Amount Due</td>
+        <td>₱4,968.16</td>
+      </tr>
+    </table>
+    <div class="sub-note">VAT 12% applied on transaction fee only &nbsp;·&nbsp; Subscription covers all usage</div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    Thank you for using Neon. For billing questions, contact <strong>billing@neondb.tech.com</strong>
+  </div>
+
+</div>
+</body>
+</html>
