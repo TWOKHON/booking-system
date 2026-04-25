@@ -9,7 +9,12 @@ export type FinanceRecord = {
     | "Owner Payout"
     | "Vendor Billing"
     | "Daily Reconciliation";
-  financeStatus: "Open" | "Pending Collection" | "For Reconciliation" | "Payout Hold" | "Closed";
+  financeStatus:
+    | "Open"
+    | "Pending Collection"
+    | "For Reconciliation"
+    | "Payout Hold"
+    | "Closed";
   paymentHealth: "Clear" | "Watch" | "At Risk";
   amount: number;
   dueWindow: string;

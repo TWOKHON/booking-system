@@ -20,19 +20,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FinanceRecord } from "./finance-data";
+import { MessageRecord } from "./messages-data";
 
-type FinanceTableToolbarProps = {
-  table: Table<FinanceRecord>;
-  onBatchStatusUpdate: (status: FinanceRecord["financeStatus"]) => void;
+type MessagesTableToolbarProps = {
+  table: Table<MessageRecord>;
+  onBatchStatusUpdate: (status: MessageRecord["messageStatus"]) => void;
   onBatchPriority: () => void;
 };
 
-export const FinanceTableToolbar = ({
+export const MessagesTableToolbar = ({
   table,
   onBatchStatusUpdate,
   onBatchPriority,
-}: FinanceTableToolbarProps) => {
+}: MessagesTableToolbarProps) => {
   const selectedCount = table.getFilteredSelectedRowModel().rows.length;
 
   return (
@@ -43,52 +43,48 @@ export const FinanceTableToolbar = ({
           <Input
             value={(table.getState().globalFilter as string) ?? ""}
             onChange={(event) => table.setGlobalFilter(event.target.value)}
-            placeholder="Search account, ledger, resort, assignee, or note..."
+            placeholder="Search conversation, resort, tenant, assignee, or preview..."
             className="pl-9"
           />
         </div>
 
         <Select
           value={
-            (table.getColumn("financeStatus")?.getFilterValue() as string) ?? "all"
+            (table.getColumn("messageStatus")?.getFilterValue() as string) ?? "all"
           }
           onValueChange={(value) =>
-            table
-              .getColumn("financeStatus")
-              ?.setFilterValue(value === "all" ? "" : value)
+            table.getColumn("messageStatus")?.setFilterValue(value === "all" ? "" : value)
           }
         >
           <SelectTrigger className="w-full sm:w-[180px]">
-            <SelectValue placeholder="Filter finance status" />
+            <SelectValue placeholder="Filter status" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All statuses</SelectItem>
-            <SelectItem value="Open">Open</SelectItem>
-            <SelectItem value="Pending Collection">Pending Collection</SelectItem>
-            <SelectItem value="For Reconciliation">For Reconciliation</SelectItem>
-            <SelectItem value="Payout Hold">Payout Hold</SelectItem>
+            <SelectItem value="Unread">Unread</SelectItem>
+            <SelectItem value="Responded">Responded</SelectItem>
+            <SelectItem value="Pending Follow-Up">Pending Follow-Up</SelectItem>
+            <SelectItem value="Escalated">Escalated</SelectItem>
             <SelectItem value="Closed">Closed</SelectItem>
           </SelectContent>
         </Select>
 
         <Select
           value={
-            (table.getColumn("paymentHealth")?.getFilterValue() as string) ?? "all"
+            (table.getColumn("priorityLevel")?.getFilterValue() as string) ?? "all"
           }
           onValueChange={(value) =>
-            table
-              .getColumn("paymentHealth")
-              ?.setFilterValue(value === "all" ? "" : value)
+            table.getColumn("priorityLevel")?.setFilterValue(value === "all" ? "" : value)
           }
         >
           <SelectTrigger className="w-full sm:w-[165px]">
-            <SelectValue placeholder="Filter payment health" />
+            <SelectValue placeholder="Filter priority" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All health levels</SelectItem>
-            <SelectItem value="Clear">Clear</SelectItem>
+            <SelectItem value="all">All priority</SelectItem>
+            <SelectItem value="Normal">Normal</SelectItem>
             <SelectItem value="Watch">Watch</SelectItem>
-            <SelectItem value="At Risk">At Risk</SelectItem>
+            <SelectItem value="Urgent">Urgent</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -104,24 +100,20 @@ export const FinanceTableToolbar = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuLabel>Update selected</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => onBatchStatusUpdate("Open")}>
-                Reopen item
+              <DropdownMenuItem onClick={() => onBatchStatusUpdate("Unread")}>
+                Mark unread
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onBatchStatusUpdate("Pending Collection")}
-              >
-                Send to collection
+              <DropdownMenuItem onClick={() => onBatchStatusUpdate("Responded")}>
+                Mark responded
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onBatchStatusUpdate("For Reconciliation")}
-              >
-                Send to reconciliation
+              <DropdownMenuItem onClick={() => onBatchStatusUpdate("Pending Follow-Up")}>
+                Set follow-up
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onBatchStatusUpdate("Payout Hold")}>
-                Place payout hold
+              <DropdownMenuItem onClick={() => onBatchStatusUpdate("Escalated")}>
+                Escalate thread
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onBatchStatusUpdate("Closed")}>
-                Mark closed
+                Close thread
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={onBatchPriority}>

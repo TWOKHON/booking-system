@@ -1,4 +1,9 @@
-import { AlertCircle, BanknoteArrowDown, CircleDollarSign, WalletCards } from "lucide-react";
+import {
+  AlertCircle,
+  BanknoteArrowDown,
+  CircleDollarSign,
+  WalletCards,
+} from "lucide-react";
 import { FinanceRecord } from "./finance-data";
 
 const currency = new Intl.NumberFormat("en-PH", {
@@ -17,7 +22,8 @@ export const FinanceSummary = ({ data }: FinanceSummaryProps) => {
   ).length;
   const holdOrRecon = data.filter(
     (item) =>
-      item.financeStatus === "Payout Hold" || item.financeStatus === "For Reconciliation"
+      item.financeStatus === "Payout Hold" ||
+      item.financeStatus === "For Reconciliation"
   ).length;
   const atRiskAmount = data
     .filter((item) => item.paymentHealth === "At Risk")

@@ -13,30 +13,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { FinanceRecord } from "./finance-data";
+import { MessageRecord } from "./messages-data";
 
-const currency = new Intl.NumberFormat("en-PH", {
-  style: "currency",
-  currency: "PHP",
-  maximumFractionDigits: 0,
-});
-
-const financeStatusClasses: Record<FinanceRecord["financeStatus"], string> = {
-  Open: "bg-slate-100 text-slate-700",
-  "Pending Collection": "bg-amber-100 text-amber-700",
-  "For Reconciliation": "bg-blue-100 text-blue-700",
-  "Payout Hold": "bg-violet-100 text-violet-700",
-  Closed: "bg-emerald-100 text-emerald-700",
+const statusClasses: Record<MessageRecord["messageStatus"], string> = {
+  Unread: "bg-slate-100 text-slate-700",
+  Responded: "bg-emerald-100 text-emerald-700",
+  "Pending Follow-Up": "bg-amber-100 text-amber-700",
+  Escalated: "bg-rose-100 text-rose-700",
+  Closed: "bg-blue-100 text-blue-700",
 };
 
-const paymentHealthClasses: Record<FinanceRecord["paymentHealth"], string> = {
-  Clear: "bg-emerald-100 text-emerald-700",
+const priorityClasses: Record<MessageRecord["priorityLevel"], string> = {
+  Normal: "bg-slate-100 text-slate-700",
   Watch: "bg-amber-100 text-amber-700",
-  "At Risk": "bg-rose-100 text-rose-700",
+  Urgent: "bg-rose-100 text-rose-700",
 };
 
-type FinanceColumnActions = {
-  onUpdateStatus: (id: string, status: FinanceRecord["financeStatus"]) => void;
+type MessagesColumnActions = {
+  onUpdateStatus: (id: string, status: MessageRecord["messageStatus"]) => void;
   onTogglePriority: (id: string) => void;
 };
 
@@ -58,10 +52,10 @@ const sortableHeader = (
   </Button>
 );
 
-export const getFinanceColumns = ({
+export const getMessagesColumns = ({
   onUpdateStatus,
   onTogglePriority,
-}: FinanceColumnActions): ColumnDef<FinanceRecord>[] => [
+}: MessagesColumnActions): ColumnDef<MessageRecord>[] => [
   {
     id: "select",
     enableSorting: false,
@@ -85,17 +79,19 @@ export const getFinanceColumns = ({
     ),
   },
   {
-    accessorKey: "accountName",
-    header: ({ column }) => sortableHeader("Account", column),
+    accessorKey: "conversationName",
+    header: ({ column }) => sortableHeader("Conversation", column),
     cell: ({ row }) => (
-      <div className="min-w-44">
+      <div className="min-w-48">
         <div className="flex items-center gap-2">
-          <p className="font-medium">{row.original.accountName}</p>
+          <p className="font-medium">{row.original.conversationName}</p>
           {row.original.priority ? (
             <Star className="size-3.5 fill-amber-400 text-amber-400" />
           ) : null}
         </div>
-        <p className="text-xs text-muted-foreground">{row.original.ledgerType}</p>
+        <p className="text-xs text-muted-foreground">
+          {row.original.audienceType} · {row.original.channel}
+        </p>
       </div>
     ),
   },
@@ -110,11 +106,11 @@ export const getFinanceColumns = ({
     ),
   },
   {
-    accessorKey: "financeStatus",
-    header: ({ column }) => sortableHeader("Finance Status", column),
+    accessorKey: "messageStatus",
+    header: ({ column }) => sortableHeader("Status", column),
     cell: ({ row }) => (
-      <Badge className={financeStatusClasses[row.original.financeStatus]} variant="outline">
-        {row.original.financeStatus}
+      <Badge className={statusClasses[row.original.messageStatus]} variant="outline">
+        {row.original.messageStatus}
       </Badge>
     ),
     filterFn: (row, id, value: string) => {
@@ -123,11 +119,11 @@ export const getFinanceColumns = ({
     },
   },
   {
-    accessorKey: "paymentHealth",
-    header: ({ column }) => sortableHeader("Payment", column),
+    accessorKey: "priorityLevel",
+    header: ({ column }) => sortableHeader("Priority", column),
     cell: ({ row }) => (
-      <Badge className={paymentHealthClasses[row.original.paymentHealth]} variant="outline">
-        {row.original.paymentHealth}
+      <Badge className={priorityClasses[row.original.priorityLevel]} variant="outline">
+        {row.original.priorityLevel}
       </Badge>
     ),
     filterFn: (row, id, value: string) => {
@@ -136,24 +132,21 @@ export const getFinanceColumns = ({
     },
   },
   {
-    accessorKey: "amount",
-    header: ({ column }) => sortableHeader("Amount", column),
+    accessorKey: "lastMessagePreview",
+    header: ({ column }) => sortableHeader("Last Message", column),
     cell: ({ row }) => (
-      <div className="min-w-32">
-        <p className="font-medium">{currency.format(row.original.amount)}</p>
-        <p className="text-xs text-muted-foreground">{row.original.dueWindow}</p>
+      <div className="max-w-45">
+        <p className="truncate text-sm">{row.original.lastMessagePreview}</p>
       </div>
     ),
   },
   {
-    accessorKey: "assignedTo",
+    accessorKey: "assignee",
     header: ({ column }) => sortableHeader("Assigned To", column),
     cell: ({ row }) => (
-      <div className="max-w-53">
-        <p className="font-medium">{row.original.assignedTo}</p>
-        <p className="text-xs text-muted-foreground truncate">
-          {row.original.exceptionNote}
-        </p>
+      <div className="min-w-32">
+        <p className="font-medium">{row.original.assignee}</p>
+        <p className="text-xs text-muted-foreground">{row.original.slaWindow}</p>
       </div>
     ),
   },
@@ -170,29 +163,27 @@ export const getFinanceColumns = ({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuLabel>Finance actions</DropdownMenuLabel>
+          <DropdownMenuLabel>Message actions</DropdownMenuLabel>
           <DropdownMenuItem onClick={() => onTogglePriority(row.original.id)}>
             {row.original.priority ? "Remove priority" : "Mark as priority"}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => onUpdateStatus(row.original.id, "Open")}>
-            Reopen item
+          <DropdownMenuItem onClick={() => onUpdateStatus(row.original.id, "Unread")}>
+            Mark unread
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onUpdateStatus(row.original.id, "Responded")}>
+            Mark responded
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => onUpdateStatus(row.original.id, "Pending Collection")}
+            onClick={() => onUpdateStatus(row.original.id, "Pending Follow-Up")}
           >
-            Send to collection
+            Set follow-up
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => onUpdateStatus(row.original.id, "For Reconciliation")}
-          >
-            Send to reconciliation
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onUpdateStatus(row.original.id, "Payout Hold")}>
-            Place payout hold
+          <DropdownMenuItem onClick={() => onUpdateStatus(row.original.id, "Escalated")}>
+            Escalate thread
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => onUpdateStatus(row.original.id, "Closed")}>
-            Mark closed
+            Close thread
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
