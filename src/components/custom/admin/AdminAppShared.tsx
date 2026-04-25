@@ -1,4 +1,3 @@
-
 import type { ReactNode } from "react";
 import {
   LayoutGridIcon,
@@ -110,38 +109,30 @@ export const navGroups: SidebarNavGroup[] = [
           { title: "Front Desk", path: "/admin/operations/frontdesk" },
           { title: "Housekeeping", path: "/admin/operations/housekeeping" },
           { title: "Maintenance", path: "/admin/operations/maintenance" },
-          { title: "Amenities & Services", path: "/admin/operations/amenities" },
+          {
+            title: "Amenities & Services",
+            path: "/admin/operations/amenities",
+          },
           { title: "Human Resources", path: "/admin/operations/hr" },
           { title: "Finance & Accounting", path: "/admin/operations/finance" },
-          { title: "Sales & Marketing", path: "/admin/operations/sales-marketing" },
+          {
+            title: "Sales & Marketing",
+            path: "/admin/operations/sales-marketing",
+          },
         ],
       },
-    ],
-  },
-
-  {
-    label: "Engagement",
-    items: [
       {
         title: "Communication",
         path: "#",
         icon: <MessageSquareIcon />,
         subItems: [
           { title: "Guest Messaging", path: "/admin/communications/messages" },
-          { title: "Notifications", path: "/admin/communications/notifications" },
+          {
+            title: "Notifications",
+            path: "/admin/communications/notifications",
+          },
           { title: "Email & SMS", path: "/admin/communications/email-sms" },
           { title: "Reviews & Ratings", path: "/admin/communications/reviews" },
-        ],
-      },
-      {
-        title: "Guest CRM",
-        path: "#",
-        icon: <UsersIcon />,
-        subItems: [
-          { title: "Guest Profiles", path: "/admin/crm" },
-          { title: "Stay History", path: "/admin/crm/history" },
-          { title: "Loyalty Programs", path: "/admin/crm/loyalty" },
-          { title: "Segments & Tags", path: "/admin/crm/segments" },
         ],
       },
     ],
@@ -208,8 +199,8 @@ export const footerNavLinks: SidebarNavItem[] = [
 export const navLinks: SidebarNavItem[] = [
   ...navGroups.flatMap((group) =>
     group.items.flatMap((item) =>
-      item.subItems?.length ? [item, ...item.subItems] : [item]
-    )
+      item.subItems?.length ? [item, ...item.subItems] : [item],
+    ),
   ),
   ...footerNavLinks,
 ];
