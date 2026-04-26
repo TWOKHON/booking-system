@@ -1,0 +1,138 @@
+export type OtaIntegrationRecord = {
+  id: string;
+  providerName: string;
+  channelType: "OTA" | "Metasearch" | "Channel Manager";
+  integrationStatus: "Active" | "Review" | "Sandbox" | "Paused";
+  syncHealth: "Healthy" | "Watch" | "Delayed";
+  mappedResorts: number;
+  reservationVolume: number;
+  syncWindow: string;
+  commissionModel: string;
+  assignedTo: string;
+  lastUpdated: string;
+  note: string;
+  priority: boolean;
+};
+
+export const otaIntegrationRecords: OtaIntegrationRecord[] = [
+  {
+    id: "OTA-8101",
+    providerName: "Booking.com",
+    channelType: "OTA",
+    integrationStatus: "Active",
+    syncHealth: "Healthy",
+    mappedResorts: 22,
+    reservationVolume: 1860,
+    syncWindow: "Every 5 minutes",
+    commissionModel: "15% standard OTA commission",
+    assignedTo: "Kara Mendoza",
+    lastUpdated: "7 mins ago",
+    note: "Primary OTA channel for multi-property inventory and reservation sync.",
+    priority: false,
+  },
+  {
+    id: "OTA-8102",
+    providerName: "Agoda",
+    channelType: "OTA",
+    integrationStatus: "Active",
+    syncHealth: "Watch",
+    mappedResorts: 18,
+    reservationVolume: 1240,
+    syncWindow: "Every 10 minutes",
+    commissionModel: "18% OTA commission tier",
+    assignedTo: "Liza Ong",
+    lastUpdated: "11 mins ago",
+    note: "Recent callback lag is affecting some same-day availability refreshes.",
+    priority: true,
+  },
+  {
+    id: "OTA-8103",
+    providerName: "Airbnb",
+    channelType: "OTA",
+    integrationStatus: "Review",
+    syncHealth: "Delayed",
+    mappedResorts: 9,
+    reservationVolume: 640,
+    syncWindow: "Delayed after last publish run",
+    commissionModel: "Host fee model",
+    assignedTo: "Mira Valdez",
+    lastUpdated: "4 mins ago",
+    note: "One villa group still has a delayed inventory push after remapping.",
+    priority: true,
+  },
+  {
+    id: "OTA-8104",
+    providerName: "Expedia",
+    channelType: "OTA",
+    integrationStatus: "Active",
+    syncHealth: "Healthy",
+    mappedResorts: 16,
+    reservationVolume: 970,
+    syncWindow: "Every 15 minutes",
+    commissionModel: "Negotiated enterprise rate",
+    assignedTo: "Noel Ramos",
+    lastUpdated: "15 mins ago",
+    note: "Stable reservation sync with no current inventory variance alerts.",
+    priority: false,
+  },
+  {
+    id: "OTA-8105",
+    providerName: "Trip.com",
+    channelType: "OTA",
+    integrationStatus: "Sandbox",
+    syncHealth: "Healthy",
+    mappedResorts: 0,
+    reservationVolume: 0,
+    syncWindow: "Sandbox validation",
+    commissionModel: "Pending contract terms",
+    assignedTo: "Janine Castro",
+    lastUpdated: "20 mins ago",
+    note: "Still in pre-production validation before enabling live listings.",
+    priority: false,
+  },
+  {
+    id: "OTA-8106",
+    providerName: "Google Hotel Ads",
+    channelType: "Metasearch",
+    integrationStatus: "Active",
+    syncHealth: "Healthy",
+    mappedResorts: 14,
+    reservationVolume: 410,
+    syncWindow: "Hourly feed refresh",
+    commissionModel: "Metasearch CPC model",
+    assignedTo: "Mina Torres",
+    lastUpdated: "16 mins ago",
+    note: "Metasearch feed is healthy and traffic attribution is within target.",
+    priority: false,
+  },
+  {
+    id: "OTA-8107",
+    providerName: "SiteMinder",
+    channelType: "Channel Manager",
+    integrationStatus: "Review",
+    syncHealth: "Watch",
+    mappedResorts: 12,
+    reservationVolume: 1520,
+    syncWindow: "Every 5 minutes",
+    commissionModel: "Platform connector fee",
+    assignedTo: "Aira Santos",
+    lastUpdated: "9 mins ago",
+    note: "Two room-type mappings still need correction after category changes.",
+    priority: true,
+  },
+  {
+    id: "OTA-8108",
+    providerName: "Traveloka",
+    channelType: "OTA",
+    integrationStatus: "Paused",
+    syncHealth: "Watch",
+    mappedResorts: 5,
+    reservationVolume: 150,
+    syncWindow: "Paused pending contract refresh",
+    commissionModel: "Regional OTA commission plan",
+    assignedTo: "Cleo Rivera",
+    lastUpdated: "28 mins ago",
+    note: "Temporarily paused while renewed channel agreement is being processed.",
+    priority: true,
+  },
+];
