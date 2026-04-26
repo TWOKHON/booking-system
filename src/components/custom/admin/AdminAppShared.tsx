@@ -161,6 +161,7 @@ export const navGroups: SidebarNavGroup[] = [
           { title: "OTA & Channels", path: "/admin/integrations/ota" },
           { title: "API Keys", path: "/admin/integrations/api-keys" },
           { title: "Webhooks", path: "/admin/integrations/webhooks" },
+          { title: "Worflow Automations", path: "/admin/integrations/workflow-automations" },
         ],
       },
       {
