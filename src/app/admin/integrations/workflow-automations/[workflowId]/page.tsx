@@ -1,9 +1,9 @@
+import { WorkflowEditor } from "@/components/custom/workflows/WorkflowEditor";
 import { TuroInsightCard } from "../../../dashboard/_components/TuroInsightCard";
 import {
   workflowAutomationRecords,
   workflowTemplates,
 } from "../_components/workflow-automation-data";
-import { WorkflowEditor } from "./_components/workflow-editor";
 
 type WorkflowPageProps = {
   params: Promise<{ workflowId: string }>;
@@ -21,10 +21,16 @@ const Page = async ({ params }: WorkflowPageProps) => {
       : `${template.title} is still being shaped, so review its trigger, branching logic, and downstream actions before moving it into active automation.`;
 
   return (
-    <div className="space-y-6">
-      <TuroInsightCard message={insightMessage} />
-      <WorkflowEditor workflow={workflow} workflowId={workflowId} />
-    </div>
+    // <div className="space-y-6">
+    //   <TuroInsightCard message={insightMessage} />
+    //   <main className="flex-1">
+    //     <WorkflowEditor workflowId={workflowId} />
+    //   </main>
+    // </div>
+
+    <main className="flex-1">
+      <WorkflowEditor workflowId={workflowId} />
+    </main>
   );
 };
 
