@@ -1,0 +1,138 @@
+export type ApiKeyRecord = {
+  id: string;
+  keyName: string;
+  provider: string;
+  keyType: "Secret Key" | "Publishable Key" | "Webhook Key" | "Sandbox Key";
+  environment: "Production" | "Sandbox";
+  accessScope: "Read" | "Write" | "Admin";
+  keyStatus: "Active" | "Review" | "Expiring" | "Revoked";
+  maskedKey: string;
+  rotationWindow: string;
+  assignedTo: string;
+  lastUsed: string;
+  note: string;
+  priority: boolean;
+};
+
+export const apiKeyRecords: ApiKeyRecord[] = [
+  {
+    id: "KEY-9101",
+    keyName: "Stripe production billing",
+    provider: "Stripe",
+    keyType: "Secret Key",
+    environment: "Production",
+    accessScope: "Write",
+    keyStatus: "Active",
+    maskedKey: "sk_live_••••••••••4k2m",
+    rotationWindow: "Rotate in 42 days",
+    assignedTo: "Kara Mendoza",
+    lastUsed: "4 mins ago",
+    note: "Primary production key used for subscription billing and recurring charges.",
+    priority: false,
+  },
+  {
+    id: "KEY-9102",
+    keyName: "PayMongo webhook verifier",
+    provider: "PayMongo",
+    keyType: "Webhook Key",
+    environment: "Production",
+    accessScope: "Read",
+    keyStatus: "Review",
+    maskedKey: "whsec_••••••••••u19x",
+    rotationWindow: "Review signature scope",
+    assignedTo: "Liza Ong",
+    lastUsed: "9 mins ago",
+    note: "Webhook secret is under review after the last callback verification issue.",
+    priority: true,
+  },
+  {
+    id: "KEY-9103",
+    keyName: "Booking.com channel writer",
+    provider: "Booking.com",
+    keyType: "Secret Key",
+    environment: "Production",
+    accessScope: "Write",
+    keyStatus: "Active",
+    maskedKey: "bk_prod_••••••••1c8q",
+    rotationWindow: "Rotate in 63 days",
+    assignedTo: "Mira Valdez",
+    lastUsed: "12 mins ago",
+    note: "Used for OTA rate, availability, and reservation sync operations.",
+    priority: false,
+  },
+  {
+    id: "KEY-9104",
+    keyName: "Agoda sandbox mapper",
+    provider: "Agoda",
+    keyType: "Sandbox Key",
+    environment: "Sandbox",
+    accessScope: "Admin",
+    keyStatus: "Review",
+    maskedKey: "ag_sbx_••••••••r72n",
+    rotationWindow: "Needs scope downgrade",
+    assignedTo: "Noel Ramos",
+    lastUsed: "26 mins ago",
+    note: "Sandbox key currently has admin scope and should be reduced before partner testing.",
+    priority: true,
+  },
+  {
+    id: "KEY-9105",
+    keyName: "GCash public checkout",
+    provider: "GCash",
+    keyType: "Publishable Key",
+    environment: "Production",
+    accessScope: "Read",
+    keyStatus: "Active",
+    maskedKey: "pk_live_••••••••6m0d",
+    rotationWindow: "Rotate in 78 days",
+    assignedTo: "Janine Castro",
+    lastUsed: "6 mins ago",
+    note: "Public client key used for front-end payment initiation and channel handoff.",
+    priority: false,
+  },
+  {
+    id: "KEY-9106",
+    keyName: "Airbnb partner token",
+    provider: "Airbnb",
+    keyType: "Secret Key",
+    environment: "Production",
+    accessScope: "Write",
+    keyStatus: "Expiring",
+    maskedKey: "abnb_••••••••9vx4",
+    rotationWindow: "Expires in 5 days",
+    assignedTo: "Mina Torres",
+    lastUsed: "14 mins ago",
+    note: "Partner token is nearing expiry and should be rotated before the next sync cycle.",
+    priority: true,
+  },
+  {
+    id: "KEY-9107",
+    keyName: "SiteMinder connector",
+    provider: "SiteMinder",
+    keyType: "Secret Key",
+    environment: "Production",
+    accessScope: "Admin",
+    keyStatus: "Active",
+    maskedKey: "sm_••••••••••5rtz",
+    rotationWindow: "Rotate in 31 days",
+    assignedTo: "Aira Santos",
+    lastUsed: "11 mins ago",
+    note: "Channel manager key with admin scope used for mapping and distribution controls.",
+    priority: false,
+  },
+  {
+    id: "KEY-9108",
+    keyName: "Legacy BDO callback key",
+    provider: "BDO",
+    keyType: "Webhook Key",
+    environment: "Production",
+    accessScope: "Read",
+    keyStatus: "Revoked",
+    maskedKey: "bdo_wh_••••••••3lq1",
+    rotationWindow: "Revoked last cycle",
+    assignedTo: "Cleo Rivera",
+    lastUsed: "2 days ago",
+    note: "Old callback secret revoked after credentials refresh was completed.",
+    priority: false,
+  },
+];
