@@ -171,7 +171,7 @@ export const notificationRecords: NotificationRecord[] = [
     resortName: "Blue Reef Escapes",
     tenantName: "Blue Reef Escapes",
     category: "Reservation Alert",
-    audienceType: "Lead",
+    audienceType: "Guest",
     channel: "Email",
     deliveryStatus: "Draft",
     priorityLevel: "Urgent",
