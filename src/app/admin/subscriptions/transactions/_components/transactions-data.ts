@@ -1,0 +1,173 @@
+export type TransactionRecord = {
+  id: string;
+  tenantName: string;
+  resortName: string;
+  transactionType:
+    | "Subscription Charge"
+    | "Payment Retry"
+    | "Refund"
+    | "Adjustment"
+    | "Manual Collection";
+  transactionStatus: "Processing" | "Successful" | "Failed" | "Refunded" | "Reversed";
+  paymentChannel: "Card" | "Bank Transfer" | "Auto Debit" | "Manual Entry";
+  referenceCode: string;
+  amount: number;
+  transactionDate: string;
+  settlementWindow: string;
+  assignedTo: string;
+  note: string;
+  priority: boolean;
+};
+
+export const transactionRecords: TransactionRecord[] = [
+  {
+    id: "TX-5101",
+    tenantName: "Alrio Hospitality Group",
+    resortName: "Alrio Resort Batangas",
+    transactionType: "Subscription Charge",
+    transactionStatus: "Successful",
+    paymentChannel: "Bank Transfer",
+    referenceCode: "ALR-APR-2026-01",
+    amount: 95880,
+    transactionDate: "Apr 26, 2026 09:15 AM",
+    settlementWindow: "Cleared today",
+    assignedTo: "Kara Mendoza",
+    note: "Annual enterprise renewal posted successfully to the tenant billing ledger.",
+    priority: false,
+  },
+  {
+    id: "TX-5102",
+    tenantName: "Azure Palms Hospitality",
+    resortName: "Azure Palms Resort",
+    transactionType: "Payment Retry",
+    transactionStatus: "Failed",
+    paymentChannel: "Card",
+    referenceCode: "AZP-RETRY-2204",
+    amount: 5999,
+    transactionDate: "Apr 26, 2026 08:48 AM",
+    settlementWindow: "Retry again before 6 PM",
+    assignedTo: "Liza Ong",
+    note: "Third retry attempt failed due to insufficient card authorization.",
+    priority: true,
+  },
+  {
+    id: "TX-5103",
+    tenantName: "Casa Verde Leisure",
+    resortName: "Casa Verde Private Villas",
+    transactionType: "Manual Collection",
+    transactionStatus: "Processing",
+    paymentChannel: "Bank Transfer",
+    referenceCode: "CVL-MAN-0426",
+    amount: 12000,
+    transactionDate: "Apr 26, 2026 10:05 AM",
+    settlementWindow: "Pending posting confirmation",
+    assignedTo: "Mira Valdez",
+    note: "Manual collection received for onboarding invoice and awaiting finance confirmation.",
+    priority: false,
+  },
+  {
+    id: "TX-5104",
+    tenantName: "Blue Reef Escapes",
+    resortName: "Blue Reef Escapes",
+    transactionType: "Subscription Charge",
+    transactionStatus: "Successful",
+    paymentChannel: "Card",
+    referenceCode: "BRE-SUB-0405",
+    amount: 2499,
+    transactionDate: "Apr 25, 2026 04:12 PM",
+    settlementWindow: "Captured yesterday",
+    assignedTo: "Janine Castro",
+    note: "Recurring monthly starter subscription collected through stored card.",
+    priority: false,
+  },
+  {
+    id: "TX-5105",
+    tenantName: "Coral Peak Resorts",
+    resortName: "Coral Peak Resorts",
+    transactionType: "Adjustment",
+    transactionStatus: "Processing",
+    paymentChannel: "Manual Entry",
+    referenceCode: "CPR-ADJ-118",
+    amount: 3500,
+    transactionDate: "Apr 26, 2026 11:02 AM",
+    settlementWindow: "Needs adjustment approval",
+    assignedTo: "Mina Torres",
+    note: "SMS overage charge is being adjusted before final posting.",
+    priority: true,
+  },
+  {
+    id: "TX-5106",
+    tenantName: "Bayfront Hideaway",
+    resortName: "Bayfront Hideaway",
+    transactionType: "Payment Retry",
+    transactionStatus: "Failed",
+    paymentChannel: "Card",
+    referenceCode: "BHF-RETRY-0418",
+    amount: 2499,
+    transactionDate: "Apr 26, 2026 07:55 AM",
+    settlementWindow: "Awaiting updated billing method",
+    assignedTo: "Noel Ramos",
+    note: "Retry remains blocked while the tenant updates card details.",
+    priority: true,
+  },
+  {
+    id: "TX-5107",
+    tenantName: "Isla Jardin Retreats",
+    resortName: "Isla Jardin Suites",
+    transactionType: "Refund",
+    transactionStatus: "Refunded",
+    paymentChannel: "Auto Debit",
+    referenceCode: "IJR-RFD-2026-02",
+    amount: 4800,
+    transactionDate: "Apr 25, 2026 01:30 PM",
+    settlementWindow: "Refund closed",
+    assignedTo: "Rica Flores",
+    note: "Partial service credit refunded after subscription plan correction.",
+    priority: false,
+  },
+  {
+    id: "TX-5108",
+    tenantName: "Peak Wellness Collection",
+    resortName: "Peak Wellness Suites",
+    transactionType: "Manual Collection",
+    transactionStatus: "Successful",
+    paymentChannel: "Bank Transfer",
+    referenceCode: "PWC-SUP-0425",
+    amount: 8900,
+    transactionDate: "Apr 25, 2026 03:41 PM",
+    settlementWindow: "Posted today",
+    assignedTo: "Mina Torres",
+    note: "Support uplift invoice settled by manual remittance.",
+    priority: false,
+  },
+  {
+    id: "TX-5109",
+    tenantName: "Suncrest Cove Hospitality",
+    resortName: "Suncrest Cove Villas",
+    transactionType: "Subscription Charge",
+    transactionStatus: "Processing",
+    paymentChannel: "Card",
+    referenceCode: "SCH-SUB-0503",
+    amount: 2499,
+    transactionDate: "Apr 26, 2026 11:18 AM",
+    settlementWindow: "Queued for next billing run",
+    assignedTo: "Aira Santos",
+    note: "Upcoming recurring charge generated and waiting gateway capture.",
+    priority: false,
+  },
+  {
+    id: "TX-5110",
+    tenantName: "Verde Haven Resorts",
+    resortName: "Verde Haven Residences",
+    transactionType: "Refund",
+    transactionStatus: "Reversed",
+    paymentChannel: "Bank Transfer",
+    referenceCode: "VHR-RVS-102",
+    amount: 14500,
+    transactionDate: "Apr 26, 2026 09:52 AM",
+    settlementWindow: "Review before close",
+    assignedTo: "Cleo Rivera",
+    note: "Refund instruction was reversed after invoice dispute was cleared.",
+    priority: true,
+  },
+];
