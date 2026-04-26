@@ -3,13 +3,24 @@
 
 import * as React from "react";
 import {
-  BadgeCheck,
-  CircleDollarSign,
-  Crown,
-  Plus,
-  Sparkles,
-  Trash2,
-} from "lucide-react";
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { Grip, HelpCircle, OctagonAlertIcon, Plus, Trash2 } from "lucide-react";
+import { Hint } from "@/components/custom/Hint";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,10 +32,9 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 type PlanForm = {
   id: string;
@@ -32,6 +42,7 @@ type PlanForm = {
   key: string;
   description: string;
   monthlyBaseFee: string;
+  hasAnnualBaseFee: boolean;
   annualBaseFee: string;
   features: string[];
   isRecommended: boolean;
@@ -54,6 +65,7 @@ const createEmptyPlan = (title = "New Plan"): PlanForm => ({
   key: createSlug(title),
   description: "",
   monthlyBaseFee: "",
+  hasAnnualBaseFee: false,
   annualBaseFee: "",
   features: [""],
   isRecommended: false,
@@ -70,6 +82,7 @@ const initialPlans: PlanForm[] = [
     description:
       "For single-property resort teams that need a reliable reservations, room inventory, and guest operations workspace to start selling and managing daily stays.",
     monthlyBaseFee: "2499",
+    hasAnnualBaseFee: true,
     annualBaseFee: "24990",
     features: [
       "1 resort workspace",
@@ -89,6 +102,7 @@ const initialPlans: PlanForm[] = [
     description:
       "For expanding resort operators that need stronger operational coverage, analytics visibility, and more staff access across multiple departments.",
     monthlyBaseFee: "5999",
+    hasAnnualBaseFee: true,
     annualBaseFee: "59990",
     features: [
       "Up to 3 resort workspaces",
@@ -115,20 +129,102 @@ const formatCurrency = (value: string) => {
   }).format(numericValue);
 };
 
+type SortableFeatureRowProps = {
+  featureId: string;
+  feature: string;
+  index: number;
+  onFeatureChange: (value: string) => void;
+  onRemove: () => void;
+};
+
+const SortableFeatureRow = ({
+  featureId,
+  feature,
+  index,
+  onFeatureChange,
+  onRemove,
+}: SortableFeatureRowProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: featureId });
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
+      className={cn(
+        "flex gap-2",
+        isDragging && "z-10 rounded-xl bg-background/95 shadow-lg",
+      )}
+    >
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="cursor-grab active:cursor-grabbing"
+        {...attributes}
+        {...listeners}
+      >
+        <Grip className="size-4" />
+      </Button>
+      <Input
+        value={feature}
+        onChange={(event) => onFeatureChange(event.target.value)}
+        placeholder={`Feature ${index + 1}`}
+      />
+      <Button
+        type="button"
+        variant="destructive"
+        size="icon-sm"
+        onClick={onRemove}
+      >
+        <Trash2 className="size-4" />
+      </Button>
+    </div>
+  );
+};
+
 export const PlansBuilder = () => {
   const [plans, setPlans] = React.useState<PlanForm[]>(initialPlans);
-  const [selectedPlanId, setSelectedPlanId] = React.useState(initialPlans[0].id);
+  const [selectedPlanId, setSelectedPlanId] = React.useState(
+    initialPlans[0].id,
+  );
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 6 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
 
   const selectedPlan =
     plans.find((plan) => plan.id === selectedPlanId) ?? plans[0] ?? null;
+  const selectedMonthlyBaseFee = Number(selectedPlan?.monthlyBaseFee ?? "");
+  const selectedAnnualBaseFee = Number(selectedPlan?.annualBaseFee ?? "");
+  const selectedAnnualYearlyTotal =
+    selectedAnnualBaseFee > 0 ? selectedAnnualBaseFee * 12 : null;
+  const hasInvalidAnnualMonthlyEquivalent =
+    !!selectedPlan?.hasAnnualBaseFee &&
+    selectedMonthlyBaseFee > 0 &&
+    selectedAnnualBaseFee > selectedMonthlyBaseFee;
 
   const updatePlan = React.useCallback(
     (planId: string, updater: (plan: PlanForm) => PlanForm) => {
       setPlans((current) =>
-        current.map((plan) => (plan.id === planId ? updater(plan) : plan))
+        current.map((plan) => (plan.id === planId ? updater(plan) : plan)),
       );
     },
-    []
+    [],
   );
 
   const handleTitleChange = React.useCallback(
@@ -139,14 +235,18 @@ export const PlansBuilder = () => {
         key: createSlug(title),
       }));
     },
-    [updatePlan]
+    [updatePlan],
   );
 
   const handleFieldChange = React.useCallback(
-    <K extends keyof PlanForm>(planId: string, field: K, value: PlanForm[K]) => {
+    <K extends keyof PlanForm>(
+      planId: string,
+      field: K,
+      value: PlanForm[K],
+    ) => {
       updatePlan(planId, (plan) => ({ ...plan, [field]: value }));
     },
-    [updatePlan]
+    [updatePlan],
   );
 
   const handleFeatureChange = React.useCallback(
@@ -154,11 +254,11 @@ export const PlansBuilder = () => {
       updatePlan(planId, (plan) => ({
         ...plan,
         features: plan.features.map((feature, index) =>
-          index === featureIndex ? value : feature
+          index === featureIndex ? value : feature,
         ),
       }));
     },
-    [updatePlan]
+    [updatePlan],
   );
 
   const addFeature = React.useCallback(
@@ -168,7 +268,7 @@ export const PlansBuilder = () => {
         features: [...plan.features, ""],
       }));
     },
-    [updatePlan]
+    [updatePlan],
   );
 
   const removeFeature = React.useCallback(
@@ -181,7 +281,35 @@ export const PlansBuilder = () => {
             : plan.features.filter((_, index) => index !== featureIndex),
       }));
     },
-    [updatePlan]
+    [updatePlan],
+  );
+
+  const reorderFeatures = React.useCallback(
+    (planId: string, activeIndex: number, overIndex: number) => {
+      if (activeIndex === overIndex) return;
+
+      updatePlan(planId, (plan) => ({
+        ...plan,
+        features: arrayMove(plan.features, activeIndex, overIndex),
+      }));
+    },
+    [updatePlan],
+  );
+
+  const handleFeatureDragEnd = React.useCallback(
+    (planId: string, event: DragEndEvent) => {
+      const { active, over } = event;
+
+      if (!over || active.id === over.id) return;
+
+      const activeIndex = Number(String(active.id).split("-").at(-1));
+      const overIndex = Number(String(over.id).split("-").at(-1));
+
+      if (Number.isNaN(activeIndex) || Number.isNaN(overIndex)) return;
+
+      reorderFeatures(planId, activeIndex, overIndex);
+    },
+    [reorderFeatures],
   );
 
   const addPlan = React.useCallback(() => {
@@ -201,354 +329,59 @@ export const PlansBuilder = () => {
         setSelectedPlanId(nextPlans[0].id);
       }
     },
-    [plans, selectedPlanId]
+    [plans, selectedPlanId],
   );
 
   if (!selectedPlan) return null;
 
   return (
-    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[280px_minmax(0,1fr)_360px]">
-      <Card className="border bg-white shadow-sm dark:bg-neutral-900">
-        <CardHeader className="pb-3">
-          <CardTitle>Plans Array</CardTitle>
-          <CardDescription>
-            Create and manage multiple SaaS plans for tenant subscriptions.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Button onClick={addPlan} className="w-full">
-            <Plus className="size-4" />
-            Add plan
-          </Button>
-
-          <div className="space-y-3">
-            {plans.map((plan) => (
-              <button
-                key={plan.id}
-                type="button"
-                onClick={() => setSelectedPlanId(plan.id)}
-                className={`w-full rounded-2xl border p-4 text-left transition ${
-                  selectedPlanId === plan.id
-                    ? "border-primary bg-primary/5"
-                    : "border-border bg-background hover:bg-muted/40"
-                }`}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium">{plan.title || "Untitled plan"}</p>
-                      {plan.isRecommended ? (
-                        <Badge variant="outline" className="bg-amber-100 text-amber-700">
-                          Recommended
-                        </Badge>
-                      ) : null}
-                    </div>
-                    <p className="text-xs text-muted-foreground">{plan.key || "no-key"}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatCurrency(plan.monthlyBaseFee)} monthly
-                    </p>
-                  </div>
-
-                  <Badge
-                    variant="outline"
-                    className={
-                      plan.isActive
-                        ? "bg-emerald-100 text-emerald-700"
-                        : "bg-slate-100 text-slate-700"
-                    }
-                  >
-                    {plan.isActive ? "Active" : "Inactive"}
-                  </Badge>
-                </div>
-              </button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="space-y-6">
-        <Card className="border bg-white shadow-sm dark:bg-neutral-900">
-          <CardHeader>
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <CardTitle>Basic Information</CardTitle>
-                <CardDescription>
-                  Manage plan details for the selected subscription offer.
-                </CardDescription>
-              </div>
-
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => removePlan(selectedPlan.id)}
-                disabled={plans.length === 1}
-              >
-                <Trash2 className="size-4" />
-                Remove
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="plan-title">Title</Label>
-                <Input
-                  id="plan-title"
-                  value={selectedPlan.title}
-                  onChange={(event) =>
-                    handleTitleChange(selectedPlan.id, event.target.value)
-                  }
-                  placeholder="Enter plan title"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="plan-key">Key</Label>
-                <Input
-                  id="plan-key"
-                  value={selectedPlan.key}
-                  readOnly
-                  className="bg-muted/50"
-                  placeholder="Auto-generated key"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <Label htmlFor="plan-description">Description</Label>
-                <span className="text-xs text-muted-foreground">
-                  {selectedPlan.description.length}/500
-                </span>
-              </div>
-              <Textarea
-                id="plan-description"
-                value={selectedPlan.description}
-                maxLength={500}
-                onChange={(event) =>
-                  handleFieldChange(
-                    selectedPlan.id,
-                    "description",
-                    event.target.value
-                  )
-                }
-                placeholder="Describe the target customer, operational value, and overall fit of this plan."
-                className="min-h-32 resize-none"
-              />
-            </div>
-
-            <Separator />
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="monthly-fee">Monthly Base Fee</Label>
-                <Input
-                  id="monthly-fee"
-                  type="number"
-                  min="0"
-                  value={selectedPlan.monthlyBaseFee}
-                  onChange={(event) =>
-                    handleFieldChange(
-                      selectedPlan.id,
-                      "monthlyBaseFee",
-                      event.target.value
-                    )
-                  }
-                  placeholder="0.00"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="annual-fee">Annual Base Fee</Label>
-                <Input
-                  id="annual-fee"
-                  type="number"
-                  min="0"
-                  value={selectedPlan.annualBaseFee}
-                  onChange={(event) =>
-                    handleFieldChange(
-                      selectedPlan.id,
-                      "annualBaseFee",
-                      event.target.value
-                    )
-                  }
-                  placeholder="0.00"
-                />
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="font-medium">Inclusions and Features</p>
-                  <p className="text-sm text-muted-foreground">
-                    Add the capabilities that tenants will receive under this plan.
-                  </p>
-                </div>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addFeature(selectedPlan.id)}
-                >
-                  <Plus className="size-4" />
-                  Add feature
-                </Button>
-              </div>
-
-              <div className="space-y-3">
-                {selectedPlan.features.map((feature, index) => (
-                  <div key={`${selectedPlan.id}-feature-${index}`} className="flex gap-2">
-                    <Input
-                      value={feature}
-                      onChange={(event) =>
-                        handleFeatureChange(selectedPlan.id, index, event.target.value)
-                      }
-                      placeholder={`Feature ${index + 1}`}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon-sm"
-                      onClick={() => removeFeature(selectedPlan.id, index)}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <ToggleBlock
-                title="Recommended Plan"
-                description="Highlight this plan as the preferred option in the subscription showcase."
-                checked={selectedPlan.isRecommended}
-                onCheckedChange={(checked) =>
-                  handleFieldChange(selectedPlan.id, "isRecommended", checked)
-                }
-              />
-
-              <ToggleBlock
-                title="Active Plan"
-                description="Control whether this plan is available for tenant subscription and upgrades."
-                checked={selectedPlan.isActive}
-                onCheckedChange={(checked) =>
-                  handleFieldChange(selectedPlan.id, "isActive", checked)
-                }
-              />
-            </div>
-
-            <Separator />
-
-            <div className="space-y-4">
-              <ToggleBlock
-                title="Free Trial"
-                description="Enable a trial period before recurring billing begins for this plan."
-                checked={selectedPlan.hasFreeTrial}
-                onCheckedChange={(checked) => {
-                  handleFieldChange(selectedPlan.id, "hasFreeTrial", checked);
-                  if (!checked) {
-                    handleFieldChange(selectedPlan.id, "freeTrialDays", "");
-                  }
-                }}
-              />
-
-              <div className="max-w-xs space-y-2">
-                <Label htmlFor="trial-days">Trial Days</Label>
-                <Input
-                  id="trial-days"
-                  type="number"
-                  min="1"
-                  disabled={!selectedPlan.hasFreeTrial}
-                  value={selectedPlan.freeTrialDays}
-                  onChange={(event) =>
-                    handleFieldChange(
-                      selectedPlan.id,
-                      "freeTrialDays",
-                      event.target.value
-                    )
-                  }
-                  placeholder="0"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border bg-white shadow-sm dark:bg-neutral-900">
-          <CardHeader>
-            <CardTitle>Plan Notes</CardTitle>
+    <div>
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
+        <Card className="h-fit border bg-white shadow-sm dark:bg-neutral-900 lg:col-span-2">
+          <CardHeader className="pb-3">
+            <CardTitle>Subscription Plans</CardTitle>
             <CardDescription>
-              Use this workspace to shape pricing tiers before wiring them to billing or tenant onboarding flows.
+              Create and manage multiple SaaS plans for tenant subscriptions.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-wrap items-center gap-3">
-            <Button type="button">Save Plan Set</Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setPlans(initialPlans);
-                setSelectedPlanId(initialPlans[0].id);
-              }}
-            >
-              Reset Draft
+          <CardContent className="space-y-4">
+            <Button onClick={addPlan} className="w-full">
+              <Plus className="size-4" />
+              Add plan
             </Button>
-            <Badge variant="outline" className="bg-blue-100 text-blue-700">
-              {plans.length} plan{plans.length > 1 ? "s" : ""} in draft
-            </Badge>
-          </CardContent>
-        </Card>
-      </div>
 
-      <Card className="border bg-white shadow-sm dark:bg-neutral-900 xl:sticky xl:top-6 xl:self-start">
-        <CardHeader>
-          <CardTitle>Plans Preview</CardTitle>
-          <CardDescription>
-            Live preview of how your SaaS subscription offers are shaping up.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <ScrollArea className="h-[840px] pr-3">
-            <div className="space-y-4">
+            <div className="space-y-3">
               {plans.map((plan) => (
-                <div
+                <button
                   key={plan.id}
-                  className={`rounded-3xl border p-5 ${
-                    plan.id === selectedPlanId
+                  type="button"
+                  onClick={() => setSelectedPlanId(plan.id)}
+                  className={`w-full rounded-2xl border p-4 text-left transition ${
+                    selectedPlanId === plan.id
                       ? "border-primary bg-primary/5"
-                      : "border-border bg-background"
+                      : "border-border bg-background hover:bg-muted/40"
                   }`}
                 >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="space-y-2">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-lg font-semibold">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium">
                           {plan.title || "Untitled plan"}
                         </p>
                         {plan.isRecommended ? (
-                          <Badge className="bg-amber-100 text-amber-700" variant="outline">
-                            <Crown className="mr-1 size-3.5" />
+                          <Badge
+                            variant="outline"
+                            className="bg-amber-100 text-amber-700"
+                          >
                             Recommended
                           </Badge>
                         ) : null}
-                        {plan.hasFreeTrial ? (
-                          <Badge className="bg-blue-100 text-blue-700" variant="outline">
-                            <Sparkles className="mr-1 size-3.5" />
-                            {plan.freeTrialDays || "0"} day trial
-                          </Badge>
-                        ) : null}
                       </div>
-
-                      <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {plan.key || "no-key"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatCurrency(plan.monthlyBaseFee)} monthly
                       </p>
                     </div>
 
@@ -563,82 +396,373 @@ export const PlansBuilder = () => {
                       {plan.isActive ? "Active" : "Inactive"}
                     </Badge>
                   </div>
-
-                  <div className="mt-4 grid gap-3 rounded-2xl bg-muted/40 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <p className="text-xs text-muted-foreground">Monthly</p>
-                        <p className="text-xl font-semibold">
-                          {formatCurrency(plan.monthlyBaseFee)}
-                        </p>
-                      </div>
-                      <CircleDollarSign className="size-5 text-muted-foreground" />
-                    </div>
-
-                    <div>
-                      <p className="text-xs text-muted-foreground">Annual</p>
-                      <p className="text-base font-medium">
-                        {formatCurrency(plan.annualBaseFee)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <p className="mt-4 text-sm text-muted-foreground">
-                    {plan.description || "No description added yet."}
-                  </p>
-
-                  <div className="mt-4 space-y-2">
-                    <p className="text-sm font-medium">Included Features</p>
-                    <div className="space-y-2">
-                      {plan.features.filter(Boolean).length > 0 ? (
-                        plan.features
-                          .filter((feature) => feature.trim().length > 0)
-                          .map((feature, index) => (
-                            <div key={`${plan.id}-preview-feature-${index}`} className="flex gap-2">
-                              <BadgeCheck className="mt-0.5 size-4 text-emerald-600" />
-                              <p className="text-sm">{feature}</p>
-                            </div>
-                          ))
-                      ) : (
-                        <p className="text-sm text-muted-foreground">
-                          No features added yet.
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                </button>
               ))}
             </div>
-          </ScrollArea>
+          </CardContent>
+        </Card>
+
+        <div className="space-y-5 lg:col-span-3">
+          <Card className="border bg-white shadow-sm dark:bg-neutral-900">
+            <CardHeader>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <CardTitle>Basic Information</CardTitle>
+                  <CardDescription>
+                    Manage plan details for the selected subscription offer.
+                  </CardDescription>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => removePlan(selectedPlan.id)}
+                  disabled={plans.length === 1}
+                >
+                  <Trash2 className="size-4" />
+                  Remove
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="plan-title">Title</Label>
+                  <Input
+                    id="plan-title"
+                    value={selectedPlan.title}
+                    onChange={(event) =>
+                      handleTitleChange(selectedPlan.id, event.target.value)
+                    }
+                    placeholder="Enter plan title"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="plan-key">
+                    Key{" "}
+                    <Hint
+                      triggerChildren={<HelpCircle className="size-3" />}
+                      contentChildren={
+                        <p>Use this in your workspace as a unique ID</p>
+                      }
+                    ></Hint>
+                  </Label>
+                  <Input
+                    id="plan-key"
+                    value={selectedPlan.key}
+                    readOnly
+                    className="bg-muted/50"
+                    placeholder="Auto-generated key"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <Label htmlFor="plan-description">Description</Label>
+                  <span className="text-xs text-muted-foreground">
+                    {selectedPlan.description.length}/500
+                  </span>
+                </div>
+                <Textarea
+                  id="plan-description"
+                  value={selectedPlan.description}
+                  maxLength={500}
+                  onChange={(event) =>
+                    handleFieldChange(
+                      selectedPlan.id,
+                      "description",
+                      event.target.value,
+                    )
+                  }
+                  placeholder="Describe the target customer, operational value, and overall fit of this plan."
+                  className="min-h-32 resize-none"
+                />
+              </div>
+
+              <div className="flex items-start gap-2">
+                <Switch
+                  checked={selectedPlan.hasFreeTrial}
+                  onCheckedChange={(checked) => {
+                    handleFieldChange(selectedPlan.id, "hasFreeTrial", checked);
+                    if (!checked) {
+                      handleFieldChange(selectedPlan.id, "freeTrialDays", "");
+                    }
+                  }}
+                  className="mt-1"
+                />
+
+                <div>
+                  <h2 className="font-medium">Free trial</h2>
+                  <p className="mb-1.5 text-xs text-muted-foreground">
+                    Enable a trial period before recurring billing begins for
+                    this plan.
+                  </p>
+                  <div className="relative">
+                    <Input
+                      id="trial-days"
+                      min="1"
+                      disabled={!selectedPlan.hasFreeTrial}
+                      value={selectedPlan.freeTrialDays}
+                      onChange={(event) =>
+                        handleFieldChange(
+                          selectedPlan.id,
+                          "freeTrialDays",
+                          event.target.value,
+                        )
+                      }
+                      placeholder="0"
+                    />
+                    <span className="absolute inset-y-0 right-3 mt-2 rounded-l-none text-xs text-muted-foreground hover:bg-transparent focus-visible:ring-ring/50">
+                      days
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2">
+                <Switch
+                  checked={selectedPlan.isActive}
+                  onCheckedChange={(checked) =>
+                    handleFieldChange(selectedPlan.id, "isActive", checked)
+                  }
+                  className="mt-1"
+                />
+
+                <div>
+                  <h2 className="font-medium">Publicly available</h2>
+                  <p className="mb-1.5 text-xs text-muted-foreground">
+                    Control whether this plan is available for tenant
+                    subscription and upgrades.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2">
+                <Switch
+                  checked={selectedPlan.isRecommended}
+                  onCheckedChange={(checked) =>
+                    handleFieldChange(selectedPlan.id, "isRecommended", checked)
+                  }
+                  className="mt-1"
+                />
+
+                <div>
+                  <h2 className="font-medium">Recommended plan</h2>
+                  <p className="mb-1.5 text-xs text-muted-foreground">
+                    Highlight this plan as the preferred option in the
+                    subscription showcase.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border bg-white shadow-sm dark:bg-neutral-900">
+            <CardHeader>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <CardTitle>Pricing Details</CardTitle>
+                  <CardDescription>
+                    Manage pricing and limits for this plan.
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-start gap-2">
+                <Switch checked={true} disabled className="mt-1" />
+
+                <div>
+                  <h2 className="font-medium">Monthly base fee</h2>
+                  <p className="mb-1.5 text-xs text-muted-foreground">
+                    A fixed amount charged every month when subscribed on a
+                    monthly basis
+                  </p>
+                  <div className="relative">
+                    <Input
+                      id="monthly-fee"
+                      type="number"
+                      min="0"
+                      value={selectedPlan.monthlyBaseFee}
+                      onChange={(event) =>
+                        handleFieldChange(
+                          selectedPlan.id,
+                          "monthlyBaseFee",
+                          event.target.value,
+                        )
+                      }
+                      placeholder="0.00"
+                      className="pl-7"
+                    />
+                    <span className="absolute inset-y-0 left-3 mt-1.5 rounded-l-none text-sm text-muted-foreground hover:bg-transparent focus-visible:ring-ring/50">
+                      ₱
+                    </span>
+                  </div>
+                  <div className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
+                    <OctagonAlertIcon className="size-3" />
+                    Customers will be charged in PHP PESO.
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2">
+                <Switch
+                  checked={selectedPlan.hasAnnualBaseFee}
+                  onCheckedChange={(checked) =>
+                    handleFieldChange(
+                      selectedPlan.id,
+                      "hasAnnualBaseFee",
+                      checked,
+                    )
+                  }
+                  className="mt-1"
+                />
+
+                <div>
+                  <h2 className="font-medium">Annual base fee</h2>
+                  <p className="mb-1.5 text-xs text-muted-foreground">
+                    A fixed amount charged every year when subscribed on an
+                    annual basis
+                  </p>
+
+                  {selectedPlan.hasAnnualBaseFee && (
+                    <>
+                      <div className="relative">
+                        <Input
+                          id="annual-fee"
+                          type="number"
+                          min="0"
+                          value={selectedPlan.annualBaseFee}
+                          onChange={(event) =>
+                            handleFieldChange(
+                              selectedPlan.id,
+                              "annualBaseFee",
+                              event.target.value,
+                            )
+                          }
+                          placeholder="0.00"
+                          className={cn(
+                            "pl-7",
+                            hasInvalidAnnualMonthlyEquivalent &&
+                              "border-destructive focus-visible:ring-destructive/30",
+                          )}
+                        />
+                        <span className="absolute inset-y-0 left-3 mt-1.5 rounded-l-none text-sm text-muted-foreground hover:bg-transparent focus-visible:ring-ring/50">
+                          ₱
+                        </span>
+                      </div>
+                      <div
+                        className={cn(
+                          "mt-1.5 flex items-center gap-1 text-xs text-muted-foreground",
+                          hasInvalidAnnualMonthlyEquivalent &&
+                            "text-destructive",
+                        )}
+                      >
+                        <OctagonAlertIcon className="size-3 shrink-0" />
+                        {selectedAnnualBaseFee > 0 &&
+                        selectedAnnualYearlyTotal !== null
+                          ? `${formatCurrency(selectedPlan.annualBaseFee)} per month x 12 = ${formatCurrency(selectedAnnualYearlyTotal.toFixed(2))} per year.`
+                          : "Enter the monthly equivalent for annual billing and the yearly charge will be computed automatically."}
+                      </div>
+                      {hasInvalidAnnualMonthlyEquivalent ? (
+                        <p className="mt-1 text-xs text-destructive">
+                          The annual monthly base fee must be equal to or less
+                          than the monthly base fee.
+                        </p>
+                      ) : null}
+                    </>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border bg-white shadow-sm dark:bg-neutral-900">
+            <CardHeader>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <CardTitle>Inclusions and features</CardTitle>
+                  <CardDescription>
+                    Add the capabilities that tenants will receive under this
+                    plan.
+                  </CardDescription>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addFeature(selectedPlan.id)}
+                >
+                  <Plus className="size-4" />
+                  Add feature
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={(event) =>
+                  handleFeatureDragEnd(selectedPlan.id, event)
+                }
+              >
+                <SortableContext
+                  items={selectedPlan.features.map(
+                    (_, index) => `${selectedPlan.id}-feature-${index}`,
+                  )}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-3">
+                    {selectedPlan.features.map((feature, index) => (
+                      <SortableFeatureRow
+                        key={`${selectedPlan.id}-feature-${index}`}
+                        featureId={`${selectedPlan.id}-feature-${index}`}
+                        feature={feature}
+                        index={index}
+                        onFeatureChange={(value) =>
+                          handleFeatureChange(selectedPlan.id, index, value)
+                        }
+                        onRemove={() => removeFeature(selectedPlan.id, index)}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      <Card className="sticky bottom-0 isolate bg-background py-4 after:pointer-events-none after:absolute after:bottom-full after:-z-10 after:h-10 after:w-full after:bg-linear-to-t after:from-background after:to-transparent">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <CardTitle>Plan Notes</CardTitle>
+            <Badge variant="outline" className="bg-blue-100 text-blue-700">
+              {plans.length} plan{plans.length > 1 ? "s" : ""} in draft
+            </Badge>
+          </div>
+          <CardDescription>
+            Use this workspace to shape pricing tiers before wiring them to
+            billing or tenant onboarding flows.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-wrap items-center gap-3">
+          <Button type="button">Save Plan Set</Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              setPlans(initialPlans);
+              setSelectedPlanId(initialPlans[0].id);
+            }}
+          >
+            Reset Draft
+          </Button>
         </CardContent>
       </Card>
-    </div>
-  );
-};
-
-type ToggleBlockProps = {
-  title: string;
-  description: string;
-  checked: boolean;
-  onCheckedChange: (checked: boolean) => void;
-};
-
-const ToggleBlock = ({
-  title,
-  description,
-  checked,
-  onCheckedChange,
-}: ToggleBlockProps) => {
-  return (
-    <div className="rounded-2xl border bg-muted/20 p-4">
-      <div className="flex items-start justify-between gap-4">
-        <div className="space-y-1">
-          <p className="font-medium">{title}</p>
-          <p className="text-sm text-muted-foreground">{description}</p>
-        </div>
-
-        <Switch checked={checked} onCheckedChange={onCheckedChange} />
-      </div>
     </div>
   );
 };
