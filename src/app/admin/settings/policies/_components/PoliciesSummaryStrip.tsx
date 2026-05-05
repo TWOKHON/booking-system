@@ -1,14 +1,16 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import type { RolesMetric } from "./roles-data";
+import type { PolicyMetric } from "./policies-data";
 
-type RolesSummaryStripProps = {
-  items: RolesMetric[];
+type PoliciesSummaryStripProps = {
+  items: PolicyMetric[];
 };
 
-export const RolesSummaryStrip = ({ items }: RolesSummaryStripProps) => {
+export const PoliciesSummaryStrip = ({
+  items,
+}: PoliciesSummaryStripProps) => {
   return (
-    <Card className="gap-0 overflow-hidden py-0">
+    <Card className="gap-0 overflow-hidden">
       <CardContent className="grid grid-cols-1 px-0 py-0 sm:grid-cols-2 xl:grid-cols-4">
         {items.map((item, index) => {
           const Icon = item.icon;

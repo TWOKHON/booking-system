@@ -1,4 +1,4 @@
-import { Heading } from "@/components/custom/Heading";
+import { TuroInsightCard } from "@/app/admin/dashboard/_components/TuroInsightCard";
 import { RolesSidePanel } from "./RolesSidePanel";
 import { RolesSummaryStrip } from "./RolesSummaryStrip";
 import { RolesWorkspace } from "./RolesWorkspace";
@@ -13,14 +13,9 @@ import {
 export const RolesAccessView = () => {
   return (
     <div className="space-y-5">
-      <div className="space-y-4">
-        <Heading
-          title="User Roles & Access"
-          description="Manage role templates, permission coverage, and approval guardrails so tenant and platform teams have the right level of access without expanding risk."
-        />
+      <TuroInsightCard message="Access controls are in a stable state today, but three privileged accounts and four pending MFA enrollments should be reviewed before the next audit window." />
 
-        <RolesSummaryStrip items={rolesMetrics} />
-      </div>
+      <RolesSummaryStrip items={rolesMetrics} />
 
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0">
@@ -31,7 +26,7 @@ export const RolesAccessView = () => {
           />
         </div>
 
-        <div className="min-w-0">
+        <div className="min-w-0 xl:pt-1">
           <RolesSidePanel reviewQueue={reviewQueue} />
         </div>
       </div>

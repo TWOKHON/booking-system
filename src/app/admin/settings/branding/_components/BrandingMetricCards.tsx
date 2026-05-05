@@ -32,7 +32,7 @@ export const BrandingMetricCards = ({ items }: BrandingMetricCardsProps) => {
               </div>
 
               <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                <p className="text-[11px] font-medium uppercase text-muted-foreground">
                   {item.title}
                 </p>
                 <p className="mt-2 text-base font-semibold leading-tight">

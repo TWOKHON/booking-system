@@ -1,4 +1,4 @@
-import { Heading } from "@/components/custom/Heading";
+import { TuroInsightCard } from "@/app/admin/dashboard/_components/TuroInsightCard";
 import { BrandingMetricCards } from "./BrandingMetricCards";
 import { BrandingWorkspace } from "./BrandingWorkspace";
 import {
@@ -9,14 +9,9 @@ import {
 export const BrandingSettingsView = () => {
   return (
     <div className="space-y-5">
-      <div className="space-y-4">
-        <Heading
-          title="Platform Branding"
-          description="Manage the shared visual system, asset kit, and publishing rules that shape the Alrio experience across admin and guest-facing touchpoints."
-        />
+      <TuroInsightCard message="Brand governance is mostly healthy today. Two asset exports still need review before the next guest-facing rollout goes live." />
 
-        <BrandingMetricCards items={brandingMetrics} />
-      </div>
+      <BrandingMetricCards items={brandingMetrics} />
 
       <BrandingWorkspace themeOptions={themeOptions} />
     </div>

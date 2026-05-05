@@ -13,8 +13,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -23,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ShieldCheck, UserCog2 } from "lucide-react";
+import { UserCog2 } from "lucide-react";
 import type {
   AccessAssignment,
   PermissionGroup,
@@ -52,7 +50,7 @@ export const RolesWorkspace = ({
 }: RolesWorkspaceProps) => {
   return (
     <div className="space-y-5">
-      <Card className="gap-0 overflow-hidden py-0">
+      <Card className="gap-0 overflow-hidden">
         <CardHeader className="border-b">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="space-y-1.5">
@@ -87,7 +85,7 @@ export const RolesWorkspace = ({
 
                   <Badge
                     variant="outline"
-                    className={`${template.tone} rounded-full px-2 py-0 text-[11px]`}
+                    className={`${template.tone} rounded-full px-2 text-[11px]`}
                   >
                     {template.seatCount}
                   </Badge>
@@ -124,7 +122,7 @@ export const RolesWorkspace = ({
         </CardContent>
       </Card>
 
-      <Card className="gap-0 overflow-hidden py-0">
+      <Card className="gap-0 overflow-hidden">
         <CardHeader className="border-b">
           <div className="space-y-1.5">
             <CardTitle>Permission Matrix</CardTitle>
@@ -195,7 +193,7 @@ export const RolesWorkspace = ({
         </CardFooter>
       </Card>
 
-      <Card className="gap-0 overflow-hidden py-0">
+      <Card className="gap-0 overflow-hidden">
         <CardHeader className="border-b">
           <div className="space-y-1.5">
             <CardTitle>Assignments and Controls</CardTitle>
@@ -207,8 +205,7 @@ export const RolesWorkspace = ({
         </CardHeader>
 
         <CardContent className="space-y-5 pt-5">
-          <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
-            <div className="space-y-3">
+          <div className="space-y-3">
               {assignments.map((item) => (
                 <div
                   key={item.name}
@@ -230,7 +227,7 @@ export const RolesWorkspace = ({
 
                     <Badge
                       variant="outline"
-                      className={`${statusTone[item.status]} rounded-full px-2 py-0 text-[11px]`}
+                      className={`${statusTone[item.status]} rounded-full px-2 text-[11px]`}
                     >
                       {item.status}
                     </Badge>
@@ -242,72 +239,6 @@ export const RolesWorkspace = ({
                 </div>
               ))}
             </div>
-
-            <div className="rounded-3xl border bg-[#f6f7f1] p-5">
-              <div className="flex items-start gap-3">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-white text-[#537129]">
-                  <ShieldCheck className="size-4.5" />
-                </div>
-
-                <div>
-                  <p className="font-medium text-[#1E2A17]">
-                    Guardrail settings
-                  </p>
-                  <p className="mt-1 text-sm leading-6 text-[#5f6758]">
-                    Keep a few essential controls visible so elevated access
-                    changes stay deliberate.
-                  </p>
-                </div>
-              </div>
-
-              <Separator className="my-4 bg-[#dce3cf]" />
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between gap-4 rounded-2xl border border-[#dce3cf] bg-white px-4 py-3">
-                  <div>
-                    <p className="font-medium text-[#1E2A17]">
-                      Require MFA for elevated roles
-                    </p>
-                    <p className="text-sm text-[#5f6758]">
-                      Billing, audit, and tenant-admin roles only.
-                    </p>
-                  </div>
-                  <Switch
-                    defaultChecked
-                    aria-label="Require MFA for elevated roles"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between gap-4 rounded-2xl border border-[#dce3cf] bg-white px-4 py-3">
-                  <div>
-                    <p className="font-medium text-[#1E2A17]">
-                      Second approval for scope expansion
-                    </p>
-                    <p className="text-sm text-[#5f6758]">
-                      Needed before saving broader billing or audit access.
-                    </p>
-                  </div>
-                  <Switch
-                    defaultChecked
-                    aria-label="Second approval for scope expansion"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between gap-4 rounded-2xl border border-[#dce3cf] bg-white px-4 py-3">
-                  <div>
-                    <p className="font-medium text-[#1E2A17]">
-                      Allow tenant-level temporary overrides
-                    </p>
-                    <p className="text-sm text-[#5f6758]">
-                      Temporary exceptions remain visible in the central audit
-                      review.
-                    </p>
-                  </div>
-                  <Switch aria-label="Allow tenant-level temporary overrides" />
-                </div>
-              </div>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>
