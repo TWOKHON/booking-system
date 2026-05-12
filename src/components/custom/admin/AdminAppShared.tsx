@@ -231,3 +231,8 @@ export const getFooterNavLinks = (pathname: string): SidebarNavItem[] =>
     ...item,
     isActive: isPathActive(pathname, item.path),
   }));
+
+export const getActiveNavItem = (pathname: string): SidebarNavItem | undefined =>
+  [...navLinks]
+    .filter((item) => isPathActive(pathname, item.path))
+    .sort((a, b) => (b.path?.length ?? 0) - (a.path?.length ?? 0))[0];

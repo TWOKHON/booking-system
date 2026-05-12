@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import {
   PRICING_PLANS,
   PRICING_FEATURES,
@@ -127,9 +128,9 @@ export function PricingCompareTable() {
               );
 
               return (
-                <>
+                <Fragment key={category}>
                   {/* Category header row */}
-                  <tr key={`cat-${category}`}>
+                  <tr>
                     <td
                       colSpan={PRICING_PLANS.length + 1}
                       className="pt-8 pb-3"
@@ -170,7 +171,7 @@ export function PricingCompareTable() {
                       ))}
                     </tr>
                   ))}
-                </>
+                </Fragment>
               );
             })}
           </tbody>

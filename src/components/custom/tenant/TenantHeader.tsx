@@ -5,15 +5,15 @@ import { DecorIcon } from "@/components/ui/decor-icon";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { AdminBreadcrumbs } from "@/components/custom/admin/AdminBreadcrumb";
-import { getActiveNavItem } from "@/components/custom/admin/AdminAppShared";
+import { getActiveTenantNavItem } from "@/components/custom/tenant/TenantMvpShared";
 import { NavUser } from "@/components/custom/NavUser";
-import { SendIcon, BellIcon } from "lucide-react";
+import { BellIcon, CalendarClockIcon, SparklesIcon } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
 
-export function AdminHeader() {
+export function TenantHeader() {
   const pathname = usePathname();
-  const activeItem = getActiveNavItem(pathname);
+  const activeItem = getActiveTenantNavItem(pathname);
 
   return (
     <header
@@ -32,8 +32,12 @@ export function AdminHeader() {
         <AdminBreadcrumbs page={activeItem} />
       </div>
       <div className="flex items-center gap-3">
+        <Button size="sm" variant="outline" className="hidden md:inline-flex">
+          <CalendarClockIcon className="size-4" />
+          Shift plan
+        </Button>
         <Button size="icon-sm" variant="outline">
-          <SendIcon />
+          <SparklesIcon />
         </Button>
         <Button aria-label="Notifications" size="icon-sm" variant="outline">
           <BellIcon />
