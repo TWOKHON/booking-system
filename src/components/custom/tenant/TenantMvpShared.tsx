@@ -58,7 +58,7 @@ export type TenantMvpFeaturePath =
   | "/tenant/analytics/properties"
   | "/tenant/ai/recommendations"
   | "/tenant/ai/forecast"
-  | "/tenant/integrations/paymongo"
+  | "/tenant/integrations/payment-accounts"
   | "/tenant/integrations/notifications"
   | "/tenant/integrations/discord";
 
@@ -240,7 +240,7 @@ export const tenantNavGroups: TenantSidebarNavGroup[] = [
         path: "#",
         icon: <MessageSquareMoreIcon />,
         subItems: [
-          { title: "PayMongo", path: "/tenant/integrations/paymongo" },
+          { title: "Payment Accounts", path: "/tenant/integrations/payment-accounts" },
           { title: "Notifications", path: "/tenant/integrations/notifications" },
           { title: "Discord", path: "/tenant/integrations/discord" },
         ],
@@ -373,7 +373,7 @@ export const tenantMvpExpansionContent: Record<
     spotlightBody:
       "The tenant side should make subscription state legible without exposing platform complexity. Owners mainly need plan clarity, invoices, renewals, and change history.",
     spotlightPoints: [
-      "Separate platform subscription billing from PayMongo guest payments",
+      "Separate platform subscription billing from guest payment accounts",
       "Show yearly savings and upgrade benefits in-context",
       "Surface renewal reminders and grace state early",
     ],
@@ -617,7 +617,7 @@ export const tenantMvpExpansionContent: Record<
     description:
       "Handle personal or company invoices, 50% down payment links, and booking-linked payment compliance from one place.",
     primaryAction: "Generate invoice",
-    secondaryAction: "Open PayMongo setup",
+    secondaryAction: "Open payment accounts",
     metrics: [
       { label: "Invoice types", value: "2", detail: "Personal and company" },
       { label: "DP compliance", value: "92%", detail: "50% down payment target" },
@@ -626,7 +626,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Payment confirmation path",
     spotlightBody:
-      "This is where the booking flow becomes financially real. Every invoice should be tied to a booking, client profile, and the PayMongo payment state.",
+      "This is where the booking flow becomes financially real. Every invoice should be tied to a booking, client profile, and the guest payment account state.",
     spotlightPoints: [
       "Support personal and company invoice modes",
       "Attach invoice, guest profile, and booking record together",
@@ -638,7 +638,7 @@ export const tenantMvpExpansionContent: Record<
         description: "Financial events tied to booking progression.",
         items: [
           { title: "Invoice generation", meta: "Created from booking context", status: "Core" },
-          { title: "DP link", meta: "PayMongo payment URL", status: "Core" },
+          { title: "DP link", meta: "Guest payment collection URL", status: "Core" },
           { title: "Status update", meta: "Payment changes booking confirmation", status: "Core" },
         ],
       },
@@ -1427,44 +1427,44 @@ export const tenantMvpExpansionContent: Record<
       },
     ],
   },
-  "/tenant/integrations/paymongo": {
+  "/tenant/integrations/payment-accounts": {
     eyebrow: "Phase 6 - Payments",
-    title: "PayMongo integration",
+    title: "Payment accounts",
     description:
-      "Represent guest payment rails for 50% down payment links, balance requests, webhook updates, and refund controls.",
-    primaryAction: "Open payment settings",
-    secondaryAction: "Review webhook health",
+      "Manage the tenant-facing payment accounts your team references for guest collections, balance requests, and settlement visibility without exposing provider internals.",
+    primaryAction: "Add payment account",
+    secondaryAction: "Review default account",
     metrics: [
-      { label: "Payment methods", value: "GCash, Maya, cards", detail: "Supported in MVP" },
-      { label: "Webhook listener", value: "Active", detail: "Booking status auto-updates" },
+      { label: "Payment methods", value: "Cards, banks, e-wallets", detail: "Supported in MVP" },
+      { label: "Default rail", value: "Single primary account", detail: "Team sees one default path" },
       { label: "Refund control", value: "Owner approval", detail: "Manual accountant trigger" },
       { label: "Scope", value: "Guest payments", detail: "Separate from Stripe subscriptions" },
     ],
-    spotlightTitle: "Guest payment backbone",
+    spotlightTitle: "Guest payment references",
     spotlightBody:
-      "This page should make PayMongo feel like the financial engine behind booking confirmation, not just a technical integration. Owners need visibility and confidence here.",
+      "This page should help owners organize the payment accounts their team needs to recognize during booking confirmation, collection follow-up, and settlement checks, while the platform handles the underlying provider connections.",
     spotlightPoints: [
-      "Separate guest payments from platform subscription billing",
-      "Use webhook health to reassure booking status integrity",
-      "Keep refund rules explicit and controlled",
+      "Keep guest payment accounts separate from platform subscription billing",
+      "Show only the payment accounts the team should actually use and recognize",
+      "Keep default account rules explicit and controlled",
     ],
     panels: [
       {
-        title: "Payment flow",
-        description: "How PayMongo connects to booking milestones.",
+        title: "Collection flow",
+        description: "How payment accounts support booking milestones.",
         items: [
-          { title: "50% DP link", meta: "Generated on booking", status: "Core" },
-          { title: "Balance payment link", meta: "Triggered by schedule or policy", status: "Core" },
-          { title: "Webhook update", meta: "Successful payment updates booking", status: "Core" },
+          { title: "50% DP collection", meta: "Uses the property's active payment rails", status: "Core" },
+          { title: "Balance payment follow-up", meta: "Triggered by schedule or policy", status: "Core" },
+          { title: "Payment confirmation reference", meta: "Team checks the right account during verification", status: "Core" },
         ],
       },
       {
-        title: "Supported methods",
-        description: "Guest-facing payment options in the MVP.",
+        title: "Supported account types",
+        description: "Guest-facing payment options the owner can maintain here.",
         items: [
-          { title: "GCash", meta: "Local convenience method", status: "Enabled" },
-          { title: "Maya", meta: "Local convenience method", status: "Enabled" },
-          { title: "Credit and debit cards", meta: "Broader payment acceptance", status: "Enabled" },
+          { title: "E-wallets", meta: "Local convenience methods like GCash or Maya", status: "Enabled" },
+          { title: "Bank accounts", meta: "Transfer-based settlement options", status: "Enabled" },
+          { title: "Credit cards", meta: "Broader payment acceptance", status: "Enabled" },
         ],
       },
       {
@@ -1472,8 +1472,8 @@ export const tenantMvpExpansionContent: Record<
         description: "Approvals and exceptions owners care about.",
         items: [
           { title: "Refund workflow", meta: "Accountant initiates, owner approves", status: "Controlled" },
-          { title: "Transaction logging", meta: "Linked back to invoices", status: "Tracked" },
-          { title: "Webhook failures", meta: "Could desync confirmation state", status: "Watch" },
+          { title: "Default account designation", meta: "Team should know which account to reference first", status: "Tracked" },
+          { title: "Account detail visibility", meta: "Show masked or recognizable reference details only", status: "Watch" },
         ],
       },
     ],

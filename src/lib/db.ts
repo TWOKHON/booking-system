@@ -22,7 +22,8 @@ function hasLatestDelegates(client: PrismaClient) {
   return (
     "tenantRoom" in client &&
     "tenantRoomImage" in client &&
-    "tenantAutomationWorkflow" in client
+    "tenantAutomationWorkflow" in client &&
+    "tenantPaymentAccount" in client
   );
 }
 

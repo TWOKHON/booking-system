@@ -1,5 +1,5 @@
-import { TenantWorkspacePage } from "@/components/custom/tenant/TenantWorkspacePage";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <TenantWorkspacePage path="/tenant/integrations/paymongo" />;
+  redirect("/tenant/integrations/payment-accounts");
 }

@@ -38,6 +38,12 @@ enum TenantPaymentMethod {
   CASH_DEPOSIT
 }
 
+enum TenantPaymentAccountType {
+  CREDIT_CARD
+  BANK_ACCOUNT
+  E_WALLET
+}
+
 enum TenantTeamRole {
   OWNER_ADMIN
   MANAGER
@@ -206,6 +212,7 @@ model TenantProfile {
   services                TenantService[]
   teamMembers             TenantTeamMember[]
   automations             TenantAutomationWorkflow[]
+  paymentAccounts         TenantPaymentAccount[]
   communicationChannels   TenantCommunicationChannel[]
   notificationPreferences TenantNotificationPreference[]
 
@@ -303,6 +310,25 @@ model TenantAutomationWorkflow {
   @@unique([tenantProfileId, name])
   @@index([tenantProfileId, status])
   @@map("tenant_automation_workflow")
+}
+
+model TenantPaymentAccount {
+  id              String                   @id @default(cuid())
+  tenantProfileId String
+  accountLabel    String
+  accountType     TenantPaymentAccountType
+  providerName    String
+  accountName     String
+  maskedDetails   String
+  isDefault       Boolean                  @default(false)
+  isActive        Boolean                  @default(true)
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+  tenantProfile   TenantProfile            @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantProfileId, accountLabel])
+  @@index([tenantProfileId, accountType])
+  @@map("tenant_payment_account")
 }
 
 model TenantCommunicationChannel {
