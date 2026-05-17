@@ -1531,11 +1531,11 @@ export const tenantMvpExpansionContent: Record<
   },
   "/tenant/integrations/discord": {
     eyebrow: "Phase 6 - Integrations",
-    title: "Discord integration",
+    title: "Discord channels",
     description:
-      "Map tenant webhook channels to bookings, operations, and finance events so internal teams stay informed without leaving Discord.",
-    primaryAction: "Configure channel mapping",
-    secondaryAction: "Review trigger events",
+      "Manage the Discord webhook channels your tenant uses for internal alerts across bookings, operations, finance, and owner-level updates.",
+    primaryAction: "Add Discord channel",
+    secondaryAction: "Review alert scope",
     metrics: [
       { label: "Department channels", value: "Bookings, Ops, Finance", detail: "Mapped by tenant owner" },
       { label: "Config model", value: "Webhook URL", detail: "Per channel" },

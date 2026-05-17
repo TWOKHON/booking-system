@@ -92,6 +92,14 @@ enum TenantNotificationFrequency {
   WEEKLY
 }
 
+enum TenantDiscordEventScope {
+  BOOKINGS
+  OPERATIONS
+  FINANCE
+  OWNER_ALERTS
+  CUSTOM
+}
+
 model User {
   id            String    @id
   name          String
@@ -213,6 +221,7 @@ model TenantProfile {
   teamMembers             TenantTeamMember[]
   automations             TenantAutomationWorkflow[]
   paymentAccounts         TenantPaymentAccount[]
+  discordChannels         TenantDiscordChannel[]
   communicationChannels   TenantCommunicationChannel[]
   notificationPreferences TenantNotificationPreference[]
 
@@ -329,6 +338,23 @@ model TenantPaymentAccount {
   @@unique([tenantProfileId, accountLabel])
   @@index([tenantProfileId, accountType])
   @@map("tenant_payment_account")
+}
+
+model TenantDiscordChannel {
+  id              String                  @id @default(cuid())
+  tenantProfileId String
+  channelLabel    String
+  eventScope      TenantDiscordEventScope
+  webhookUrl      String
+  note            String?
+  isActive        Boolean                 @default(true)
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  tenantProfile   TenantProfile           @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantProfileId, channelLabel])
+  @@index([tenantProfileId, eventScope])
+  @@map("tenant_discord_channel")
 }
 
 model TenantCommunicationChannel {

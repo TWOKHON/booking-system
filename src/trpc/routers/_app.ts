@@ -1,6 +1,7 @@
 import { automationsRouter } from "./automations";
 import { authRouter } from "./auth";
 import { createTRPCRouter } from "../init";
+import { discordRouter } from "./discord";
 import { notificationsRouter } from "./notifications";
 import { paymentAccountsRouter } from "./payment-accounts";
 import { roomsRouter } from "./rooms";
@@ -10,6 +11,7 @@ import { teamRouter } from "./team";
 export const appRouter = createTRPCRouter({
   automations: automationsRouter,
   auth: authRouter,
+  discord: discordRouter,
   notifications: notificationsRouter,
   paymentAccounts: paymentAccountsRouter,
   rooms: roomsRouter,

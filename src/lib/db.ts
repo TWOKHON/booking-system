@@ -23,7 +23,8 @@ function hasLatestDelegates(client: PrismaClient) {
     "tenantRoom" in client &&
     "tenantRoomImage" in client &&
     "tenantAutomationWorkflow" in client &&
-    "tenantPaymentAccount" in client
+    "tenantPaymentAccount" in client &&
+    "tenantDiscordChannel" in client
   );
 }
 
