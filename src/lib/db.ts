@@ -18,17 +18,18 @@ function createPrismaClient() {
   });
 }
 
-function hasLatestRoomDelegates(client: PrismaClient) {
+function hasLatestDelegates(client: PrismaClient) {
   return (
     "tenantRoom" in client &&
-    "tenantRoomImage" in client
+    "tenantRoomImage" in client &&
+    "tenantAutomationWorkflow" in client
   );
 }
 
 const cachedPrisma = globalForPrisma.prisma;
 
 export const db =
-  cachedPrisma && hasLatestRoomDelegates(cachedPrisma)
+  cachedPrisma && hasLatestDelegates(cachedPrisma)
     ? cachedPrisma
     : createPrismaClient();
 

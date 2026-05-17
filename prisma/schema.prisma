@@ -51,6 +51,20 @@ enum TenantInviteStatus {
   PENDING
 }
 
+enum TenantAutomationDomain {
+  RESERVATIONS
+  OPERATIONS
+  COMMUNICATIONS
+  REVENUE
+}
+
+enum TenantAutomationStatus {
+  ACTIVE
+  DRAFT
+  REVIEW
+  PAUSED
+}
+
 enum TenantCommunicationChannelType {
   IN_APP
   EMAIL
@@ -191,6 +205,7 @@ model TenantProfile {
   rooms                   TenantRoom[]
   services                TenantService[]
   teamMembers             TenantTeamMember[]
+  automations             TenantAutomationWorkflow[]
   communicationChannels   TenantCommunicationChannel[]
   notificationPreferences TenantNotificationPreference[]
 
@@ -267,6 +282,27 @@ model TenantService {
   @@unique([tenantProfileId, serviceName])
   @@index([tenantProfileId])
   @@map("tenant_service")
+}
+
+model TenantAutomationWorkflow {
+  id              String                 @id @default(cuid())
+  tenantProfileId String
+  name            String
+  domain          TenantAutomationDomain
+  status          TenantAutomationStatus @default(DRAFT)
+  triggerLabel    String
+  assignedTo      String?
+  note            String?
+  priority        Boolean                @default(false)
+  runVolume       Int                    @default(0)
+  successRate     Int                    @default(100)
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  tenantProfile   TenantProfile          @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantProfileId, name])
+  @@index([tenantProfileId, status])
+  @@map("tenant_automation_workflow")
 }
 
 model TenantCommunicationChannel {
