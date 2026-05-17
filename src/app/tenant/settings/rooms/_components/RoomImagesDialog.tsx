@@ -36,6 +36,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -208,14 +209,14 @@ function EditImageDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-7xl! max-h-[90vh]">
+      <DialogContent className="max-w-4xl! max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Edit image</DialogTitle>
           <DialogDescription>
             Replace the image or update the caption for this room.
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="h-60">
+        <ScrollArea className="h-150">
           <RoomImageForm
             values={form}
             onChange={setForm}
@@ -242,11 +243,15 @@ function EditImageDialog({
 }
 
 function DeleteImageAlert({
+  roomName,
+  trigger,
   open,
   onOpenChange,
   onConfirm,
   isPending,
 }: {
+  roomName: string;
+  trigger?: React.ReactNode;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => Promise<void>;
@@ -254,11 +259,12 @@ function DeleteImageAlert({
 }) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
+      {trigger ? <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger> : null}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete image?</AlertDialogTitle>
           <AlertDialogDescription>
-            This room image will be removed from the gallery immediately.
+            This room image will be removed from the gallery for {roomName ?? "this room"} immediately.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -291,11 +297,13 @@ function SortableRoomImageCard({
   roomName,
   onEdit,
   onDelete,
+  isDeleting,
 }: {
   image: RoomImageRecord;
   roomName: string;
   onEdit: (image: RoomImageRecord) => void;
-  onDelete: (image: RoomImageRecord) => void;
+  onDelete: () => Promise<void>;
+  isDeleting: boolean;
 }) {
   const {
     attributes,
@@ -305,6 +313,7 @@ function SortableRoomImageCard({
     transition,
     isDragging,
   } = useSortable({ id: image.id });
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
 
   return (
     <div
@@ -344,15 +353,21 @@ function SortableRoomImageCard({
               <PencilLineIcon className="size-4" />
               Edit
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-destructive"
-              onClick={() => onDelete(image)}
-            >
-              <Trash2Icon className="size-4" />
-              Delete
-            </Button>
+            <DeleteImageAlert
+              roomName={roomName}
+              open={deleteOpen}
+              onOpenChange={setDeleteOpen}
+              onConfirm={async () => {
+                await onDelete();
+              }}
+              isPending={isDeleting}
+              trigger={
+                <Button variant="outline" size="sm" className="text-destructive">
+                  <Trash2Icon className="size-4" />
+                  Delete
+                </Button>
+              }
+            />
           </div>
         </div>
       </div>
@@ -379,8 +394,6 @@ export function RoomImagesDialog({
   const [editTarget, setEditTarget] = React.useState<RoomImageRecord | null>(
     null,
   );
-  const [deleteTarget, setDeleteTarget] =
-    React.useState<RoomImageRecord | null>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -424,7 +437,6 @@ export function RoomImagesDialog({
     trpc.rooms.deleteImage.mutationOptions({
       onSuccess: async () => {
         toast.success("Room image deleted.");
-        setDeleteTarget(null);
         await queryClient.invalidateQueries({ queryKey: imagesQueryKey });
       },
       onError: (error) => {
@@ -536,7 +548,16 @@ export function RoomImagesDialog({
                                 image={image}
                                 roomName={roomName}
                                 onEdit={setEditTarget}
-                                onDelete={setDeleteTarget}
+                                onDelete={async () => {
+                                  await deleteImageMutation.mutateAsync({
+                                    roomId,
+                                    imageId: image.id,
+                                  });
+                                }}
+                                isDeleting={
+                                  deleteImageMutation.isPending &&
+                                  deleteImageMutation.variables?.imageId === image.id
+                                }
                               />
                             ))}
                           </div>
@@ -601,26 +622,6 @@ export function RoomImagesDialog({
           });
         }}
         isPending={updateImageMutation.isPending}
-      />
-
-      <DeleteImageAlert
-        open={!!deleteTarget}
-        onOpenChange={(nextOpen) => {
-          if (!nextOpen) {
-            setDeleteTarget(null);
-          }
-        }}
-        onConfirm={async () => {
-          if (!deleteTarget) {
-            return;
-          }
-
-          await deleteImageMutation.mutateAsync({
-            roomId,
-            imageId: deleteTarget.id,
-          });
-        }}
-        isPending={deleteImageMutation.isPending}
       />
     </>
   );

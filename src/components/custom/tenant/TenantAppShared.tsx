@@ -117,7 +117,6 @@ export const tenantNavGroups: TenantSidebarNavGroup[] = [
         icon: <GlobeIcon />,
         subItems: [
           { title: "Website Funnel", path: "/tenant/channels/website" },
-          { title: "OTA Performance", path: "/tenant/channels/ota" },
           { title: "AI Concierge", path: "/tenant/channels/chatbot" },
         ],
       },
@@ -128,7 +127,6 @@ export const tenantNavGroups: TenantSidebarNavGroup[] = [
         subItems: [
           { title: "Property Setup", path: "/tenant/settings/property" },
           { title: "Rooms & Inventory", path: "/tenant/settings/rooms" },
-          { title: "Channel Setup", path: "/tenant/settings/channels" },
           { title: "Services Offered", path: "/tenant/settings/services" },
           { title: "Team Access", path: "/tenant/settings/team" },
           { title: "Automations", path: "/tenant/settings/automations" },
@@ -205,11 +203,9 @@ export type TenantWorkspacePath =
   | "/tenant/revenue/packages"
   | "/tenant/revenue/reports"
   | "/tenant/channels/website"
-  | "/tenant/channels/ota"
   | "/tenant/channels/chatbot"
   | "/tenant/settings/property"
   | "/tenant/settings/rooms"
-  | "/tenant/settings/channels"
   | "/tenant/settings/services"
   | "/tenant/settings/team"
   | "/tenant/settings/automations"
@@ -316,7 +312,7 @@ export const tenantWorkspaceContent: Record<
     spotlightBody:
       "Midweek occupancy is soft, but weekend demand is nearly sold out. The biggest opportunity is filling Tuesday and Wednesday gaps without discounting your premium room types.",
     spotlightPoints: [
-      "Release 2 held rooms from OTA allotment to direct",
+      "Release 2 held rooms back into your direct booking inventory",
       "Open flexible check-in for Tuesday arrivals",
       "Bundle breakfast add-on instead of lowering BAR",
     ],
@@ -962,57 +958,6 @@ export const tenantWorkspaceContent: Record<
       },
     ],
   },
-  "/tenant/channels/ota": {
-    eyebrow: "Distribution",
-    title: "OTA performance",
-    description:
-      "Balance reach, pacing, and commission impact across marketplace channels without losing sight of property-level yield.",
-    primaryAction: "Adjust OTA allocation",
-    secondaryAction: "Review parity issues",
-    metrics: [
-      { label: "OTA bookings", value: "58%", detail: "Share of room nights this month" },
-      { label: "Commission cost", value: "₱214k", detail: "Month to date" },
-      { label: "Top OTA", value: "Booking.com", detail: "Still driving most volume" },
-      { label: "Parity alerts", value: "3", detail: "Need review today" },
-    ],
-    spotlightTitle: "Channel balance",
-    spotlightBody:
-      "OTA channels are still essential for volume, but your most profitable room types should be protected from overexposure when direct demand is already present.",
-    spotlightPoints: [
-      "Reduce OTA inventory on premium room types for peak dates",
-      "Investigate parity drift before it hurts direct trust",
-      "Use OTA visibility more aggressively only on softer weekdays",
-    ],
-    panels: [
-      {
-        title: "Channel watchlist",
-        description: "OTAs or dates that deserve intervention.",
-        items: [
-          { title: "Booking.com", meta: "High volume, lower net ADR", status: "Optimize" },
-          { title: "Agoda", meta: "Strong mobile Asia traffic", status: "Maintain" },
-          { title: "Expedia", meta: "Soft recent pacing", status: "Review visibility" },
-        ],
-      },
-      {
-        title: "Parity concerns",
-        description: "Listings that may conflict with direct-booking messaging.",
-        items: [
-          { title: "Standard room weekend rate", meta: "Direct is higher by ₱200", status: "Fix" },
-          { title: "Breakfast inclusion copy", meta: "Mismatch on one OTA", status: "Fix" },
-          { title: "Cancellation policy wording", meta: "Needs alignment", status: "Fix" },
-        ],
-      },
-      {
-        title: "Distribution actions",
-        description: "Changes the tenant team may want to test next.",
-        items: [
-          { title: "Close family villas on peak weekends", meta: "Protect direct" , status: "Test" },
-          { title: "Open standard rooms midweek", meta: "Fill soft demand", status: "Test" },
-          { title: "Refresh OTA photos", meta: "Improve CTR", status: "Queue" },
-        ],
-      },
-    ],
-  },
   "/tenant/channels/chatbot": {
     eyebrow: "Distribution",
     title: "AI concierge",
@@ -1074,7 +1019,7 @@ export const tenantWorkspaceContent: Record<
     metrics: [
       { label: "Room types", value: "8", detail: "With 3 active upsell paths" },
       { label: "Policy exceptions", value: "4", detail: "Need review this quarter" },
-      { label: "Amenities listed", value: "27", detail: "Across web and OTA channels" },
+      { label: "Amenities listed", value: "27", detail: "Across your website and direct booking surfaces" },
       { label: "Content freshness", value: "82%", detail: "Some guest-facing details outdated" },
     ],
     spotlightTitle: "Setup quality",
@@ -1130,11 +1075,11 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "Inventory structure",
     spotlightBody:
-      "This area should make it easy for the tenant to create room categories, keep occupancy counts accurate, and maintain the details that flow into direct and channel booking surfaces.",
+      "This area should make it easy for the tenant to create room categories, keep occupancy counts accurate, and maintain the details that flow into your direct booking surfaces.",
     spotlightPoints: [
       "Add new room types before opening them for sale",
       "Keep blocked or offline rooms visible to operations",
-      "Align room names, occupancy, and inclusions across all booking paths",
+      "Align room names, occupancy, and inclusions across all direct booking paths",
     ],
     panels: [
       {
@@ -1143,7 +1088,7 @@ export const tenantWorkspaceContent: Record<
         items: [
           { title: "Room type creation", meta: "Name, capacity, bed setup, inclusions", status: "Primary" },
           { title: "Sellable count", meta: "Track available units per room type", status: "Primary" },
-          { title: "Media and description", meta: "Support web and OTA trust-building", status: "Important" },
+          { title: "Media and description", meta: "Support website trust-building and direct conversion", status: "Important" },
         ],
       },
       {
@@ -1160,59 +1105,8 @@ export const tenantWorkspaceContent: Record<
         description: "How tenants should usually work in this module.",
         items: [
           { title: "Create room type first", meta: "Then attach images and rates", status: "Suggested" },
-          { title: "Map channels second", meta: "Once room details are stable", status: "Suggested" },
+          { title: "Attach pricing and services second", meta: "Once room details are stable", status: "Suggested" },
           { title: "Review inventory weekly", meta: "Especially before peak windows", status: "Suggested" },
-        ],
-      },
-    ],
-  },
-  "/tenant/settings/channels": {
-    eyebrow: "Property settings",
-    title: "Channel setup",
-    description:
-      "Control where rooms are sold, which channels are active, and how the property distributes inventory across direct and OTA surfaces.",
-    primaryAction: "Add booking channel",
-    secondaryAction: "Review channel mapping",
-    metrics: [
-      { label: "Active channels", value: "4", detail: "Website, Booking.com, Agoda, Messenger" },
-      { label: "Room mappings", value: "18", detail: "Across current room types and channels" },
-      { label: "Parity alerts", value: "3", detail: "Need follow-up this shift" },
-      { label: "Manual sync items", value: "2", detail: "Still not fully automated" },
-    ],
-    spotlightTitle: "Distribution control",
-    spotlightBody:
-      "This module should help the tenant add channels, decide which room types are exposed where, and manage the balance between direct revenue and external reach.",
-    spotlightPoints: [
-      "Add channels only after room inventory is ready",
-      "Map each room type cleanly per channel",
-      "Keep direct and OTA availability decisions visible to owners",
-    ],
-    panels: [
-      {
-        title: "Channel actions",
-        description: "Common setup work the tenant should be able to do here.",
-        items: [
-          { title: "Connect OTA account", meta: "Prepare mapping and visibility rules", status: "Core" },
-          { title: "Add direct booking source", meta: "Website and inquiry channels", status: "Core" },
-          { title: "Pause a channel", meta: "For maintenance, parity, or strategy changes", status: "Useful" },
-        ],
-      },
-      {
-        title: "Mapping checks",
-        description: "What tends to cause booking friction if missed.",
-        items: [
-          { title: "Room-type mismatch", meta: "Different labels across channels", status: "Watch" },
-          { title: "Availability split", meta: "Overexposure on low-margin dates", status: "Watch" },
-          { title: "Inclusion mismatch", meta: "Breakfast and policy confusion", status: "Watch" },
-        ],
-      },
-      {
-        title: "Owner guidance",
-        description: "How this area supports commercial decisions.",
-        items: [
-          { title: "Protect direct demand", meta: "Keep premium inventory closer to the website", status: "Strategy" },
-          { title: "Use OTAs selectively", meta: "Lean on them more for soft periods", status: "Strategy" },
-          { title: "Review parity often", meta: "Preserve trust in direct booking", status: "Strategy" },
         ],
       },
     ],
@@ -1355,7 +1249,7 @@ export const tenantWorkspaceContent: Record<
         description: "Rules that may need tuning or debugging.",
         items: [
           { title: "Birthday offer trigger", meta: "One duplicate send reported", status: "Check" },
-          { title: "OTA sync reminder", meta: "Not firing on one channel", status: "Check" },
+          { title: "Service reminder workflow", meta: "One direct-booking automation missed a trigger", status: "Check" },
           { title: "VIP welcome note", meta: "Missing one condition", status: "Check" },
         ],
       },
@@ -1414,7 +1308,7 @@ export const tenantWorkspaceContent: Record<
         title: "Support tracking",
         description: "Items the tenant may want to raise or revisit.",
         items: [
-          { title: "OTA sync lag", meta: "Observed on one property setup", status: "Escalated" },
+          { title: "Direct booking sync lag", meta: "Observed on one property setup", status: "Escalated" },
           { title: "Role-template request", meta: "For seasonal staffing", status: "Backlog" },
           { title: "Kiosk check-in idea", meta: "Future enhancement", status: "Backlog" },
         ],
@@ -1431,9 +1325,10 @@ export const tenantWorkspaceAccent = {
   secondaryTag: <BedDoubleIcon className="size-3.5" />,
   secondaryChip: "Guest journey",
   tertiaryTag: <TagsIcon className="size-3.5" />,
-  tertiaryChip: "Yield & channels",
+  tertiaryChip: "Yield & direct sales",
   quaternaryTag: <MessageSquareMoreIcon className="size-3.5" />,
   quaternaryChip: "Service quality",
   automationTag: <BotIcon className="size-3.5" />,
   automationChip: "Automation-ready",
 };
+

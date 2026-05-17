@@ -274,12 +274,6 @@ export default async function Page() {
                 <ArrowUpRightIcon className="size-4" />
               </Link>
             </Button>
-            <Button asChild variant="outline">
-              <Link href="/tenant/settings/channels">
-                Configure channels
-                <ArrowUpRightIcon className="size-4" />
-              </Link>
-            </Button>
           </div>
         </div>
 
@@ -354,16 +348,16 @@ export default async function Page() {
                 <div>
                   <p className="text-sm font-medium">2. Build room inventory</p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Add room types and sellable units before mapping channels.
+                    Add room types and sellable units before finalizing pricing and guest-facing details.
                   </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">
-                    3. Connect channels and services
+                    3. Finalize services and selling details
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Align inventory exposure and guest add-ons with how the
-                    resort sells.
+                    Align guest add-ons, pricing, and booking details with how
+                    the resort sells directly.
                   </p>
                 </div>
               </div>
@@ -396,16 +390,6 @@ export default async function Page() {
                   variant="outline"
                   className="w-full justify-between"
                 >
-                  <Link href="/tenant/settings/channels">
-                    Channel Setup
-                    <ArrowUpRightIcon className="size-4" />
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="w-full justify-between"
-                >
                   <Link href="/tenant/settings/services">
                     Services Offered
                     <ArrowUpRightIcon className="size-4" />
@@ -419,3 +403,4 @@ export default async function Page() {
     </main>
   );
 }
+

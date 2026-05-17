@@ -1,0 +1,18 @@
+[
+  {
+    "serviceName": "Airport Transfer",
+    "category": "Transport",
+    "price": 1800,
+    "unitLabel": "per trip",
+    "availability": "Daily, 6:00 AM - 9:00 PM",
+    "description": "Private one-way airport transfer for resort guests with luggage assistance and direct drop-off to the property."
+  },
+  {
+    "serviceName": "Floating Breakfast Setup",
+    "category": "Dining",
+    "price": 1500,
+    "unitLabel": "per setup",
+    "availability": "Daily, 7:00 AM - 10:00 AM",
+    "description": "Curated breakfast presentation served in-room or by the private pool for couples, celebrations, and premium stays."
+  }
+]

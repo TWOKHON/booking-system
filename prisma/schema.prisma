@@ -189,6 +189,7 @@ model TenantProfile {
   updatedAt               DateTime                         @updatedAt
   appUser                 AppUser                          @relation(fields: [appUserId], references: [authUserId], onDelete: Cascade)
   rooms                   TenantRoom[]
+  services                TenantService[]
   teamMembers             TenantTeamMember[]
   communicationChannels   TenantCommunicationChannel[]
   notificationPreferences TenantNotificationPreference[]
@@ -247,6 +248,25 @@ model TenantRoomImage {
 
   @@index([roomId, sortOrder])
   @@map("tenant_room_image")
+}
+
+model TenantService {
+  id              String        @id @default(cuid())
+  tenantProfileId String
+  serviceName     String
+  category        String
+  basePrice       Int
+  unitLabel       String?
+  availability    String?
+  description     String?
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  tenantProfile   TenantProfile @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantProfileId, serviceName])
+  @@index([tenantProfileId])
+  @@map("tenant_service")
 }
 
 model TenantCommunicationChannel {

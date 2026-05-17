@@ -225,7 +225,6 @@ export const tenantNavGroups: TenantSidebarNavGroup[] = [
         subItems: [
           { title: "Property Setup", path: "/tenant/settings/property" },
           { title: "Rooms & Inventory", path: "/tenant/settings/rooms" },
-          { title: "Channel Setup", path: "/tenant/settings/channels" },
           { title: "Services Offered", path: "/tenant/settings/services" },
           { title: "Team Access", path: "/tenant/settings/team" },
           { title: "Automations", path: "/tenant/settings/automations" },
@@ -1605,3 +1604,4 @@ export const tenantWorkspaceAccent = {
   automationTag: <BotIcon className="size-3.5" />,
   automationChip: "Process-flow ready",
 };
+

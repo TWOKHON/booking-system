@@ -2,19 +2,15 @@
 
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  ArrowUpRightIcon,
-  HotelIcon,
-  SparklesIcon,
-} from "lucide-react";
+import { ArrowUpRightIcon, HotelIcon, SparklesIcon } from "lucide-react";
 import Link from "next/link";
 import { TuroInsightCard } from "@/app/admin/dashboard/_components/TuroInsightCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTRPC } from "@/trpc/client";
-import { RoomSettingsTable } from "./RoomSettingsTable";
+import { ServiceSettingsTable } from "./ServiceSettingsTable";
 
-export function RoomsWorkspaceClient({
+export function ServicesWorkspaceClient({
   ownerName,
   resortName,
 }: {
@@ -22,14 +18,17 @@ export function RoomsWorkspaceClient({
   resortName: string;
 }) {
   const trpc = useTRPC();
-  const roomsQuery = useQuery(trpc.rooms.list.queryOptions());
+  const servicesQuery = useQuery(trpc.services.list.queryOptions());
 
-  const rooms = roomsQuery.data ?? [];
-  const totalSellableUnits = rooms.reduce(
-    (sum, room) => sum + room.sellableUnits,
+  const services = servicesQuery.data ?? [];
+  const totalCatalogValue = services.reduce(
+    (sum, service) => sum + service.price,
     0,
   );
-  const insightMessage = `${resortName} currently tracks ${rooms.length} room records with ${totalSellableUnits} sellable units. Focus next on keeping room details, pricing, and availability.`;
+  const upsellReadyCount = services.filter(
+    (service) => service.description.trim().length > 0,
+  ).length;
+  const insightMessage = `${resortName} currently tracks ${services.length} service records with ${upsellReadyCount} guest-ready offers. Focus next on keeping service pricing, availability, and descriptions aligned for direct selling.`;
 
   return (
     <main className="flex flex-1 flex-col gap-6">
@@ -41,26 +40,32 @@ export function RoomsWorkspaceClient({
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="outline" className="gap-1.5">
                 <HotelIcon className="size-3.5" />
-                Rooms & inventory
+                Services offered
               </Badge>
               <Badge variant="secondary" className="gap-1.5">
                 <SparklesIcon className="size-3.5" />
-                Sellable setup
+                Guest revenue setup
               </Badge>
             </div>
             <h1 className="mt-4 text-3xl font-semibold tracking-tight">
               {resortName}
             </h1>
             <p className="mt-3 text-sm text-muted-foreground">
-              Manage room types, sellable units, nightly pricing, and booking
-              details so your inventory stays ready to sell directly on
-              ResortCloud.
+              Manage your guest-facing services, add-ons, and experiences so
+              the team can sell them consistently across direct booking and
+              on-property operations.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
             <Button asChild variant="outline">
               <Link href="/tenant/settings/property">
                 Property setup
+                <ArrowUpRightIcon className="size-4" />
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/tenant/settings/rooms">
+                Rooms & inventory
                 <ArrowUpRightIcon className="size-4" />
               </Link>
             </Button>
@@ -77,46 +82,51 @@ export function RoomsWorkspaceClient({
           </div>
           <div className="border bg-background/90 p-4">
             <div className="text-xs uppercase text-muted-foreground">
-              Room records
+              Service records
             </div>
             <div className="mt-3 text-xl font-semibold">
-              {roomsQuery.isPending ? "..." : rooms.length}
+              {servicesQuery.isPending ? "..." : services.length}
             </div>
             <div className="mt-2 text-xs text-muted-foreground">
-              All new rooms are active by default
+              Active guest-facing catalog entries
             </div>
           </div>
           <div className="border bg-background/90 p-4">
             <div className="text-xs uppercase text-muted-foreground">
-              Sellable units
+              Guest-ready offers
             </div>
             <div className="mt-3 text-xl font-semibold">
-              {roomsQuery.isPending ? "..." : totalSellableUnits}
+              {servicesQuery.isPending ? "..." : upsellReadyCount}
             </div>
             <div className="mt-2 text-xs text-muted-foreground">
-              Units available across current room types
+              Services with description details ready to sell
             </div>
           </div>
           <div className="border bg-background/90 p-4">
             <div className="text-xs uppercase text-muted-foreground">
-              Live on ResortCloud
+              Catalog value
             </div>
             <div className="mt-3 text-xl font-semibold">
-              {roomsQuery.isPending ? "..." : `${rooms.length}/${rooms.length}`}
+              {servicesQuery.isPending
+                ? "..."
+                : new Intl.NumberFormat("en-PH", {
+                    style: "currency",
+                    currency: "PHP",
+                    maximumFractionDigits: 0,
+                  }).format(totalCatalogValue)}
             </div>
             <div className="mt-2 text-xs text-muted-foreground">
-              All rooms publish directly to your platform
+              Combined starting price across listed services
             </div>
           </div>
         </div>
       </section>
 
-      <RoomSettingsTable
-        rooms={rooms}
-        isLoading={roomsQuery.isPending}
-        isFetching={roomsQuery.isFetching}
+      <ServiceSettingsTable
+        services={services}
+        isLoading={servicesQuery.isPending}
+        isFetching={servicesQuery.isFetching}
       />
     </main>
   );
 }
-
