@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   PRICING_PLANS,
   YEARLY_DISCOUNT,
@@ -129,10 +130,15 @@ export function PricingSection() {
 
               {/* CTA */}
               <Button
+                asChild
                 className="w-full mt-4 mb-6 h-11"
                 variant={plan.featured ? "default" : "outline"}
               >
-                {plan.cta}
+                <Link
+                  href={`/auth/sign-up?userType=tenant&plan=${plan.key}&billing=${plan.key === "free_trial" ? "monthly" : frequency}`}
+                >
+                  {plan.cta}
+                </Link>
               </Button>
 
               {/* "Everything in X, plus:" label */}

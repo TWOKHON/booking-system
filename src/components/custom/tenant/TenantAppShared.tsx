@@ -127,6 +127,9 @@ export const tenantNavGroups: TenantSidebarNavGroup[] = [
         icon: <Settings2Icon />,
         subItems: [
           { title: "Property Setup", path: "/tenant/settings/property" },
+          { title: "Rooms & Inventory", path: "/tenant/settings/rooms" },
+          { title: "Channel Setup", path: "/tenant/settings/channels" },
+          { title: "Services Offered", path: "/tenant/settings/services" },
           { title: "Team Access", path: "/tenant/settings/team" },
           { title: "Automations", path: "/tenant/settings/automations" },
         ],
@@ -205,6 +208,9 @@ export type TenantWorkspacePath =
   | "/tenant/channels/ota"
   | "/tenant/channels/chatbot"
   | "/tenant/settings/property"
+  | "/tenant/settings/rooms"
+  | "/tenant/settings/channels"
+  | "/tenant/settings/services"
   | "/tenant/settings/team"
   | "/tenant/settings/automations"
   | "/tenant/help";
@@ -1105,6 +1111,159 @@ export const tenantWorkspaceContent: Record<
           { title: "Check-in policy", meta: "Works well for direct guests", status: "Maintain" },
           { title: "Deposit rules", meta: "Payment messaging can improve", status: "Refine" },
           { title: "Cancellation copy", meta: "Needs simpler wording", status: "Rewrite" },
+        ],
+      },
+    ],
+  },
+  "/tenant/settings/rooms": {
+    eyebrow: "Property settings",
+    title: "Rooms & inventory",
+    description:
+      "Set up room types, assign sellable inventory, and keep booking-facing room details aligned with operations.",
+    primaryAction: "Add room type",
+    secondaryAction: "Review room inventory",
+    metrics: [
+      { label: "Room types", value: "8", detail: "Across villas, suites, and family units" },
+      { label: "Sellable units", value: "34", detail: "2 currently blocked for maintenance" },
+      { label: "Photo readiness", value: "76%", detail: "Some room galleries need updates" },
+      { label: "Rate mapping", value: "6 connected", detail: "2 room types still need package links" },
+    ],
+    spotlightTitle: "Inventory structure",
+    spotlightBody:
+      "This area should make it easy for the tenant to create room categories, keep occupancy counts accurate, and maintain the details that flow into direct and channel booking surfaces.",
+    spotlightPoints: [
+      "Add new room types before opening them for sale",
+      "Keep blocked or offline rooms visible to operations",
+      "Align room names, occupancy, and inclusions across all booking paths",
+    ],
+    panels: [
+      {
+        title: "Room setup priorities",
+        description: "Core pieces to configure before opening inventory.",
+        items: [
+          { title: "Room type creation", meta: "Name, capacity, bed setup, inclusions", status: "Primary" },
+          { title: "Sellable count", meta: "Track available units per room type", status: "Primary" },
+          { title: "Media and description", meta: "Support web and OTA trust-building", status: "Important" },
+        ],
+      },
+      {
+        title: "Inventory watchlist",
+        description: "Areas where room setup often drifts over time.",
+        items: [
+          { title: "Blocked rooms", meta: "Keep maintenance closures up to date", status: "Review" },
+          { title: "Occupancy rules", meta: "Check child and extra-bed limits", status: "Review" },
+          { title: "Room naming", meta: "Use guest-friendly labels consistently", status: "Review" },
+        ],
+      },
+      {
+        title: "Recommended flow",
+        description: "How tenants should usually work in this module.",
+        items: [
+          { title: "Create room type first", meta: "Then attach images and rates", status: "Suggested" },
+          { title: "Map channels second", meta: "Once room details are stable", status: "Suggested" },
+          { title: "Review inventory weekly", meta: "Especially before peak windows", status: "Suggested" },
+        ],
+      },
+    ],
+  },
+  "/tenant/settings/channels": {
+    eyebrow: "Property settings",
+    title: "Channel setup",
+    description:
+      "Control where rooms are sold, which channels are active, and how the property distributes inventory across direct and OTA surfaces.",
+    primaryAction: "Add booking channel",
+    secondaryAction: "Review channel mapping",
+    metrics: [
+      { label: "Active channels", value: "4", detail: "Website, Booking.com, Agoda, Messenger" },
+      { label: "Room mappings", value: "18", detail: "Across current room types and channels" },
+      { label: "Parity alerts", value: "3", detail: "Need follow-up this shift" },
+      { label: "Manual sync items", value: "2", detail: "Still not fully automated" },
+    ],
+    spotlightTitle: "Distribution control",
+    spotlightBody:
+      "This module should help the tenant add channels, decide which room types are exposed where, and manage the balance between direct revenue and external reach.",
+    spotlightPoints: [
+      "Add channels only after room inventory is ready",
+      "Map each room type cleanly per channel",
+      "Keep direct and OTA availability decisions visible to owners",
+    ],
+    panels: [
+      {
+        title: "Channel actions",
+        description: "Common setup work the tenant should be able to do here.",
+        items: [
+          { title: "Connect OTA account", meta: "Prepare mapping and visibility rules", status: "Core" },
+          { title: "Add direct booking source", meta: "Website and inquiry channels", status: "Core" },
+          { title: "Pause a channel", meta: "For maintenance, parity, or strategy changes", status: "Useful" },
+        ],
+      },
+      {
+        title: "Mapping checks",
+        description: "What tends to cause booking friction if missed.",
+        items: [
+          { title: "Room-type mismatch", meta: "Different labels across channels", status: "Watch" },
+          { title: "Availability split", meta: "Overexposure on low-margin dates", status: "Watch" },
+          { title: "Inclusion mismatch", meta: "Breakfast and policy confusion", status: "Watch" },
+        ],
+      },
+      {
+        title: "Owner guidance",
+        description: "How this area supports commercial decisions.",
+        items: [
+          { title: "Protect direct demand", meta: "Keep premium inventory closer to the website", status: "Strategy" },
+          { title: "Use OTAs selectively", meta: "Lean on them more for soft periods", status: "Strategy" },
+          { title: "Review parity often", meta: "Preserve trust in direct booking", status: "Strategy" },
+        ],
+      },
+    ],
+  },
+  "/tenant/settings/services": {
+    eyebrow: "Property settings",
+    title: "Services offered",
+    description:
+      "Create and manage guest-facing services, experiences, and add-ons that can be referenced across operations, website content, and revenue workflows.",
+    primaryAction: "Add service",
+    secondaryAction: "Review service catalog",
+    metrics: [
+      { label: "Active services", value: "12", detail: "Dining, transfers, spa, and events" },
+      { label: "Upsell-ready", value: "7", detail: "Can be attached to bookings today" },
+      { label: "Needs pricing review", value: "3", detail: "Last updated over 90 days ago" },
+      { label: "Website listed", value: "9", detail: "3 still internal-only" },
+    ],
+    spotlightTitle: "Service catalog quality",
+    spotlightBody:
+      "This area should help the tenant define what the resort actually offers, from transport and meals to spa and event add-ons, so those services stay consistent across teams and guest touchpoints.",
+    spotlightPoints: [
+      "Create services with clear pricing and availability notes",
+      "Separate internal-only services from guest-visible offers",
+      "Keep upsellable services easy to attach to bookings and messages",
+    ],
+    panels: [
+      {
+        title: "Service creation",
+        description: "The core building blocks a tenant should define.",
+        items: [
+          { title: "Transport services", meta: "Airport, pier, and local shuttle offers", status: "Common" },
+          { title: "Experiences and amenities", meta: "Spa, tours, cabanas, celebration add-ons", status: "Common" },
+          { title: "Dining and convenience", meta: "Breakfast upgrades, packed meals, late snacks", status: "Common" },
+        ],
+      },
+      {
+        title: "Catalog checks",
+        description: "Items that should stay accurate over time.",
+        items: [
+          { title: "Pricing freshness", meta: "Avoid outdated guest-facing service rates", status: "Review" },
+          { title: "Availability windows", meta: "Match service hours with actual staffing", status: "Review" },
+          { title: "Website visibility", meta: "Decide what guests should see publicly", status: "Review" },
+        ],
+      },
+      {
+        title: "Revenue opportunities",
+        description: "How services strengthen the commercial side of the resort.",
+        items: [
+          { title: "Bundle services into packages", meta: "Support higher-value bookings", status: "Promote" },
+          { title: "Attach to arrivals", meta: "Use pre-arrival upsell moments", status: "Promote" },
+          { title: "Feed direct-booking content", meta: "Show what makes the resort more compelling", status: "Promote" },
         ],
       },
     ],

@@ -1,0 +1,290 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  TENANT
+  CUSTOMER
+}
+
+enum TenantOnboardingStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum TenantSubscriptionPlan {
+  FREE_TRIAL
+  STARTER
+  GROWTH
+  ENTERPRISE
+}
+
+enum TenantBillingCycle {
+  MONTHLY
+  YEARLY
+}
+
+enum TenantPaymentMethod {
+  CREDIT_CARD
+  BANK_TRANSFER
+  E_WALLET
+  CASH_DEPOSIT
+}
+
+enum TenantTeamRole {
+  OWNER_ADMIN
+  MANAGER
+  FRONT_DESK
+  HOUSEKEEPING
+  MAINTENANCE
+}
+
+enum TenantInviteStatus {
+  ACCEPTED
+  PENDING
+}
+
+enum TenantCommunicationChannelType {
+  IN_APP
+  EMAIL
+  SMS
+  PUSH
+}
+
+enum TenantNotificationCategory {
+  RESERVATIONS
+  GUEST_MESSAGES
+  OPERATIONAL_ALERTS
+  PAYMENTS
+  MARKETING
+}
+
+enum TenantNotificationFrequency {
+  INSTANT
+  DAILY
+  WEEKLY
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  appUser       AppUser?
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model AppUser {
+  authUserId      String                  @id
+  email           String                  @unique
+  firstName       String
+  lastName        String
+  displayName     String
+  role            UserRole
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  authUser        User                    @relation(fields: [authUserId], references: [id], onDelete: Cascade)
+  tenantProfile   TenantProfile?
+  customerProfile CustomerProfile?
+
+  @@index([role])
+  @@map("app_user")
+}
+
+model TenantProfile {
+  id                      String                           @id @default(cuid())
+  appUserId               String                           @unique
+  resortName              String?
+  propertyType            String?
+  fullAddress             String?
+  region                  String?
+  province                String?
+  municipality            String?
+  barangay                String?
+  phoneNumber             String?
+  website                 String?
+  shortDescription        String?
+  subscriptionPlan        TenantSubscriptionPlan          @default(STARTER)
+  billingCycle            TenantBillingCycle              @default(MONTHLY)
+  businessName            String?
+  billingEmail            String?
+  billingPhoneCountryCode String?                          @default("+63")
+  billingPhoneNumber      String?
+  billingAddress          String?
+  billingCity             String?
+  billingStateProvince    String?
+  billingPostalCode       String?
+  billingCountry          String?                          @default("Philippines")
+  paymentMethod           TenantPaymentMethod?            @default(CREDIT_CARD)
+  cardholderName          String?
+  cardBrand               String?
+  cardLastFour            String?
+  cardExpiry              String?
+  onboardingStatus        TenantOnboardingStatus          @default(PENDING)
+  onboardingCurrentStep   Int                              @default(0)
+  onboardingCompletedAt   DateTime?
+  createdAt               DateTime                         @default(now())
+  updatedAt               DateTime                         @updatedAt
+  appUser                 AppUser                          @relation(fields: [appUserId], references: [authUserId], onDelete: Cascade)
+  rooms                   TenantRoom[]
+  teamMembers             TenantTeamMember[]
+  communicationChannels   TenantCommunicationChannel[]
+  notificationPreferences TenantNotificationPreference[]
+
+  @@map("tenant_profile")
+}
+
+model TenantTeamMember {
+  id              String             @id @default(cuid())
+  tenantProfileId String
+  name            String?
+  initials        String?
+  email           String
+  role            TenantTeamRole
+  status          TenantInviteStatus @default(PENDING)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  tenantProfile   TenantProfile      @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantProfileId, email, role])
+  @@index([tenantProfileId])
+  @@map("tenant_team_member")
+}
+
+model TenantRoom {
+  id              String        @id @default(cuid())
+  tenantProfileId String
+  roomName        String
+  category        String
+  capacity        Int
+  sellableUnits   Int
+  baseNightlyRate Int
+  zone            String?
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  images          TenantRoomImage[]
+  tenantProfile   TenantProfile @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantProfileId, roomName])
+  @@index([tenantProfileId])
+  @@map("tenant_room")
+}
+
+model TenantRoomImage {
+  id          String     @id @default(cuid())
+  roomId      String
+  fileKey     String
+  imageUrl    String
+  altText     String?
+  caption     String?
+  sortOrder   Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  room        TenantRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, sortOrder])
+  @@map("tenant_room_image")
+}
+
+model TenantCommunicationChannel {
+  id              String                         @id @default(cuid())
+  tenantProfileId String
+  channel         TenantCommunicationChannelType
+  enabled         Boolean                        @default(true)
+  createdAt       DateTime                       @default(now())
+  updatedAt       DateTime                       @updatedAt
+  tenantProfile   TenantProfile                  @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantProfileId, channel])
+  @@index([tenantProfileId])
+  @@map("tenant_communication_channel")
+}
+
+model TenantNotificationPreference {
+  id              String                      @id @default(cuid())
+  tenantProfileId String
+  category        TenantNotificationCategory
+  enabled         Boolean                     @default(true)
+  frequency       TenantNotificationFrequency @default(INSTANT)
+  createdAt       DateTime                    @default(now())
+  updatedAt       DateTime                    @updatedAt
+  tenantProfile   TenantProfile               @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantProfileId, category])
+  @@index([tenantProfileId])
+  @@map("tenant_notification_preference")
+}
+
+model CustomerProfile {
+  id               String   @id @default(cuid())
+  appUserId        String   @unique
+  marketingConsent Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  appUser          AppUser  @relation(fields: [appUserId], references: [authUserId], onDelete: Cascade)
+
+  @@map("customer_profile")
+}

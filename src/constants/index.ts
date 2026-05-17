@@ -1,5 +1,10 @@
 import { AddOn, FaqCategory, PricingFeature, PricingPlan } from "@/types";
 
+export * from "./address/barangay";
+export * from "./address/region";
+export * from "./address/municipality";
+export * from "./address/province";
+
 export const PAGINATION = {
   DEFAULT_PAGE: 1,
   DEFAULT_PAGE_SIZE: 5,

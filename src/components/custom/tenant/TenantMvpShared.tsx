@@ -224,6 +224,9 @@ export const tenantNavGroups: TenantSidebarNavGroup[] = [
         icon: <Settings2Icon />,
         subItems: [
           { title: "Property Setup", path: "/tenant/settings/property" },
+          { title: "Rooms & Inventory", path: "/tenant/settings/rooms" },
+          { title: "Channel Setup", path: "/tenant/settings/channels" },
+          { title: "Services Offered", path: "/tenant/settings/services" },
           { title: "Team Access", path: "/tenant/settings/team" },
           { title: "Automations", path: "/tenant/settings/automations" },
         ],

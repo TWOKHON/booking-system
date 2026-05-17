@@ -1,28 +1,54 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { ArrowUpRightIcon, CheckCircle2Icon, CircleAlertIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { TuroInsightCard } from "@/app/admin/dashboard/_components/TuroInsightCard";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
 import {
   tenantWorkspaceAccent,
   tenantWorkspaceRegistry,
   type TenantWorkspacePath,
 } from "@/components/custom/tenant/TenantMvpShared";
 
-export function TenantWorkspacePage({ path }: { path: TenantWorkspacePath }) {
+export async function TenantWorkspacePage({ path }: { path: TenantWorkspacePath }) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  const currentUser = session?.user?.id
+    ? await db.appUser.findUnique({
+        where: { authUserId: session.user.id },
+        include: {
+          tenantProfile: {
+            select: {
+              resortName: true,
+              businessName: true,
+            },
+          },
+        },
+      })
+    : null;
+
   const content = tenantWorkspaceRegistry[path];
   const primaryInsight = content.spotlightPoints[0] ?? content.spotlightBody;
   const leadingMetric = content.metrics[0];
+  const ownerName = currentUser?.displayName?.trim() || session?.user.name?.trim() || "Resort Owner";
+  const workspaceName =
+    currentUser?.tenantProfile?.resortName?.trim() ||
+    currentUser?.tenantProfile?.businessName?.trim() ||
+    "your resort";
   const insightMessage = leadingMetric
-    ? `${content.spotlightTitle}: ${primaryInsight} Focus metric: ${leadingMetric.label} is ${leadingMetric.value}.`
-    : `${content.spotlightTitle}: ${primaryInsight}`;
+    ? `${content.spotlightTitle} for ${workspaceName}: ${primaryInsight} Focus metric: ${leadingMetric.label} is ${leadingMetric.value}.`
+    : `${content.spotlightTitle} for ${workspaceName}: ${primaryInsight}`;
 
   return (
     <main className="flex flex-1 flex-col gap-6">
       <TuroInsightCard
         message={insightMessage}
-        userName="Resort Owner"
+        userName={ownerName}
       />
 
       <section className="overflow-hidden border bg-[radial-gradient(circle_at_top_left,rgba(244,244,245,0.96),rgba(255,255,255,1)_46%,rgba(244,244,245,0.84))] p-5 shadow-sm md:p-6">

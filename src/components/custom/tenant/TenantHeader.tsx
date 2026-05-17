@@ -10,10 +10,18 @@ import { NavUser } from "@/components/custom/NavUser";
 import { BellIcon, CalendarClockIcon, SparklesIcon } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 
 export function TenantHeader() {
   const pathname = usePathname();
   const activeItem = getActiveTenantNavItem(pathname);
+  const { data: session } = authClient.useSession();
+
+  const resolvedUser = {
+    name: session?.user.name?.trim() || "Tenant User",
+    email: session?.user.email || "No email available",
+    avatar: session?.user.image ?? null,
+  };
 
   return (
     <header
@@ -46,7 +54,7 @@ export function TenantHeader() {
           className="h-4 data-[orientation=vertical]:self-center"
           orientation="vertical"
         />
-        <NavUser />
+        <NavUser user={resolvedUser} />
       </div>
     </header>
   );

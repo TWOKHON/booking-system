@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -16,34 +17,71 @@ import {
   CreditCardIcon,
   LogOutIcon,
 } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
-const user = {
-  name: "Kyle Andre Lim",
-  email: "kylelim@resortcloud.com",
-  avatar: "https://github.com/shabanhr.png",
+type NavUserData = {
+  name: string;
+  email: string;
+  avatar?: string | null;
 };
 
-export function NavUser() {
+function getInitials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+
+  if (parts.length === 0) {
+    return "U";
+  }
+
+  return parts
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join("");
+}
+
+export function NavUser({ user }: { user?: NavUserData }) {
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const resolvedUser = user ?? {
+    name: "User",
+    email: "No email available",
+    avatar: null,
+  };
+
+  async function handleSignOut() {
+    setIsSigningOut(true);
+
+    try {
+      await authClient.signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            window.location.href = "/auth/sign-in";
+          },
+        },
+      });
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar className="size-8">
-          <AvatarImage src={user.avatar} />
-          <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+          <AvatarImage src={resolvedUser.avatar ?? undefined} />
+          <AvatarFallback>{getInitials(resolvedUser.name)}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-60">
+      <DropdownMenuContent align="end" className="w-80">
         <DropdownMenuItem className="flex items-center justify-start gap-2">
           <DropdownMenuLabel className="flex items-center gap-3">
             <Avatar className="size-10">
-              <AvatarImage src={user.avatar} />
-              <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+              <AvatarImage src={resolvedUser.avatar ?? undefined} />
+              <AvatarFallback>{getInitials(resolvedUser.name)}</AvatarFallback>
             </Avatar>
             <div>
-              <span className="font-medium text-foreground">{user.name}</span>{" "}
+              <span className="font-medium text-foreground">{resolvedUser.name}</span>{" "}
               <br />
               <div className="max-w-full overflow-hidden overflow-ellipsis whitespace-nowrap text-muted-foreground text-xs">
-                {user.email}
+                {resolvedUser.email}
               </div>
             </div>
           </DropdownMenuLabel>
@@ -71,9 +109,11 @@ export function NavUser() {
           <DropdownMenuItem
             className="w-full cursor-pointer"
             variant="destructive"
+            disabled={isSigningOut}
+            onClick={handleSignOut}
           >
             <LogOutIcon />
-            Log out
+            {isSigningOut ? "Signing out..." : "Log out"}
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

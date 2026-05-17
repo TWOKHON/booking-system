@@ -1,57 +1,69 @@
-import { initTRPC } from '@trpc/server';
-import { cache } from 'react';
-import superjson from "superjson"
+import { TRPCError, initTRPC } from "@trpc/server";
+import { headers } from "next/headers";
+import { cache } from "react";
+import superjson from "superjson";
+import { auth, type AuthSession } from "@/lib/auth";
+import { db } from "@/lib/db";
 
-type TRPCContext = {
-  userId: string;
+type SessionData = AuthSession | null;
+
+export type TRPCContext = {
+  db: typeof db;
+  session: SessionData;
+  currentUser: Awaited<ReturnType<typeof getCurrentUserProfile>>;
 };
 
-export const createTRPCContext = cache(async () => {
-  /**
-   * @see: https://trpc.io/docs/server/context
-   */
-  return { userId: 'user_123' };
+async function getSession(): Promise<SessionData> {
+  return auth.api.getSession({
+    headers: await headers(),
+  });
+}
+
+async function getCurrentUserProfile(session: SessionData) {
+  if (!session?.user?.id) {
+    return null;
+  }
+
+  return db.appUser.findUnique({
+    where: { authUserId: session.user.id },
+    include: {
+      tenantProfile: true,
+      customerProfile: true,
+    },
+  });
+}
+
+export const createTRPCContext = cache(async (): Promise<TRPCContext> => {
+  const session = await getSession();
+  const currentUser = await getCurrentUserProfile(session);
+
+  return {
+    db,
+    session,
+    currentUser,
+  };
 });
-// Avoid exporting the entire t-object
-// since it's not very descriptive.
-// For instance, the use of a t variable
-// is common in i18n libraries.
+
 const t = initTRPC.context<TRPCContext>().create({
-  /**
-   * @see https://trpc.io/docs/server/data-transformers
-   */
   transformer: superjson,
 });
-// Base router and procedure helpers
+
 export const createTRPCRouter = t.router;
 export const createCallerFactory = t.createCallerFactory;
 export const baseProcedure = t.procedure;
 export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
-  const mockSession = {
-    user: {
-      id: ctx.userId,
-      name: "Demo Admin",
-      email: "admin@example.com",
+  if (!ctx.session?.user?.id) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You need to sign in to continue.",
+    });
+  }
+
+  return next({
+    ctx: {
+      ...ctx,
+      session: ctx.session,
+      currentUser: ctx.currentUser,
     },
-  };
-
-  return next({ ctx: { ...ctx, auth: mockSession } });
+  });
 });
-
-export const premiumProcedure = protectedProcedure.use(
-  async ({ ctx, next }) => {
-    const mockCustomer = {
-      id: "mock-customer-1",
-      externalId: ctx.auth.user.id,
-      activeSubscriptions: [
-        {
-          id: "mock-subscription-1",
-          status: "active",
-          plan: "platform-pro",
-        },
-      ],
-    };
-
-    return next({ ctx: { ...ctx, customer: mockCustomer } });
-  },
-);

@@ -1,9 +1,22 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { Eye } from "lucide-react";
+import { useActionState, useMemo, useState } from "react";
+import { useFormStatus } from "react-dom";
+import { CheckIcon, Eye, EyeOff, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { registerUserAction } from "@/app/auth/sign-up/actions";
+import { initialSignUpState } from "@/app/auth/sign-up/state";
+import { cn } from "@/lib/utils";
+
+const passwordRequirements = [
+  { regex: /.{8,}/, text: "At least 8 characters" },
+  { regex: /[A-Z]/, text: "At least 1 uppercase letter" },
+  { regex: /[0-9]/, text: "At least 1 number" },
+] as const;
 
 function SocialButton({
   icon,
@@ -15,7 +28,7 @@ function SocialButton({
   return (
     <button
       type="button"
-      className="flex h-9 w-full items-center rounded-xl gap-3 justify-center border border-zinc-200 bg-white px-5 text-base font-medium text-zinc-900 transition hover:bg-zinc-50"
+      className="flex h-9 w-full items-center justify-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 text-base font-medium text-zinc-900 transition hover:bg-zinc-50"
     >
       <span>{icon}</span>
       <span>{children}</span>
@@ -69,16 +82,88 @@ function AppleMark() {
   );
 }
 
-export function SignUpView() {
+function SubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button type="submit" className="h-9 w-full" disabled={pending}>
+      {pending ? "Creating account..." : "Continue"}
+    </Button>
+  );
+}
+
+function getQuoteContent(userType: "admin" | "tenant" | "customer") {
+  if (userType === "admin") {
+    return {
+      quote:
+        "Run the entire platform with a clear view of tenant growth, billing performance, and the operational health of every resort workspace.",
+      title: "Platform Owner, ResortCloud",
+    };
+  }
+
+  if (userType === "tenant") {
+    return {
+      quote:
+        "ResortCloud gives operators one place to coordinate reservations, finance, operations, guest communication, and the website experience guests actually see.",
+      title: "Platform Owner, ResortCloud",
+    };
+  }
+
+  return {
+    quote:
+      "Create a guest account that stays connected across booking updates, resort communication, and future customer experiences powered by each tenant.",
+    title: "Platform Owner, ResortCloud",
+  };
+}
+
+export function SignUpView({
+  userType,
+  selectedPlan,
+  selectedBilling,
+}: {
+  userType: "admin" | "tenant" | "customer";
+  selectedPlan?: string;
+  selectedBilling?: string;
+}) {
+  const [state, formAction] = useActionState(
+    registerUserAction,
+    initialSignUpState,
+  );
+  const [showPassword, setShowPassword] = useState(false);
+  const [password, setPassword] = useState("");
+  const quoteContent = getQuoteContent(userType);
+  const passwordStrength = passwordRequirements.map((requirement) => ({
+    met: requirement.regex.test(password),
+    text: requirement.text,
+  }));
+  const strengthScore = useMemo(
+    () => passwordStrength.filter((requirement) => requirement.met).length,
+    [passwordStrength],
+  );
+
+  function getStrengthColor(score: number) {
+    if (score === 0) return "bg-zinc-200";
+    if (score <= 1) return "bg-red-500";
+    if (score <= 2) return "bg-orange-500";
+    if (score < passwordRequirements.length) return "bg-amber-500";
+
+    return "bg-green-500";
+  }
+
+  function getStrengthText(score: number) {
+    if (score === 0) return "Enter a password";
+    if (score <= 2) return "Weak password";
+    if (score < passwordRequirements.length) return "Strong password";
+
+    return "Very strong password";
+  }
+
   return (
     <main className="min-h-screen bg-zinc-100">
       <div className="relative grid min-h-screen lg:grid-cols-2">
-        {/* ── Left column: zinc-100 bg, white card ── */}
-        <div className="flex flex-col justify-center px-6 py-12 bg-zinc-100">
-          <div className="max-w-lg mx-auto">
-            {/* White card */}
-            <div className="rounded-2xl bg-white mb-5 p-6 shadow-sm border border-zinc-200/80">
-              {/* Logo + heading above the card */}
+        <div className="flex flex-col justify-center bg-zinc-100 px-6 py-12">
+          <div className="mx-auto max-w-lg">
+            <div className="mb-5 rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm">
               <div className="mb-6 flex flex-col items-center">
                 <Image
                   src="/main/logo-light.png"
@@ -91,35 +176,35 @@ export function SignUpView() {
                 <h1 className="mt-4 text-2xl font-semibold tracking-tight text-zinc-900">
                   Create your account
                 </h1>
-                <p className="mt-1 text-sm text-zinc-500">
-                  No credit card required.
-                </p>
               </div>
-              {/* Social buttons */}
+
               <div className="grid grid-cols-2 gap-2">
                 <SocialButton icon={<GoogleMark />}>Google</SocialButton>
                 <SocialButton icon={<AppleMark />}>Apple</SocialButton>
               </div>
 
-              {/* OR divider */}
               <div className="my-6 flex items-center gap-4">
                 <div className="h-px flex-1 bg-zinc-200" />
                 <span className="text-xs font-medium text-zinc-500">OR</span>
                 <div className="h-px flex-1 bg-zinc-200" />
               </div>
 
-              {/* Form */}
-              <form className="space-y-4">
+              <form action={formAction} className="space-y-4">
+                <input type="hidden" name="role" value={userType} />
+                <input type="hidden" name="plan" value={selectedPlan ?? ""} />
+                <input type="hidden" name="billing" value={selectedBilling ?? ""} />
+
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <Label
-                      htmlFor="first-name"
+                      htmlFor="firstName"
                       className="text-sm font-medium text-zinc-950"
                     >
                       First name
                     </Label>
                     <Input
-                      id="first-name"
+                      id="firstName"
+                      name="firstName"
                       type="text"
                       placeholder="Enter your first name"
                       className="h-9 rounded-xl border-zinc-200 px-4 text-sm"
@@ -127,13 +212,14 @@ export function SignUpView() {
                   </div>
                   <div className="space-y-1.5">
                     <Label
-                      htmlFor="last-name"
+                      htmlFor="lastName"
                       className="text-sm font-medium text-zinc-950"
                     >
                       Last name
                     </Label>
                     <Input
-                      id="last-name"
+                      id="lastName"
+                      name="lastName"
                       type="text"
                       placeholder="Enter your last name"
                       className="h-9 rounded-xl border-zinc-200 px-4 text-sm"
@@ -150,6 +236,7 @@ export function SignUpView() {
                   </Label>
                   <Input
                     id="email"
+                    name="email"
                     type="email"
                     placeholder="Enter your email address"
                     className="h-9 rounded-xl border-zinc-200 px-4 text-sm"
@@ -166,26 +253,86 @@ export function SignUpView() {
                   <div className="relative">
                     <Input
                       id="password"
-                      type="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
                       placeholder="Create a password"
-                      className="h-9 rounded-xl border-zinc-200 px-4 text-sm"
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      className="h-9 rounded-xl border-zinc-200 px-4 pr-11 text-sm"
                     />
                     <button
                       type="button"
+                      onClick={() => setShowPassword((value) => !value)}
                       className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-zinc-400 hover:text-zinc-600"
-                      aria-label="Show password"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
                     >
-                      <Eye className="size-4" />
+                      {showPassword ? (
+                        <EyeOff className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
                     </button>
+                  </div>
+                  <div className="space-y-2 pt-1.5">
+                    <div className="flex h-1 w-full gap-1">
+                      {Array.from({ length: passwordRequirements.length }).map((_, index) => (
+                        <span
+                          key={index}
+                          className={cn(
+                            "h-full flex-1 rounded-full transition-all duration-500 ease-out",
+                            index < strengthScore
+                              ? getStrengthColor(strengthScore)
+                              : "bg-zinc-200",
+                          )}
+                        />
+                      ))}
+                    </div>
+
+                    <p className="text-xs font-medium text-zinc-900">
+                      {getStrengthText(strengthScore)}. Must contain:
+                    </p>
+
+                    <ul className="space-y-1">
+                      {passwordStrength.map((requirement) => (
+                        <li
+                          key={requirement.text}
+                          className="flex items-center gap-1"
+                        >
+                          {requirement.met ? (
+                            <CheckIcon className="size-3.5 text-green-600" />
+                          ) : (
+                            <XIcon className="size-3.5 text-zinc-400" />
+                          )}
+                          <span
+                            className={cn(
+                              "text-xs",
+                              requirement.met
+                                ? "text-green-600"
+                                : "text-zinc-500",
+                            )}
+                          >
+                            {requirement.text}
+                            <span className="sr-only">
+                              {requirement.met
+                                ? " - Requirement met"
+                                : " - Requirement not met"}
+                            </span>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
 
-                <Button type="submit" className="h-9 w-full">
-                  Continue
-                </Button>
+                {state.error ? (
+                  <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                    {state.error}
+                  </p>
+                ) : null}
+
+                <SubmitButton />
               </form>
 
-              {/* Below-card links */}
               <p className="mt-5 text-center text-sm text-zinc-500">
                 Already have an account?{" "}
                 <Link
@@ -202,12 +349,10 @@ export function SignUpView() {
           </div>
         </div>
 
-        {/* ── Center blade: zinc-100 (#f4f4f5) so it blends with left panel ── */}
         <div
-          className="hidden lg:flex absolute inset-y-0 z-10 w-10 flex-col pointer-events-none"
+          className="pointer-events-none absolute inset-y-0 z-10 hidden w-10 flex-col lg:flex"
           style={{ left: "calc(50% - 5px)", transform: "scaleX(-1)" }}
         >
-          {/* Top angled cap */}
           <div className="shrink-0" style={{ height: 48 }}>
             <svg
               width="40"
@@ -223,9 +368,7 @@ export function SignUpView() {
               />
             </svg>
           </div>
-          {/* Straight middle */}
-          <div className="flex-1" style={{ background: "#f4f4f5" }} />
-          {/* Bottom angled cap */}
+          <div className="flex-1 bg-zinc-100" />
           <div className="shrink-0" style={{ height: 48 }}>
             <svg
               width="40"
@@ -243,14 +386,9 @@ export function SignUpView() {
           </div>
         </div>
 
-        {/* ── Right column: white bg, testimonial ── */}
-        <div className="hidden lg:flex flex-col justify-between pl-40 pr-20 py-16 bg-white">
-          {/* Top: badge */}
-          <div>
-            <span className="inline-block text-xs font-medium text-zinc-500 tracking-widest uppercase"></span>
-          </div>
+        <div className="hidden flex-col justify-between bg-white py-16 pl-40 pr-20 lg:flex">
+          <div />
 
-          {/* Middle: testimonial */}
           <div className="flex flex-col gap-8">
             <svg
               width="40"
@@ -266,46 +404,43 @@ export function SignUpView() {
             </svg>
 
             <blockquote className="text-2xl font-semibold leading-snug tracking-tight text-zinc-900">
-              ResortCloud helps resort teams manage bookings, coordinate guest
-              requests, and keep daily operations organized in one system
-              designed for a smoother staff and guest experience.
+              {quoteContent.quote}
             </blockquote>
 
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-zinc-900 text-white flex items-center justify-center text-sm font-bold">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-900 text-sm font-bold text-white">
                 JA
               </div>
               <div>
                 <p className="text-sm font-semibold text-zinc-900">
                   Jason Jhon Almonte
                 </p>
-                <p className="text-sm text-zinc-500">ResortCloud, CEO</p>
+                <p className="text-sm text-zinc-500">{quoteContent.title}</p>
               </div>
             </div>
           </div>
 
-          {/* Bottom: footer */}
           <div className="flex items-center justify-end gap-2 text-xs text-muted-foreground">
             <Link
               href="/help-center"
               target="_blank"
-              className="hover:text-black transition-colors"
+              className="transition-colors hover:text-black"
             >
               Support
             </Link>
-            <span className="bg-muted-foreground rounded-full size-0.75"></span>
+            <span className="size-0.75 rounded-full bg-muted-foreground" />
             <Link
               href="/privacy-policy"
               target="_blank"
-              className="hover:text-black transition-colors"
+              className="transition-colors hover:text-black"
             >
               Privacy
             </Link>
-            <span className="bg-muted-foreground rounded-full size-0.75"></span>
+            <span className="size-0.75 rounded-full bg-muted-foreground" />
             <Link
               href="/terms"
               target="_blank"
-              className="hover:text-black transition-colors"
+              className="transition-colors hover:text-black"
             >
               Terms
             </Link>

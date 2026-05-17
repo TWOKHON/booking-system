@@ -1,24 +1,7 @@
 import Link from "next/link";
-import {
-  Bell,
-  CircleHelp,
-  CreditCard,
-  LogOut,
-  Settings,
-  User,
-} from "lucide-react";
+import { Bell, CircleHelp } from "lucide-react";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 export function OnboardingHeader() {
   return (
