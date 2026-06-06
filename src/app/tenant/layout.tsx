@@ -10,8 +10,8 @@ const TenantLayout = ({ children }: { children: ReactNode }) => {
   return (
     <ThemeProvider
       attribute="class"
-      defaultTheme="system"
-      enableSystem
+      defaultTheme="light"
+      enableSystem={false}
       disableTransitionOnChange
     >
       <SidebarProvider className={cn("[--app-wrapper-max-width:80rem]")}>

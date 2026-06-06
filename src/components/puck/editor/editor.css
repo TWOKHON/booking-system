@@ -1,0 +1,46 @@
+@media (prefers-color-scheme: dark) {
+  .puck,
+  [class*="puck"],
+  #puck {
+    color-scheme: light;
+  }
+}
+
+html,
+body {
+  color-scheme: light !important;
+  background: #ffffff !important;
+  color: #171717 !important;
+}
+
+/* Override Puck's dark mode variables back to light values */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --puck-color-white: #ffffff;
+    --puck-color-black: #000000;
+    --puck-color-grey-01: #f2f2f2;
+    --puck-color-grey-02: #e6e6e6;
+    --puck-color-grey-03: #cccccc;
+    --puck-color-grey-04: #b3b3b3;
+    --puck-color-grey-05: #999999;
+    --puck-color-grey-06: #808080;
+    --puck-color-grey-07: #666666;
+    --puck-color-grey-08: #4d4d4d;
+    --puck-color-grey-09: #333333;
+    --puck-color-grey-10: #1f1f1f;
+    --puck-color-grey-11: #141414;
+    --puck-color-grey-12: #0a0a0a;
+    --puck-color-azure-01: #f0f7ff;
+    --puck-color-azure-02: #d6eaff;
+    --puck-color-azure-03: #add4ff;
+    --puck-color-azure-04: #85bdff;
+    --puck-color-azure-05: #5ca7ff;
+    --puck-color-azure-06: #3390ff;
+    --puck-color-azure-07: #0a7aff;
+    --puck-color-azure-08: #0062d6;
+    --puck-color-azure-09: #004aad;
+    --puck-color-azure-10: #003385;
+    --puck-color-azure-11: #001c5c;
+    --puck-color-azure-12: #000533;
+  }
+}

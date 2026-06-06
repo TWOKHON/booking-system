@@ -24,7 +24,21 @@ function hasLatestDelegates(client: PrismaClient) {
     "tenantRoomImage" in client &&
     "tenantAutomationWorkflow" in client &&
     "tenantPaymentAccount" in client &&
-    "tenantDiscordChannel" in client
+    "tenantDiscordChannel" in client &&
+    "tenantEmployee" in client &&
+    "tenantLeaveApplication" in client &&
+    "tenantAttendanceLog" in client &&
+    "tenantHoliday" in client &&
+    "tenantPayrollRun" in client &&
+    "tenantPayrollLine" in client &&
+    "tenantCashFlowRecord" in client &&
+    "tenantPettyCashRequest" in client &&
+    "tenantOperationTask" in client &&
+    "tenantMaintenanceRequest" in client &&
+    "tenantHousekeepingRoom" in client &&
+    "tenantArrival" in client &&
+    "tenantGuestRequest" in client &&
+    "tenantGuestProfile" in client
   );
 }
 

@@ -1,5 +1,7 @@
-import { TenantWorkspacePage } from "@/components/custom/tenant/TenantWorkspacePage";
+import { HousekeepingWorkspaceView } from "./_components/HousekeepingWorkspaceView";
 
-export default function Page() {
-  return <TenantWorkspacePage path="/tenant/operations/housekeeping" />;
+const Page = () => {
+  return <HousekeepingWorkspaceView />;
 }
+
+export default Page

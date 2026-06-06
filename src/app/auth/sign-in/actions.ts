@@ -1,5 +1,6 @@
 "use server";
 
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
@@ -62,6 +63,10 @@ export async function loginUserAction(
       }),
     );
   } catch (error) {
+    if (isRedirectError(error)) {
+      throw error;
+    }
+
     if (
       error &&
       typeof error === "object" &&

@@ -68,6 +68,47 @@ export const uploadRouter = {
         fileKey: file.key,
       };
     }),
+  tenantAssetUploader: f({
+    image: {
+      maxFileSize: "8MB",
+      maxFileCount: 1,
+    },
+  })
+    .middleware(async ({ req }) => {
+      const session = await auth.api.getSession({
+        headers: req.headers,
+      });
+
+      if (!session?.user?.id) {
+        throw new UploadThingError("You need to sign in to upload assets.");
+      }
+
+      const appUser = await db.appUser.findUnique({
+        where: { authUserId: session.user.id },
+        include: {
+          tenantProfile: true,
+        },
+      });
+
+      if (!appUser?.tenantProfile || appUser.role !== "TENANT") {
+        throw new UploadThingError("Only tenant users can upload assets.");
+      }
+
+      return {
+        tenantProfileId: appUser.tenantProfile.id,
+        uploaderUserId: session.user.id,
+      };
+    })
+    .onUploadComplete(async ({ file, metadata }) => {
+      return {
+        tenantProfileId: metadata.tenantProfileId,
+        url: file.ufsUrl,
+        key: file.key,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+      };
+    }),
 } satisfies FileRouter;
 
 export type UploadRouter = typeof uploadRouter;

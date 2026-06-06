@@ -13,7 +13,7 @@ export function getAppRedirectPath(input: {
 
   if (role === "TENANT") {
     return tenantOnboardingStatus === "COMPLETED"
-      ? "/tenant"
+      ? "/tenant/dashboard"
       : "/auth/onboarding";
   }
 

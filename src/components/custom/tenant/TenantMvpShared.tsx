@@ -12,6 +12,7 @@ import {
   Settings2Icon,
   SparklesIcon,
   TagsIcon,
+  UserCog2,
   UsersIcon,
   WrenchIcon,
 } from "lucide-react";
@@ -33,38 +34,40 @@ export type TenantSidebarNavGroup = {
 
 type LegacyTenantWorkspacePath = keyof typeof legacyTenantWorkspaceContent;
 type TenantWorkspaceContent =
-  (typeof legacyTenantWorkspaceContent)[LegacyTenantWorkspacePath];
+    (typeof legacyTenantWorkspaceContent)[LegacyTenantWorkspacePath];
 
 export type TenantMvpFeaturePath =
-  | "/tenant/foundation/trial"
-  | "/tenant/foundation/billing"
-  | "/tenant/foundation/users"
-  | "/tenant/foundation/rbac"
-  | "/tenant/sales/inquiries"
-  | "/tenant/sales/follow-ups"
-  | "/tenant/sales/invoices"
-  | "/tenant/sales/confirmations"
-  | "/tenant/finance/cash-flow"
-  | "/tenant/finance/petty-cash"
-  | "/tenant/finance/accounting"
-  | "/tenant/hr/attendance"
-  | "/tenant/marketing/analytics"
-  | "/tenant/web/builder"
-  | "/tenant/web/assets"
-  | "/tenant/web/domains"
-  | "/tenant/web/publish"
-  | "/tenant/analytics/kpi"
-  | "/tenant/analytics/advanced"
-  | "/tenant/analytics/properties"
-  | "/tenant/ai/recommendations"
-  | "/tenant/ai/forecast"
-  | "/tenant/integrations/payment-accounts"
-  | "/tenant/integrations/notifications"
-  | "/tenant/integrations/discord";
+    | "/tenant/foundation/trial"
+    | "/tenant/foundation/billing"
+    | "/tenant/foundation/users"
+    | "/tenant/foundation/rbac"
+    | "/tenant/sales/inquiries"
+    | "/tenant/sales/follow-ups"
+    | "/tenant/sales/invoices"
+    | "/tenant/sales/confirmations"
+    | "/tenant/finance/cash-flow"
+    | "/tenant/finance/petty-cash"
+    | "/tenant/finance/accounting"
+    | "/tenant/hr/attendance"
+    | "/tenant/hr/leave-application"
+    | "/tenant/hr/payroll"
+    | "/tenant/marketing/analytics"
+    | "/tenant/web/builder"
+    | "/tenant/web/assets"
+    | "/tenant/web/domains"
+    | "/tenant/web/publish"
+    | "/tenant/analytics/kpi"
+    | "/tenant/analytics/advanced"
+    | "/tenant/analytics/properties"
+    | "/tenant/ai/recommendations"
+    | "/tenant/ai/forecast"
+    | "/tenant/integrations/payment-accounts"
+    | "/tenant/integrations/notifications"
+    | "/tenant/integrations/discord";
 
 export type TenantWorkspacePath =
-  | LegacyTenantWorkspacePath
-  | TenantMvpFeaturePath;
+    | LegacyTenantWorkspacePath
+    | TenantMvpFeaturePath;
 
 const isPathActive = (pathname: string, path?: string) => {
   if (!path || path === "#" || path.startsWith("#")) {
@@ -80,10 +83,10 @@ const isPathActive = (pathname: string, path?: string) => {
 
 const getBestMatchedPath = (pathname: string, items: TenantSidebarNavItem[]) => {
   const matches = items
-    .filter((item) => isPathActive(pathname, item.path))
-    .map((item) => item.path)
-    .filter((path): path is string => Boolean(path))
-    .sort((a, b) => b.length - a.length);
+      .filter((item) => isPathActive(pathname, item.path))
+      .map((item) => item.path)
+      .filter((path): path is string => Boolean(path))
+      .sort((a, b) => b.length - a.length);
 
   return matches[0];
 };
@@ -163,11 +166,20 @@ export const tenantNavGroups: TenantSidebarNavGroup[] = [
         ],
       },
       {
+        title: "HR",
+        path: "#",
+        icon: <UserCog2 />,
+        subItems: [
+          { title: "Attendance", path: "/tenant/hr/attendance" },
+          { title: "Leave Applications", path: "/tenant/hr/leave-application" },
+          { title: "Payroll", path: "/tenant/hr/payroll" },
+        ],
+      },
+      {
         title: "Operations",
         path: "#",
         icon: <WrenchIcon />,
         subItems: [
-          { title: "HR & Attendance", path: "/tenant/hr/attendance" },
           { title: "Housekeeping", path: "/tenant/operations/housekeeping" },
           { title: "Maintenance", path: "/tenant/operations/maintenance" },
           { title: "Staff Task Board", path: "/tenant/operations/tasks" },
@@ -186,8 +198,6 @@ export const tenantNavGroups: TenantSidebarNavGroup[] = [
           { title: "Builder Workspace", path: "/tenant/web/builder" },
           { title: "Sections & Assets", path: "/tenant/web/assets" },
           { title: "Domains & DNS", path: "/tenant/web/domains" },
-          { title: "Publish Center", path: "/tenant/web/publish" },
-          { title: "Website Funnel", path: "/tenant/channels/website" },
         ],
       },
       {
@@ -259,57 +269,57 @@ export const tenantFooterNavLinks: TenantSidebarNavItem[] = [
 
 export const tenantNavLinks: TenantSidebarNavItem[] = [
   ...tenantNavGroups.flatMap((group) =>
-    group.items.flatMap((item) =>
-      item.subItems?.length ? [item, ...item.subItems] : [item],
-    ),
+      group.items.flatMap((item) =>
+          item.subItems?.length ? [item, ...item.subItems] : [item],
+      ),
   ),
   ...tenantFooterNavLinks,
 ];
 
 export const getTenantNavGroups = (
-  pathname: string,
+    pathname: string,
 ): TenantSidebarNavGroup[] =>
-  tenantNavGroups.map((group) => ({
-    ...group,
-    items: group.items.map((item) => {
-      const bestSubItemPath = getBestMatchedPath(pathname, item.subItems ?? []);
-      const activeSubItems =
-        item.subItems?.map((subItem) => ({
-          ...subItem,
-          isActive: subItem.path === bestSubItemPath,
-        })) ?? [];
+    tenantNavGroups.map((group) => ({
+      ...group,
+      items: group.items.map((item) => {
+        const bestSubItemPath = getBestMatchedPath(pathname, item.subItems ?? []);
+        const activeSubItems =
+            item.subItems?.map((subItem) => ({
+              ...subItem,
+              isActive: subItem.path === bestSubItemPath,
+            })) ?? [];
 
-      return {
-        ...item,
-        isActive: isPathActive(pathname, item.path),
-        hasActiveSubItem: activeSubItems.some((subItem) => subItem.isActive),
-        subItems: activeSubItems.length ? activeSubItems : item.subItems,
-      };
-    }),
-  }));
+        return {
+          ...item,
+          isActive: isPathActive(pathname, item.path),
+          hasActiveSubItem: activeSubItems.some((subItem) => subItem.isActive),
+          subItems: activeSubItems.length ? activeSubItems : item.subItems,
+        };
+      }),
+    }));
 
 export const getTenantFooterNavLinks = (pathname: string): TenantSidebarNavItem[] =>
-  tenantFooterNavLinks.map((item) => ({
-    ...item,
-    isActive: isPathActive(pathname, item.path),
-  }));
+    tenantFooterNavLinks.map((item) => ({
+      ...item,
+      isActive: isPathActive(pathname, item.path),
+    }));
 
 export const getActiveTenantNavItem = (
-  pathname: string,
+    pathname: string,
 ): TenantSidebarNavItem | undefined =>
-  [...tenantNavLinks]
-    .filter((item) => isPathActive(pathname, item.path))
-    .sort((a, b) => (b.path?.length ?? 0) - (a.path?.length ?? 0))[0];
+    [...tenantNavLinks]
+        .filter((item) => isPathActive(pathname, item.path))
+        .sort((a, b) => (b.path?.length ?? 0) - (a.path?.length ?? 0))[0];
 
 export const tenantMvpExpansionContent: Record<
-  TenantMvpFeaturePath,
-  TenantWorkspaceContent
+    TenantMvpFeaturePath,
+    TenantWorkspaceContent
 > = {
   "/tenant/foundation/trial": {
     eyebrow: "Phase 1 - Foundation",
     title: "Trial and plan state",
     description:
-      "Track the 7-day trial, plan conversion checkpoints, AdSense visibility, and account suspension rules from the owner workspace.",
+        "Track the 7-day trial, plan conversion checkpoints, AdSense visibility, and account suspension rules from the owner workspace.",
     primaryAction: "Review trial status",
     secondaryAction: "Open billing policies",
     metrics: [
@@ -320,7 +330,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Plan lifecycle",
     spotlightBody:
-      "This module mirrors the MVP onboarding flow: sign-up, free trial, plan choice, Stripe billing, ad removal, and suspension fallback if the tenant does not convert.",
+        "This module mirrors the MVP onboarding flow: sign-up, free trial, plan choice, Stripe billing, ad removal, and suspension fallback if the tenant does not convert.",
     spotlightPoints: [
       "Show trial countdown and conversion prompts clearly",
       "Surface seat limits and plan entitlements by tier",
@@ -360,7 +370,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 1 - Foundation",
     title: "Billing and renewals",
     description:
-      "Manage SaaS subscription billing, monthly or yearly plans, renewal reminders, and upgrade or downgrade history.",
+        "Manage SaaS subscription billing, monthly or yearly plans, renewal reminders, and upgrade or downgrade history.",
     primaryAction: "Open billing profile",
     secondaryAction: "Review renewal reminders",
     metrics: [
@@ -371,7 +381,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Subscription controls",
     spotlightBody:
-      "The tenant side should make subscription state legible without exposing platform complexity. Owners mainly need plan clarity, invoices, renewals, and change history.",
+        "The tenant side should make subscription state legible without exposing platform complexity. Owners mainly need plan clarity, invoices, renewals, and change history.",
     spotlightPoints: [
       "Separate platform subscription billing from guest payment accounts",
       "Show yearly savings and upgrade benefits in-context",
@@ -411,7 +421,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 1 - Foundation",
     title: "Users and seats",
     description:
-      "Manage staff accounts, plan-based seat limits, activation state, and workspace access for tenant teams.",
+        "Manage staff accounts, plan-based seat limits, activation state, and workspace access for tenant teams.",
     primaryAction: "Invite staff",
     secondaryAction: "Check seat usage",
     metrics: [
@@ -422,7 +432,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Seat governance",
     spotlightBody:
-      "The tenant owner needs a simple, trustworthy way to add or deactivate users while staying within plan limits and preserving auditability.",
+        "The tenant owner needs a simple, trustworthy way to add or deactivate users while staying within plan limits and preserving auditability.",
     spotlightPoints: [
       "Display seat usage against plan limits everywhere invites happen",
       "Support create, edit, and deactivate flows cleanly",
@@ -462,7 +472,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 1 - Foundation",
     title: "Roles and RBAC",
     description:
-      "Map tenant roles to operational permissions with server-enforced boundaries across sales, HR, accounting, operations, and owner controls.",
+        "Map tenant roles to operational permissions with server-enforced boundaries across sales, HR, accounting, operations, and owner controls.",
     primaryAction: "Review role matrix",
     secondaryAction: "Open team access",
     metrics: [
@@ -473,7 +483,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Permission design",
     spotlightBody:
-      "The MVP calls for strict server-side RBAC. On the tenant side, the UI should help owners understand responsibility boundaries rather than just expose switches.",
+        "The MVP calls for strict server-side RBAC. On the tenant side, the UI should help owners understand responsibility boundaries rather than just expose switches.",
     spotlightPoints: [
       "Keep role descriptions tied to real module access",
       "Explain read-only auditor access separately from accountant access",
@@ -513,7 +523,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 2 - Booking & Sales",
     title: "Inquiries inbox",
     description:
-      "Centralize public intake-form leads, embeddable booking inquiries, assigned sales agents, and source tagging for every prospect.",
+        "Centralize public intake-form leads, embeddable booking inquiries, assigned sales agents, and source tagging for every prospect.",
     primaryAction: "Open lead queue",
     secondaryAction: "Review follow-up rules",
     metrics: [
@@ -524,7 +534,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Lead intake flow",
     spotlightBody:
-      "This page represents the start of the booking process flow: inquiry received, agent assigned, and source captured so the resort owner can audit speed and quality.",
+        "This page represents the start of the booking process flow: inquiry received, agent assigned, and source captured so the resort owner can audit speed and quality.",
     spotlightPoints: [
       "Keep the intake form embeddable and tenant-specific",
       "Stamp every inquiry with source, assignee, and last follow-up",
@@ -564,7 +574,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 2 - Booking & Sales",
     title: "Follow-ups and priority",
     description:
-      "Operationalize Hot, Warm, and Cold inquiry handling with reminders, manual overrides, and aging visibility.",
+        "Operationalize Hot, Warm, and Cold inquiry handling with reminders, manual overrides, and aging visibility.",
     primaryAction: "Open priority queue",
     secondaryAction: "Review nurture cadence",
     metrics: [
@@ -575,7 +585,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Priority engine",
     spotlightBody:
-      "The MVP process flow depends on lead priority driving action automatically. The owner view should show whether the sales team is reacting correctly to urgency windows.",
+        "The MVP process flow depends on lead priority driving action automatically. The owner view should show whether the sales team is reacting correctly to urgency windows.",
     spotlightPoints: [
       "Hot leads trigger urgent alerts at 10 days or fewer",
       "Warm leads should carry active follow-up reminders",
@@ -615,7 +625,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 2 - Booking & Sales",
     title: "Invoices and down payment",
     description:
-      "Handle personal or company invoices, 50% down payment links, and booking-linked payment compliance from one place.",
+        "Handle personal or company invoices, 50% down payment links, and booking-linked payment compliance from one place.",
     primaryAction: "Generate invoice",
     secondaryAction: "Open payment accounts",
     metrics: [
@@ -626,7 +636,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Payment confirmation path",
     spotlightBody:
-      "This is where the booking flow becomes financially real. Every invoice should be tied to a booking, client profile, and the guest payment account state.",
+        "This is where the booking flow becomes financially real. Every invoice should be tied to a booking, client profile, and the guest payment account state.",
     spotlightPoints: [
       "Support personal and company invoice modes",
       "Attach invoice, guest profile, and booking record together",
@@ -666,7 +676,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 2 - Booking & Sales",
     title: "Confirmation dispatch",
     description:
-      "Track whether confirmed bookings have generated guest communications across email, SMS, and Discord-aware staff notifications.",
+        "Track whether confirmed bookings have generated guest communications across email, SMS, and Discord-aware staff notifications.",
     primaryAction: "Send confirmation",
     secondaryAction: "Review notification templates",
     metrics: [
@@ -677,7 +687,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Post-payment communication",
     spotlightBody:
-      "The process flow ends Phase 2 with confirmation sent. On the tenant side, owners need visibility into whether each booking actually triggered the right guest and staff communications.",
+        "The process flow ends Phase 2 with confirmation sent. On the tenant side, owners need visibility into whether each booking actually triggered the right guest and staff communications.",
     spotlightPoints: [
       "Guest confirmation should include full stay details",
       "Relevant staff should receive the operational handoff signal",
@@ -717,7 +727,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 3 - Finance & Ops",
     title: "Cash flow lifecycle",
     description:
-      "Visualize the operational handoff of on-site cash from collection through admin receipt, deposit, and bank verification.",
+        "Visualize the operational handoff of on-site cash from collection through admin receipt, deposit, and bank verification.",
     primaryAction: "Open cash ledger",
     secondaryAction: "Review bank verification",
     metrics: [
@@ -728,7 +738,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Finance handoff flow",
     spotlightBody:
-      "This page follows the process-flow exactly: cash collected by operations, handed to admin, deposited to owner, then verified against the bank statement by accounting.",
+        "This page follows the process-flow exactly: cash collected by operations, handed to admin, deposited to owner, then verified against the bank statement by accounting.",
     spotlightPoints: [
       "Keep each cash state explicit and auditable",
       "Make handoff ownership clear at every stage",
@@ -768,7 +778,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 3 - Finance & Ops",
     title: "Petty cash",
     description:
-      "Support request, approval, rejection, closure, and replenishment tracking for controlled small-expense workflows.",
+        "Support request, approval, rejection, closure, and replenishment tracking for controlled small-expense workflows.",
     primaryAction: "Create petty cash request",
     secondaryAction: "Review approval queue",
     metrics: [
@@ -779,7 +789,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Controlled small spend",
     spotlightBody:
-      "The petty cash module should feel simple for staff but strict for finance. The owner primarily needs traceability, status visibility, and replenishment awareness.",
+        "The petty cash module should feel simple for staff but strict for finance. The owner primarily needs traceability, status visibility, and replenishment awareness.",
     spotlightPoints: [
       "Support Pending, Approved or Rejected, then Closed states",
       "Allow broad request creation but controlled approval visibility",
@@ -819,7 +829,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 3 - Finance & Ops",
     title: "Accounting and reconciliation",
     description:
-      "Represent liquidation, cash flow reports, reconciliation, and bank matching inside the owner-facing tenant workspace.",
+        "Represent liquidation, cash flow reports, reconciliation, and bank matching inside the owner-facing tenant workspace.",
     primaryAction: "Open reconciliation",
     secondaryAction: "Review liquidation",
     metrics: [
@@ -830,7 +840,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Finance control layer",
     spotlightBody:
-      "Accounting on the tenant side is less about transaction entry and more about confidence: owners should be able to see whether records reconcile and exceptions are contained.",
+        "Accounting on the tenant side is less about transaction entry and more about confidence: owners should be able to see whether records reconcile and exceptions are contained.",
     spotlightPoints: [
       "Separate accountant edit power from auditor read-only access",
       "Expose mismatches and unresolved liquidations quickly",
@@ -870,7 +880,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 3 - Finance & Ops",
     title: "HR and attendance",
     description:
-      "Cover daily attendance, leave approvals, staff records, and exportable HR summaries for owner and HR roles.",
+        "Cover daily attendance, leave approvals, staff records, and exportable HR summaries for owner and HR roles.",
     primaryAction: "Open attendance report",
     secondaryAction: "Review leave queue",
     metrics: [
@@ -881,7 +891,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "HR visibility",
     spotlightBody:
-      "The owner does not need payroll in MVP, but they do need clean visibility into attendance health, leave flow, and staffing stability by department.",
+        "The owner does not need payroll in MVP, but they do need clean visibility into attendance health, leave flow, and staffing stability by department.",
     spotlightPoints: [
       "Keep HR module visible only to HR and Owner roles",
       "Support both operational daily use and summary exports",
@@ -917,11 +927,113 @@ export const tenantMvpExpansionContent: Record<
       },
     ],
   },
+  "/tenant/hr/leave-application": {
+    eyebrow: "Phase 3 - Finance & Ops",
+    title: "Leave applications",
+    description:
+        "Review, approve, and track employee leave requests while protecting staffing coverage and operational continuity.",
+    primaryAction: "Review leave requests",
+    secondaryAction: "Open attendance",
+    metrics: [
+      { label: "Pending requests", value: "1", detail: "Needs HR review" },
+      { label: "Approved this week", value: "3", detail: "Scheduled time off" },
+      { label: "Rejected", value: "1", detail: "Coverage conflict" },
+      { label: "Upcoming leave", value: "2", detail: "Next 14 days" },
+    ],
+    spotlightTitle: "Leave workflow",
+    spotlightBody:
+        "Leave approvals tie directly into attendance stability. The tenant UI should keep decisions fast, traceable, and clearly communicated to the rest of operations.",
+    spotlightPoints: [
+      "Keep pending approvals visible and time-bound",
+      "Show coverage impact by department when possible",
+      "Feed approved leave back into attendance and payroll readiness",
+    ],
+    panels: [
+      {
+        title: "Request lifecycle",
+        description: "Key states that should be represented.",
+        items: [
+          { title: "Pending", meta: "Awaiting HR decision", status: "Queue" },
+          { title: "Approved", meta: "Scheduled time off", status: "Confirmed" },
+          { title: "Rejected", meta: "Reason recorded", status: "Closed" },
+        ],
+      },
+      {
+        title: "Owner visibility",
+        description: "Signals that help protect operations coverage.",
+        items: [
+          { title: "Leave clustering", meta: "Avoid department shortages", status: "Useful" },
+          { title: "Peak date conflicts", meta: "Flag high-demand periods", status: "Useful" },
+          { title: "Approval audit trail", meta: "Who approved and when", status: "Required" },
+        ],
+      },
+      {
+        title: "Integrations",
+        description: "Where leave should connect within the tenant app.",
+        items: [
+          { title: "Attendance", meta: "Mark leave days correctly", status: "Linked" },
+          { title: "Scheduling", meta: "Optional staffing adjustments", status: "Optional" },
+          { title: "Payroll readiness", meta: "Avoid exception rework", status: "Linked" },
+        ],
+      },
+    ],
+  },
+  "/tenant/hr/payroll": {
+    eyebrow: "Phase 3 - Finance & Ops",
+    title: "Payroll readiness",
+    description:
+        "Validate attendance totals, confirm adjustments, and export payroll-ready summaries once exceptions are cleared.",
+    primaryAction: "Open payroll readiness",
+    secondaryAction: "Review exceptions",
+    metrics: [
+      { label: "Ready records", value: "1", detail: "No exceptions" },
+      { label: "Needs review", value: "1", detail: "Missing notes" },
+      { label: "Blocked", value: "1", detail: "Unresolved attendance" },
+      { label: "Export format", value: "CSV", detail: "Accounting-friendly" },
+    ],
+    spotlightTitle: "Payroll control plane",
+    spotlightBody:
+        "Payroll depends on clean attendance and approved leave. The UI should focus on readiness, exceptions, and export confidence rather than complex payroll computations.",
+    spotlightPoints: [
+      "Surface blockers and missing notes immediately",
+      "Tie payroll rows back to attendance exceptions",
+      "Make export actions obvious and safe",
+    ],
+    panels: [
+      {
+        title: "Readiness states",
+        description: "Statuses that drive operational action.",
+        items: [
+          { title: "Ready", meta: "Row can be exported", status: "Clear" },
+          { title: "Needs review", meta: "Missing notes or adjustments", status: "Review" },
+          { title: "Blocked", meta: "Attendance exception unresolved", status: "Stop" },
+        ],
+      },
+      {
+        title: "Exception sources",
+        description: "Where payroll issues usually come from.",
+        items: [
+          { title: "Late / absent entries", meta: "Needs justification", status: "Common" },
+          { title: "Overtime mismatches", meta: "Manager confirmation", status: "Common" },
+          { title: "Leave not approved", meta: "Approval required", status: "Common" },
+        ],
+      },
+      {
+        title: "Export safeguards",
+        description: "What the export flow should communicate.",
+        items: [
+          { title: "Preview totals", meta: "Confirm before exporting", status: "Recommended" },
+          { title: "Audit metadata", meta: "Export timestamp and owner", status: "Recommended" },
+          { title: "Re-export policy", meta: "Avoid duplicate processing", status: "Useful" },
+        ],
+      },
+    ],
+  },
   "/tenant/marketing/analytics": {
     eyebrow: "Phase 3 / 5 - Marketing",
     title: "Marketing analytics",
     description:
-      "Track inquiry sources, conversion, lead aging, website counters, and growth insights that help owners direct spend.",
+        "Track inquiry sources, conversion, lead aging, website counters, and growth insights that help owners direct spend.",
     primaryAction: "Open source report",
     secondaryAction: "Compare conversion trends",
     metrics: [
@@ -932,7 +1044,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Growth instrumentation",
     spotlightBody:
-      "Marketing on the tenant side should connect source quality, website behavior, and sales outcomes so owners can see where demand is really coming from.",
+        "Marketing on the tenant side should connect source quality, website behavior, and sales outcomes so owners can see where demand is really coming from.",
     spotlightPoints: [
       "Route new client form submissions from marketing to sales",
       "Keep count viewers and traffic summaries easy to scan",
@@ -972,7 +1084,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 4 - Website Builder",
     title: "Builder workspace",
     description:
-      "Control the no-code public resort site with toggleable sections, booking widget connection, and brand-aware editing.",
+        "Control the no-code public resort site with toggleable sections, booking widget connection, and brand-aware editing.",
     primaryAction: "Open site builder",
     secondaryAction: "Preview subdomain",
     metrics: [
@@ -983,7 +1095,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "No-code publishing core",
     spotlightBody:
-      "This page represents the center of Phase 4: a tenant can shape their guest-facing site without code while still staying anchored to the booking engine.",
+        "This page represents the center of Phase 4: a tenant can shape their guest-facing site without code while still staying anchored to the booking engine.",
     spotlightPoints: [
       "Keep editing focused on brand and content, not technical setup",
       "Make the booking widget feel native to the public site",
@@ -1023,7 +1135,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 4 - Website Builder",
     title: "Sections and assets",
     description:
-      "Manage logos, brand colors, typography, hero media, room galleries, and shared image assets for the tenant website.",
+        "Manage logos, brand colors, typography, hero media, room galleries, and shared image assets for the tenant website.",
     primaryAction: "Open asset library",
     secondaryAction: "Review brand kit",
     metrics: [
@@ -1034,7 +1146,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Visual publishing system",
     spotlightBody:
-      "The website builder is only useful if owners can confidently manage their brand and images. This page turns the MVP asset requirements into a clean resort-owner workflow.",
+        "The website builder is only useful if owners can confidently manage their brand and images. This page turns the MVP asset requirements into a clean resort-owner workflow.",
     spotlightPoints: [
       "Treat the asset library as shared infrastructure, not a one-off uploader",
       "Support drag-to-reorder room photos and hero swaps easily",
@@ -1074,7 +1186,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 4 - Website Builder",
     title: "Domains and DNS",
     description:
-      "Represent the built-in domain marketplace flow: search, purchase, automatic DNS configuration, SSL provisioning, and renewal reminders.",
+        "Represent the built-in domain marketplace flow: search, purchase, automatic DNS configuration, SSL provisioning, and renewal reminders.",
     primaryAction: "Search domain",
     secondaryAction: "Review renewal policy",
     metrics: [
@@ -1085,7 +1197,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Invisible technical setup",
     spotlightBody:
-      "The marketplace should feel like Search, Buy, Done to the tenant owner. DNS records, SSL, and registrar complexity stay behind the curtain.",
+        "The marketplace should feel like Search, Buy, Done to the tenant owner. DNS records, SSL, and registrar complexity stay behind the curtain.",
     spotlightPoints: [
       "Hide registrar credentials and infrastructure details from owners",
       "Show clear domain status messaging after purchase",
@@ -1125,7 +1237,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 4 - Website Builder",
     title: "Publish center",
     description:
-      "Control subdomain preview, one-click publish or unpublish, and the final go-live state of the tenant site.",
+        "Control subdomain preview, one-click publish or unpublish, and the final go-live state of the tenant site.",
     primaryAction: "Publish site",
     secondaryAction: "Open preview",
     metrics: [
@@ -1136,7 +1248,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Go-live confidence",
     spotlightBody:
-      "Owners should feel in control of when their site is public. The publish center is the last confidence checkpoint before direct bookings start flowing through the public site.",
+        "Owners should feel in control of when their site is public. The publish center is the last confidence checkpoint before direct bookings start flowing through the public site.",
     spotlightPoints: [
       "Keep preview and published states visually distinct",
       "Show domain and widget readiness before launch",
@@ -1176,7 +1288,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 6 - KPI",
     title: "KPI dashboard",
     description:
-      "Give the tenant owner a real-time performance summary across bookings, payments, cash handling, HR, website, and AI forecast accuracy.",
+        "Give the tenant owner a real-time performance summary across bookings, payments, cash handling, HR, website, and AI forecast accuracy.",
     primaryAction: "Open full KPI board",
     secondaryAction: "Compare periods",
     metrics: [
@@ -1187,7 +1299,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Owner performance hub",
     spotlightBody:
-      "The KPI dashboard is one of the most owner-specific modules in the MVP. It should summarize cross-department health rather than duplicate lower-level operational screens.",
+        "The KPI dashboard is one of the most owner-specific modules in the MVP. It should summarize cross-department health rather than duplicate lower-level operational screens.",
     spotlightPoints: [
       "Combine sales, finance, HR, website, and AI indicators in one owner view",
       "Use this page as the north-star layer above daily modules",
@@ -1227,7 +1339,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 5 - Analytics",
     title: "Advanced analytics",
     description:
-      "Expose custom date ranges, funnel analysis, export workflows, and higher-tier reporting for Growth and Enterprise tenants.",
+        "Expose custom date ranges, funnel analysis, export workflows, and higher-tier reporting for Growth and Enterprise tenants.",
     primaryAction: "Build analysis view",
     secondaryAction: "Export CSV or PDF",
     metrics: [
@@ -1238,7 +1350,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Tiered reporting value",
     spotlightBody:
-      "This module is where the product starts feeling more strategic for owners. It should go beyond snapshots and help them understand trends, funnels, and exportable reporting.",
+        "This module is where the product starts feeling more strategic for owners. It should go beyond snapshots and help them understand trends, funnels, and exportable reporting.",
     spotlightPoints: [
       "Gate the view by plan tier but explain the value clearly",
       "Use funnel views to connect sales and website behavior",
@@ -1278,7 +1390,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 5 - Analytics",
     title: "Multi-property",
     description:
-      "Represent the Growth and Enterprise ability to manage more than one property under a single tenant account.",
+        "Represent the Growth and Enterprise ability to manage more than one property under a single tenant account.",
     primaryAction: "Open property switcher",
     secondaryAction: "Review plan entitlement",
     metrics: [
@@ -1289,7 +1401,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Portfolio operations",
     spotlightBody:
-      "Multi-property support changes the owner experience materially. The frontend should help owners stay oriented when comparing performance, inventory, and activity across properties.",
+        "Multi-property support changes the owner experience materially. The frontend should help owners stay oriented when comparing performance, inventory, and activity across properties.",
     spotlightPoints: [
       "Use a clear property context switcher in key views",
       "Make aggregate and per-property reporting both possible",
@@ -1329,7 +1441,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 5 - AI Suite",
     title: "AI smart recommendations",
     description:
-      "Show Enterprise-only pricing, packaging, and promo suggestions based on booking history, seasonality, and booking pace.",
+        "Show Enterprise-only pricing, packaging, and promo suggestions based on booking history, seasonality, and booking pace.",
     primaryAction: "Review recommendations",
     secondaryAction: "Compare against reports",
     metrics: [
@@ -1340,7 +1452,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Commercial decision support",
     spotlightBody:
-      "The AI recommendation layer should help owners act faster without making the system feel opaque. The value is guidance, not blind automation.",
+        "The AI recommendation layer should help owners act faster without making the system feel opaque. The value is guidance, not blind automation.",
     spotlightPoints: [
       "Keep every recommendation traceable to business context",
       "Anchor suggestions in rates, packaging, and promotion windows",
@@ -1380,7 +1492,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 5 - AI Suite",
     title: "Revenue forecasting",
     description:
-      "Predict 30, 60, and 90-day occupancy and revenue trends using history, pipeline, and seasonal behavior.",
+        "Predict 30, 60, and 90-day occupancy and revenue trends using history, pipeline, and seasonal behavior.",
     primaryAction: "Open forecast horizon",
     secondaryAction: "Compare predicted vs actual",
     metrics: [
@@ -1391,7 +1503,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Forward-looking owner view",
     spotlightBody:
-      "Revenue forecasting becomes more valuable when the owner can compare predictions to reality and decide whether to adjust rates, campaigns, or staffing expectations.",
+        "Revenue forecasting becomes more valuable when the owner can compare predictions to reality and decide whether to adjust rates, campaigns, or staffing expectations.",
     spotlightPoints: [
       "Show forecast horizons in a business-readable way",
       "Connect predictions back to commercial actions like pricing and promos",
@@ -1431,7 +1543,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 6 - Payments",
     title: "Payment accounts",
     description:
-      "Manage the tenant-facing payment accounts your team references for guest collections, balance requests, and settlement visibility without exposing provider internals.",
+        "Manage the tenant-facing payment accounts your team references for guest collections, balance requests, and settlement visibility without exposing provider internals.",
     primaryAction: "Add payment account",
     secondaryAction: "Review default account",
     metrics: [
@@ -1442,7 +1554,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Guest payment references",
     spotlightBody:
-      "This page should help owners organize the payment accounts their team needs to recognize during booking confirmation, collection follow-up, and settlement checks, while the platform handles the underlying provider connections.",
+        "This page should help owners organize the payment accounts their team needs to recognize during booking confirmation, collection follow-up, and settlement checks, while the platform handles the underlying provider connections.",
     spotlightPoints: [
       "Keep guest payment accounts separate from platform subscription billing",
       "Show only the payment accounts the team should actually use and recognize",
@@ -1482,7 +1594,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 6 - Integrations",
     title: "Notifications",
     description:
-      "Coordinate in-app push, email, and SMS notifications scoped by role and tied to booking, finance, and subscription events.",
+        "Coordinate in-app push, email, and SMS notifications scoped by role and tied to booking, finance, and subscription events.",
     primaryAction: "Open notification rules",
     secondaryAction: "Review message templates",
     metrics: [
@@ -1493,7 +1605,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Role-aware communications",
     spotlightBody:
-      "The MVP notification layer is broad: booking confirmations, payment reminders, petty cash alerts, KPI breaches, trial expiry, and renewals all live here.",
+        "The MVP notification layer is broad: booking confirmations, payment reminders, petty cash alerts, KPI breaches, trial expiry, and renewals all live here.",
     spotlightPoints: [
       "Scope notifications tightly by role to reduce noise",
       "Treat owner alerts differently from staff operational alerts",
@@ -1533,7 +1645,7 @@ export const tenantMvpExpansionContent: Record<
     eyebrow: "Phase 6 - Integrations",
     title: "Discord channels",
     description:
-      "Manage the Discord webhook channels your tenant uses for internal alerts across bookings, operations, finance, and owner-level updates.",
+        "Manage the Discord webhook channels your tenant uses for internal alerts across bookings, operations, finance, and owner-level updates.",
     primaryAction: "Add Discord channel",
     secondaryAction: "Review alert scope",
     metrics: [
@@ -1544,7 +1656,7 @@ export const tenantMvpExpansionContent: Record<
     ],
     spotlightTitle: "Department broadcast layer",
     spotlightBody:
-      "Discord is a practical operations bridge in the MVP. The owner-facing UI should make setup simple and event coverage understandable without technical overhead.",
+        "Discord is a practical operations bridge in the MVP. The owner-facing UI should make setup simple and event coverage understandable without technical overhead.",
     spotlightPoints: [
       "Keep channel mapping department-specific",
       "Show exactly which system events post where",
@@ -1583,8 +1695,8 @@ export const tenantMvpExpansionContent: Record<
 };
 
 export const tenantWorkspaceRegistry: Record<
-  TenantWorkspacePath,
-  TenantWorkspaceContent
+    TenantWorkspacePath,
+    TenantWorkspaceContent
 > = {
   ...legacyTenantWorkspaceContent,
   ...tenantMvpExpansionContent,
@@ -1604,4 +1716,3 @@ export const tenantWorkspaceAccent = {
   automationTag: <BotIcon className="size-3.5" />,
   automationChip: "Process-flow ready",
 };
-

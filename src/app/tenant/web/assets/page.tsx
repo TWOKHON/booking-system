@@ -1,5 +1,18 @@
-import { TenantWorkspacePage } from "@/components/custom/tenant/TenantWorkspacePage";
+import { getTenantBuilderContext } from "../builder/_lib/get-tenant-builder-context";
+import { AssetsWorkspaceView } from "./_components/AssetsWorkspaceView";
 
-export default function Page() {
-  return <TenantWorkspacePage path="/tenant/web/assets" />;
+export default async function Page() {
+  const {
+    siteId,
+    ownerName,
+    resortName,
+  } = await getTenantBuilderContext();
+
+  return (
+    <AssetsWorkspaceView 
+      siteId={siteId}
+      userName={ownerName} 
+      resortName={resortName} 
+    />
+  );
 }

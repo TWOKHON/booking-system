@@ -24,65 +24,65 @@ export function TenantSidebar() {
   const footerNavLinks = getTenantFooterNavLinks(pathname);
 
   return (
-    <Sidebar
-      className={cn(
-        "*:data-[slot=sidebar-inner]:bg-background",
-        "*:data-[slot=sidebar-inner]:dark:bg-[radial-gradient(60%_18%_at_10%_0%,--theme(--color-foreground/.08),transparent)]",
-        "**:data-[slot=sidebar-menu-button]:[&>span]:text-foreground/75",
-      )}
-      collapsible="icon"
-      variant="sidebar"
-    >
-      <SidebarHeader className="h-14 justify-center border-b px-2">
-        <SidebarMenuButton asChild>
-          <a href="/tenant/dashboard">
-            <Image
-              src="/main/logo-light.png"
-              alt="ResortCloud"
-              width={30}
-              height={30}
-              className="block dark:hidden"
-            />
-            <Image
-              src="/main/logo-dark.png"
-              alt="ResortCloud"
-              width={30}
-              height={30}
-              className="hidden dark:block"
-            />
-            <span className="font-medium text-foreground!">ResortCloud</span>
-          </a>
-        </SidebarMenuButton>
-      </SidebarHeader>
-      <SidebarContent>
-        {navGroups.map((group, index) => (
-          <NavGroup key={`tenant-sidebar-group-${index}`} {...group} />
-        ))}
-      </SidebarContent>
-      <SidebarFooter className="gap-0 p-0">
-        <SidebarMenu className="border-t p-2">
-          {footerNavLinks.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                asChild
-                className="text-muted-foreground"
-                isActive={item.isActive}
-                size="sm"
-              >
-                <a href={item.path}>
-                  {item.icon}
-                  <span>{item.title}</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+      <Sidebar
+          className={cn(
+              "*:data-[slot=sidebar-inner]:bg-background",
+              "*:data-[slot=sidebar-inner]:dark:bg-[radial-gradient(60%_18%_at_10%_0%,--theme(--color-foreground/.08),transparent)]",
+              "**:data-[slot=sidebar-menu-button]:[&>span]:text-foreground/75",
+          )}
+          collapsible="icon"
+          variant="sidebar"
+      >
+        <SidebarHeader className="h-14 justify-center border-b px-2">
+          <SidebarMenuButton asChild>
+            <a href="/tenant/dashboard">
+              <Image
+                  src="/main/logo-light.png"
+                  alt="ResortCloud"
+                  width={30}
+                  height={30}
+                  className="block dark:hidden"
+              />
+              <Image
+                  src="/main/logo-dark.png"
+                  alt="ResortCloud"
+                  width={30}
+                  height={30}
+                  className="hidden dark:block"
+              />
+              <span className="font-medium text-foreground!">ResortCloud</span>
+            </a>
+          </SidebarMenuButton>
+        </SidebarHeader>
+        <SidebarContent>
+          {navGroups.map((group, index) => (
+              <NavGroup key={`tenant-sidebar-group-${index}`} {...group} />
           ))}
-        </SidebarMenu>
-        <div className="px-4 pt-4 pb-2 transition-opacity group-data-[collapsible=icon]:pointer-events-none group-data-[collapsible=icon]:opacity-0">
-          <p className="text-nowrap text-[9px] text-muted-foreground">
-            © {new Date().getFullYear()} ResortCloud
-          </p>
-        </div>
-      </SidebarFooter>
-    </Sidebar>
+        </SidebarContent>
+        <SidebarFooter className="gap-0 p-0">
+          <SidebarMenu className="border-t p-2">
+            {footerNavLinks.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                      asChild
+                      className="text-muted-foreground"
+                      isActive={item.isActive}
+                      size="sm"
+                  >
+                    <a href={item.path}>
+                      {item.icon}
+                      <span>{item.title}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+          <div className="px-4 pt-4 pb-2 transition-opacity group-data-[collapsible=icon]:pointer-events-none group-data-[collapsible=icon]:opacity-0">
+            <p className="text-nowrap text-[9px] text-muted-foreground">
+              © {new Date().getFullYear()} ResortCloud
+            </p>
+          </div>
+        </SidebarFooter>
+      </Sidebar>
   );
 }

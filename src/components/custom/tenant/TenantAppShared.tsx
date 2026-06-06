@@ -44,10 +44,10 @@ const isPathActive = (pathname: string, path?: string) => {
 
 const getBestMatchedPath = (pathname: string, items: TenantSidebarNavItem[]) => {
   const matches = items
-    .filter((item) => isPathActive(pathname, item.path))
-    .map((item) => item.path)
-    .filter((path): path is string => Boolean(path))
-    .sort((a, b) => b.length - a.length);
+      .filter((item) => isPathActive(pathname, item.path))
+      .map((item) => item.path)
+      .filter((path): path is string => Boolean(path))
+      .sort((a, b) => b.length - a.length);
 
   return matches[0];
 };
@@ -146,70 +146,70 @@ export const tenantFooterNavLinks: TenantSidebarNavItem[] = [
 
 export const tenantNavLinks: TenantSidebarNavItem[] = [
   ...tenantNavGroups.flatMap((group) =>
-    group.items.flatMap((item) =>
-      item.subItems?.length ? [item, ...item.subItems] : [item],
-    ),
+      group.items.flatMap((item) =>
+          item.subItems?.length ? [item, ...item.subItems] : [item],
+      ),
   ),
   ...tenantFooterNavLinks,
 ];
 
 export const getTenantNavGroups = (
-  pathname: string,
+    pathname: string,
 ): TenantSidebarNavGroup[] =>
-  tenantNavGroups.map((group) => ({
-    ...group,
-    items: group.items.map((item) => {
-      const bestSubItemPath = getBestMatchedPath(pathname, item.subItems ?? []);
-      const activeSubItems =
-        item.subItems?.map((subItem) => ({
-          ...subItem,
-          isActive: subItem.path === bestSubItemPath,
-        })) ?? [];
+    tenantNavGroups.map((group) => ({
+      ...group,
+      items: group.items.map((item) => {
+        const bestSubItemPath = getBestMatchedPath(pathname, item.subItems ?? []);
+        const activeSubItems =
+            item.subItems?.map((subItem) => ({
+              ...subItem,
+              isActive: subItem.path === bestSubItemPath,
+            })) ?? [];
 
-      return {
-        ...item,
-        isActive: isPathActive(pathname, item.path),
-        hasActiveSubItem: activeSubItems.some((subItem) => subItem.isActive),
-        subItems: activeSubItems.length ? activeSubItems : item.subItems,
-      };
-    }),
-  }));
+        return {
+          ...item,
+          isActive: isPathActive(pathname, item.path),
+          hasActiveSubItem: activeSubItems.some((subItem) => subItem.isActive),
+          subItems: activeSubItems.length ? activeSubItems : item.subItems,
+        };
+      }),
+    }));
 
 export const getTenantFooterNavLinks = (pathname: string): TenantSidebarNavItem[] =>
-  tenantFooterNavLinks.map((item) => ({
-    ...item,
-    isActive: isPathActive(pathname, item.path),
-  }));
+    tenantFooterNavLinks.map((item) => ({
+      ...item,
+      isActive: isPathActive(pathname, item.path),
+    }));
 
 export const getActiveTenantNavItem = (
-  pathname: string,
+    pathname: string,
 ): TenantSidebarNavItem | undefined =>
-  [...tenantNavLinks]
-    .filter((item) => isPathActive(pathname, item.path))
-    .sort((a, b) => (b.path?.length ?? 0) - (a.path?.length ?? 0))[0];
+    [...tenantNavLinks]
+        .filter((item) => isPathActive(pathname, item.path))
+        .sort((a, b) => (b.path?.length ?? 0) - (a.path?.length ?? 0))[0];
 
 export type TenantWorkspacePath =
-  | "/tenant/dashboard"
-  | "/tenant/reservations/calendar"
-  | "/tenant/reservations/bookings"
-  | "/tenant/reservations/check-in-out"
-  | "/tenant/guests/arrivals"
-  | "/tenant/guests/requests"
-  | "/tenant/guests/crm"
-  | "/tenant/operations/housekeeping"
-  | "/tenant/operations/maintenance"
-  | "/tenant/operations/tasks"
-  | "/tenant/revenue/rates"
-  | "/tenant/revenue/packages"
-  | "/tenant/revenue/reports"
-  | "/tenant/channels/website"
-  | "/tenant/channels/chatbot"
-  | "/tenant/settings/property"
-  | "/tenant/settings/rooms"
-  | "/tenant/settings/services"
-  | "/tenant/settings/team"
-  | "/tenant/settings/automations"
-  | "/tenant/help";
+    | "/tenant/dashboard"
+    | "/tenant/reservations/calendar"
+    | "/tenant/reservations/bookings"
+    | "/tenant/reservations/check-in-out"
+    | "/tenant/guests/arrivals"
+    | "/tenant/guests/requests"
+    | "/tenant/guests/crm"
+    | "/tenant/operations/housekeeping"
+    | "/tenant/operations/maintenance"
+    | "/tenant/operations/tasks"
+    | "/tenant/revenue/rates"
+    | "/tenant/revenue/packages"
+    | "/tenant/revenue/reports"
+    | "/tenant/channels/website"
+    | "/tenant/channels/chatbot"
+    | "/tenant/settings/property"
+    | "/tenant/settings/rooms"
+    | "/tenant/settings/services"
+    | "/tenant/settings/team"
+    | "/tenant/settings/automations"
+    | "/tenant/help";
 
 type TenantMetric = {
   label: string;
@@ -241,14 +241,14 @@ type TenantWorkspaceContent = {
 };
 
 export const tenantWorkspaceContent: Record<
-  TenantWorkspacePath,
-  TenantWorkspaceContent
+    TenantWorkspacePath,
+    TenantWorkspaceContent
 > = {
   "/tenant/dashboard": {
     eyebrow: "Property snapshot",
     title: "Tenant command center",
     description:
-      "Track live bookings, staff coordination, guest touchpoints, and revenue drivers for a single resort operation.",
+        "Track live bookings, staff coordination, guest touchpoints, and revenue drivers for a single resort operation.",
     primaryAction: "Create reservation",
     secondaryAction: "Open operations board",
     metrics: [
@@ -259,7 +259,7 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "Shift focus",
     spotlightBody:
-      "Front desk and housekeeping are both pacing above target, but maintenance still has two unresolved room blockers before afternoon arrivals.",
+        "Front desk and housekeeping are both pacing above target, but maintenance still has two unresolved room blockers before afternoon arrivals.",
     spotlightPoints: [
       "Prioritize villa 204 aircon repair before 2:00 PM",
       "Upsell breakfast bundles on 6 flexible leisure bookings",
@@ -299,7 +299,7 @@ export const tenantWorkspaceContent: Record<
     eyebrow: "Reservations",
     title: "Booking calendar",
     description:
-      "Monitor room inventory, arrival/departure pressure, and channel pacing across the next seven days.",
+        "Monitor room inventory, arrival/departure pressure, and channel pacing across the next seven days.",
     primaryAction: "Block dates",
     secondaryAction: "Sync channel inventory",
     metrics: [
@@ -310,7 +310,7 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "Calendar insight",
     spotlightBody:
-      "Midweek occupancy is soft, but weekend demand is nearly sold out. The biggest opportunity is filling Tuesday and Wednesday gaps without discounting your premium room types.",
+        "Midweek occupancy is soft, but weekend demand is nearly sold out. The biggest opportunity is filling Tuesday and Wednesday gaps without discounting your premium room types.",
     spotlightPoints: [
       "Release 2 held rooms back into your direct booking inventory",
       "Open flexible check-in for Tuesday arrivals",
@@ -350,7 +350,7 @@ export const tenantWorkspaceContent: Record<
     eyebrow: "Reservations",
     title: "Reservation board",
     description:
-      "Review new bookings, pending confirmations, and booking changes before they affect room allocation or arrivals.",
+        "Review new bookings, pending confirmations, and booking changes before they affect room allocation or arrivals.",
     primaryAction: "Add manual booking",
     secondaryAction: "Review pending confirmations",
     metrics: [
@@ -361,7 +361,7 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "Reservation focus",
     spotlightBody:
-      "Most friction is in partial-payment reservations and last-minute date changes. Cleaning those up early prevents front-desk congestion later.",
+        "Most friction is in partial-payment reservations and last-minute date changes. Cleaning those up early prevents front-desk congestion later.",
     spotlightPoints: [
       "Confirm deposit reminders for same-day arrivals",
       "Reassign room blocks from canceled group hold",
@@ -401,7 +401,7 @@ export const tenantWorkspaceContent: Record<
     eyebrow: "Reservations",
     title: "Check-in & check-out control",
     description:
-      "Coordinate room readiness, ID capture, payment completion, and departure turnover in one operations view.",
+        "Coordinate room readiness, ID capture, payment completion, and departure turnover in one operations view.",
     primaryAction: "Start express check-in",
     secondaryAction: "Print departure list",
     metrics: [
@@ -412,7 +412,7 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "Front desk pulse",
     spotlightBody:
-      "Today’s risk isn’t volume, it’s sequencing. Your early arrivals will overlap with delayed check-outs, so room readiness and folio cleanup matter more than queue length.",
+        "Today’s risk isn’t volume, it’s sequencing. Your early arrivals will overlap with delayed check-outs, so room readiness and folio cleanup matter more than queue length.",
     spotlightPoints: [
       "Expedite clean-first list for early-arrival rooms",
       "Clear unpaid minibar balances before departures line up",
@@ -452,7 +452,7 @@ export const tenantWorkspaceContent: Record<
     eyebrow: "Guest experience",
     title: "Today’s arrivals",
     description:
-      "Prepare personalized arrivals, transport details, room preferences, and welcome moments before guests step on property.",
+        "Prepare personalized arrivals, transport details, room preferences, and welcome moments before guests step on property.",
     primaryAction: "Send arrival reminder",
     secondaryAction: "Export arrival manifest",
     metrics: [
@@ -463,7 +463,7 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "Arrival experience",
     spotlightBody:
-      "The biggest differentiator today is personalization. Guests already shared preferences in pre-arrival messages, so surfacing them to the front desk and service teams will improve first impressions fast.",
+        "The biggest differentiator today is personalization. Guests already shared preferences in pre-arrival messages, so surfacing them to the front desk and service teams will improve first impressions fast.",
     spotlightPoints: [
       "Pre-stage welcome notes for VIP rooms",
       "Align shuttle dispatch times with arrival ETAs",
@@ -503,7 +503,7 @@ export const tenantWorkspaceContent: Record<
     eyebrow: "Guest experience",
     title: "Guest requests",
     description:
-      "Handle in-stay service requests, response times, and escalations without losing visibility across teams.",
+        "Handle in-stay service requests, response times, and escalations without losing visibility across teams.",
     primaryAction: "Create service ticket",
     secondaryAction: "Review escalations",
     metrics: [
@@ -514,7 +514,7 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "Service quality note",
     spotlightBody:
-      "Response speed is healthy overall, but unresolved comfort-related requests can shape review sentiment much more than simple volume metrics.",
+        "Response speed is healthy overall, but unresolved comfort-related requests can shape review sentiment much more than simple volume metrics.",
     spotlightPoints: [
       "Escalate room-temperature complaints within 10 minutes",
       "Use templated replies for repeat transport questions",
@@ -554,7 +554,7 @@ export const tenantWorkspaceContent: Record<
     eyebrow: "Guest experience",
     title: "Guest CRM",
     description:
-      "Track repeat guests, booking patterns, preferences, and outreach opportunities that strengthen direct relationships.",
+        "Track repeat guests, booking patterns, preferences, and outreach opportunities that strengthen direct relationships.",
     primaryAction: "Create guest segment",
     secondaryAction: "Launch return-stay campaign",
     metrics: [
@@ -565,7 +565,7 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "CRM opportunity",
     spotlightBody:
-      "Your direct-booking upside is strongest with previous premium guests who haven’t returned recently. They already know the property, so well-timed outreach beats broad discounts.",
+        "Your direct-booking upside is strongest with previous premium guests who haven’t returned recently. They already know the property, so well-timed outreach beats broad discounts.",
     spotlightPoints: [
       "Build a past-villa-guests segment for weekday offers",
       "Tag guests who consistently buy spa or transfer add-ons",
@@ -605,7 +605,7 @@ export const tenantWorkspaceContent: Record<
     eyebrow: "Operations",
     title: "Housekeeping board",
     description:
-      "Coordinate room status, cleaning priorities, inspections, and linen readiness for smoother turnovers.",
+        "Coordinate room status, cleaning priorities, inspections, and linen readiness for smoother turnovers.",
     primaryAction: "Assign clean-first rooms",
     secondaryAction: "Open linen status",
     metrics: [
@@ -616,7 +616,7 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "Turnover priority",
     spotlightBody:
-      "The housekeeping goal today is not total volume, it’s the order of execution. Early-arrival rooms and premium inventory should stay at the top of the stack.",
+        "The housekeeping goal today is not total volume, it’s the order of execution. Early-arrival rooms and premium inventory should stay at the top of the stack.",
     spotlightPoints: [
       "Pull two attendants into villa turnovers before noon",
       "Inspect VIP rooms immediately after cleaning",
@@ -656,7 +656,7 @@ export const tenantWorkspaceContent: Record<
     eyebrow: "Operations",
     title: "Maintenance queue",
     description:
-      "Track room blockers, preventive tasks, and recurring asset issues before they impact arrivals or reviews.",
+        "Track room blockers, preventive tasks, and recurring asset issues before they impact arrivals or reviews.",
     primaryAction: "Log issue",
     secondaryAction: "Review preventive tasks",
     metrics: [
@@ -667,7 +667,7 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "Asset reliability",
     spotlightBody:
-      "The urgent work is manageable, but repeated AC and plumbing issues point to a reliability pattern that should be addressed beyond one-off fixes.",
+        "The urgent work is manageable, but repeated AC and plumbing issues point to a reliability pattern that should be addressed beyond one-off fixes.",
     spotlightPoints: [
       "Close room-blocking jobs before 2 PM arrival wave",
       "Review repeat failures by room cluster, not individual ticket",
@@ -707,7 +707,7 @@ export const tenantWorkspaceContent: Record<
     eyebrow: "Operations",
     title: "Staff task board",
     description:
-      "Coordinate cross-department task execution for front office, housekeeping, maintenance, and guest services.",
+        "Coordinate cross-department task execution for front office, housekeeping, maintenance, and guest services.",
     primaryAction: "Create task",
     secondaryAction: "Review overdue work",
     metrics: [
@@ -718,7 +718,7 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "Coordination view",
     spotlightBody:
-      "Task volume is healthy. The main gap is handoff visibility between teams, especially when a front-desk promise depends on housekeeping or maintenance timing.",
+        "Task volume is healthy. The main gap is handoff visibility between teams, especially when a front-desk promise depends on housekeeping or maintenance timing.",
     spotlightPoints: [
       "Flag inter-team tasks with stronger due-time visibility",
       "Group arrival-related tasks into one filtered lane",
@@ -758,7 +758,7 @@ export const tenantWorkspaceContent: Record<
     eyebrow: "Revenue tools",
     title: "Rates & availability",
     description:
-      "Adjust price, inventory, and restrictions with the property’s direct and OTA booking pace in view.",
+        "Adjust price, inventory, and restrictions with the property’s direct and OTA booking pace in view.",
     primaryAction: "Update room rates",
     secondaryAction: "Review closeout rules",
     metrics: [
@@ -769,7 +769,7 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "Yield note",
     spotlightBody:
-      "Weekend demand is strong enough to support firmer rates, but weekday softness should be handled with packaging and fence strategy before raw discounting.",
+        "Weekend demand is strong enough to support firmer rates, but weekday softness should be handled with packaging and fence strategy before raw discounting.",
     spotlightPoints: [
       "Lift weekend BAR on standard rooms first",
       "Keep premium villa pricing stable for perceived value",
@@ -809,7 +809,7 @@ export const tenantWorkspaceContent: Record<
     eyebrow: "Revenue tools",
     title: "Packages & upsells",
     description:
-      "Build higher-spend stays through bundled experiences, add-ons, and targeted pre-arrival offers.",
+        "Build higher-spend stays through bundled experiences, add-ons, and targeted pre-arrival offers.",
     primaryAction: "Create package",
     secondaryAction: "Launch add-on campaign",
     metrics: [
@@ -820,7 +820,7 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "Upsell opportunity",
     spotlightBody:
-      "Guests are responding best to convenience and celebration offers, not generic discounts. The strongest opportunities are transport, dining, and occasion-based stays.",
+        "Guests are responding best to convenience and celebration offers, not generic discounts. The strongest opportunities are transport, dining, and occasion-based stays.",
     spotlightPoints: [
       "Bundle airport transfer with 2-night direct bookings",
       "Create family add-ons for school-break inventory",
@@ -860,7 +860,7 @@ export const tenantWorkspaceContent: Record<
     eyebrow: "Revenue tools",
     title: "Revenue reports",
     description:
-      "Understand booking pace, revenue mix, channel contribution, and profit-shaping trends without leaving the property workspace.",
+        "Understand booking pace, revenue mix, channel contribution, and profit-shaping trends without leaving the property workspace.",
     primaryAction: "Export monthly report",
     secondaryAction: "Compare to last month",
     metrics: [
@@ -871,7 +871,7 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "Commercial summary",
     spotlightBody:
-      "Overall revenue is healthy, but margin quality will improve most by lifting direct mix and ancillary attach rate rather than pushing occupancy alone.",
+        "Overall revenue is healthy, but margin quality will improve most by lifting direct mix and ancillary attach rate rather than pushing occupancy alone.",
     spotlightPoints: [
       "Protect direct share on higher-value room types",
       "Expand ancillary offers with strongest profit contribution",
@@ -908,52 +908,52 @@ export const tenantWorkspaceContent: Record<
     ],
   },
   "/tenant/channels/website": {
-    eyebrow: "Distribution",
-    title: "Website funnel",
+    eyebrow: "Booking Engine",
+    title: "Resort Website & Reservations",
     description:
-      "Monitor the tenant’s direct booking path from landing-page interest to completed reservation.",
-    primaryAction: "Edit hero offer",
-    secondaryAction: "Review abandoned checkouts",
+        "Manage your direct booking engine and optimize the guest reservation journey for your Philippines-based resort.",
+    primaryAction: "View site analytics",
+    secondaryAction: "Configure booking rules",
     metrics: [
-      { label: "Sessions", value: "4.2k", detail: "Last 30 days" },
-      { label: "Booking conversion", value: "4.8%", detail: "Above property baseline" },
-      { label: "Abandoned checkouts", value: "46", detail: "Most on payment step" },
-      { label: "Mobile share", value: "73%", detail: "Main traffic source" },
+      { label: "Direct bookings", value: "128", detail: "Last 30 days" },
+      { label: "Engine conversion", value: "5.2%", detail: "Above regional average" },
+      { label: "Avg. stay length", value: "3.2 nights", detail: "Mainly weekend peaks" },
+      { label: "Add-on capture", value: "34%", detail: "Spa & Tours popular" },
     ],
-    spotlightTitle: "Direct booking insight",
+    spotlightTitle: "Direct Booking Insights",
     spotlightBody:
-      "Interest is healthy, but checkout drop-off suggests friction in the final steps. Small clarity improvements can matter more than larger redesigns right now.",
+        "Your direct website traffic from mobile users in Metro Manila is peaking on Friday evenings. Optimizing your 'Weekend Getaway' package visibility during these hours can significantly boost conversions.",
     spotlightPoints: [
-      "Simplify payment reassurance near checkout CTA",
-      "Highlight best-rate promise earlier on mobile",
-      "Trigger follow-up nudges for high-intent abandoned sessions",
+      "Highlight 'Free Breakfast' perk for direct bookings",
+      "Promote Siargao/Boracay seasonal tour add-ons in checkout",
+      "Reduce checkout steps for mobile-first travelers",
     ],
     panels: [
       {
-        title: "Drop-off checkpoints",
-        description: "Where users are leaving the booking journey.",
+        title: "Conversion Funnel",
+        description: "Track the guest path from landing to confirmed stay.",
         items: [
-          { title: "Rate selection", meta: "Some confusion on inclusions", status: "Clarify" },
-          { title: "Guest details form", meta: "Mobile friction", status: "Simplify" },
-          { title: "Payment step", meta: "Highest abandonment", status: "Investigate" },
+          { title: "Room selection", meta: "High interest in Deluxe Villa", status: "Healthy" },
+          { title: "Amenity upsells", meta: "Tours have 15% conversion", status: "Growing" },
+          { title: "Payment completion", meta: "GCash/Maya popular", status: "Optimize" },
         ],
       },
       {
-        title: "Content opportunities",
-        description: "Elements that may strengthen direct conversion.",
+        title: "Content & SEO",
+        description: "Optimizing your resort's visibility and storytelling.",
         items: [
-          { title: "Family package hero", meta: "Midweek soft dates", status: "Test" },
-          { title: "Trust badge row", meta: "Checkout reassurance", status: "Add" },
-          { title: "Guest review snippet", meta: "Rate-plan pages", status: "Reuse" },
+          { title: "Hero gallery", meta: "Boracay sunset performing well", status: "Active" },
+          { title: "Room descriptions", meta: "Needs more amenity details", status: "Update" },
+          { title: "Local area guide", meta: "Attracting organic traffic", status: "Featured" },
         ],
       },
       {
-        title: "Traffic highlights",
-        description: "Signals that shape direct-booking strategy.",
+        title: "Booking Trends",
+        description: "Understand guest preferences and seasonal shifts.",
         items: [
-          { title: "Meta search referrals", meta: "High booking intent", status: "Growing" },
-          { title: "Instagram traffic", meta: "High mobile share", status: "Promising" },
-          { title: "Organic branded search", meta: "Strong close rate", status: "Protect" },
+          { title: "Group bookings", meta: "Rising for July/August", status: "Alert" },
+          { title: "Early bird offers", meta: "Driving 20% of Q4 volume", status: "Success" },
+          { title: "Last minute stays", meta: "Mainly local drive-to traffic", status: "Stable" },
         ],
       },
     ],
@@ -962,7 +962,7 @@ export const tenantWorkspaceContent: Record<
     eyebrow: "Distribution",
     title: "AI concierge",
     description:
-      "Manage the chatbot’s role in direct sales, pre-arrival guidance, and guest support with property-aware messaging.",
+        "Manage the chatbot’s role in direct sales, pre-arrival guidance, and guest support with property-aware messaging.",
     primaryAction: "Review AI conversations",
     secondaryAction: "Tune reply rules",
     metrics: [
@@ -973,7 +973,7 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "Automation note",
     spotlightBody:
-      "The chatbot is already handling repetitive questions well. The next gain comes from giving it cleaner escalation rules and stronger property-specific upsell prompts.",
+        "The chatbot is already handling repetitive questions well. The next gain comes from giving it cleaner escalation rules and stronger property-specific upsell prompts.",
     spotlightPoints: [
       "Hand off rate-negotiation questions to staff sooner",
       "Offer transfers and spa when intent signals are clear",
@@ -1013,7 +1013,7 @@ export const tenantWorkspaceContent: Record<
     eyebrow: "Property settings",
     title: "Property setup",
     description:
-      "Maintain tenant-level property details, sellable inventory rules, service standards, and guest-facing operational settings.",
+        "Maintain tenant-level property details, sellable inventory rules, service standards, and guest-facing operational settings.",
     primaryAction: "Update property details",
     secondaryAction: "Review service policies",
     metrics: [
@@ -1024,7 +1024,7 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "Setup quality",
     spotlightBody:
-      "The tenant setup is mostly healthy, but stale content and policy mismatches can create unnecessary guest confusion across direct and channel surfaces.",
+        "The tenant setup is mostly healthy, but stale content and policy mismatches can create unnecessary guest confusion across direct and channel surfaces.",
     spotlightPoints: [
       "Align child policy wording across all booking paths",
       "Review amenity descriptions before next marketing push",
@@ -1064,7 +1064,7 @@ export const tenantWorkspaceContent: Record<
     eyebrow: "Property settings",
     title: "Rooms & inventory",
     description:
-      "Set up room types, assign sellable inventory, and keep booking-facing room details aligned with operations.",
+        "Set up room types, assign sellable inventory, and keep booking-facing room details aligned with operations.",
     primaryAction: "Add room type",
     secondaryAction: "Review room inventory",
     metrics: [
@@ -1075,7 +1075,7 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "Inventory structure",
     spotlightBody:
-      "This area should make it easy for the tenant to create room categories, keep occupancy counts accurate, and maintain the details that flow into your direct booking surfaces.",
+        "This area should make it easy for the tenant to create room categories, keep occupancy counts accurate, and maintain the details that flow into your direct booking surfaces.",
     spotlightPoints: [
       "Add new room types before opening them for sale",
       "Keep blocked or offline rooms visible to operations",
@@ -1115,7 +1115,7 @@ export const tenantWorkspaceContent: Record<
     eyebrow: "Property settings",
     title: "Services offered",
     description:
-      "Create and manage guest-facing services, experiences, and add-ons that can be referenced across operations, website content, and revenue workflows.",
+        "Create and manage guest-facing services, experiences, and add-ons that can be referenced across operations, website content, and revenue workflows.",
     primaryAction: "Add service",
     secondaryAction: "Review service catalog",
     metrics: [
@@ -1126,7 +1126,7 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "Service catalog quality",
     spotlightBody:
-      "This area should help the tenant define what the resort actually offers, from transport and meals to spa and event add-ons, so those services stay consistent across teams and guest touchpoints.",
+        "This area should help the tenant define what the resort actually offers, from transport and meals to spa and event add-ons, so those services stay consistent across teams and guest touchpoints.",
     spotlightPoints: [
       "Create services with clear pricing and availability notes",
       "Separate internal-only services from guest-visible offers",
@@ -1166,7 +1166,7 @@ export const tenantWorkspaceContent: Record<
     eyebrow: "Property settings",
     title: "Team access",
     description:
-      "Control who can manage reservations, pricing, guest data, and operations inside the tenant workspace.",
+        "Control who can manage reservations, pricing, guest data, and operations inside the tenant workspace.",
     primaryAction: "Invite team member",
     secondaryAction: "Review permissions",
     metrics: [
@@ -1177,7 +1177,7 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "Access governance",
     spotlightBody:
-      "Your role setup is serviceable, but permission drift tends to happen around pricing, refunds, and guest-data visibility. Those deserve clearer boundaries.",
+        "Your role setup is serviceable, but permission drift tends to happen around pricing, refunds, and guest-data visibility. Those deserve clearer boundaries.",
     spotlightPoints: [
       "Separate revenue permissions from basic reservations",
       "Limit refund and rate-override access to managers",
@@ -1217,7 +1217,7 @@ export const tenantWorkspaceContent: Record<
     eyebrow: "Property settings",
     title: "Automations",
     description:
-      "Configure tenant-side triggers for guest messages, operational reminders, and revenue workflows.",
+        "Configure tenant-side triggers for guest messages, operational reminders, and revenue workflows.",
     primaryAction: "Create automation",
     secondaryAction: "Review failed runs",
     metrics: [
@@ -1228,7 +1228,7 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "Workflow maturity",
     spotlightBody:
-      "The tenant is getting value from automation already, especially in reminders and messaging. The next step is linking automations more tightly to revenue and guest-intent moments.",
+        "The tenant is getting value from automation already, especially in reminders and messaging. The next step is linking automations more tightly to revenue and guest-intent moments.",
     spotlightPoints: [
       "Audit failed triggers before layering new rules",
       "Expand pre-arrival upsell flows for premium segments",
@@ -1268,7 +1268,7 @@ export const tenantWorkspaceContent: Record<
     eyebrow: "Support",
     title: "Help & training",
     description:
-      "Give tenant teams a home for SOPs, onboarding, quick fixes, and feature education without leaving the workspace.",
+        "Give tenant teams a home for SOPs, onboarding, quick fixes, and feature education without leaving the workspace.",
     primaryAction: "Open training guide",
     secondaryAction: "View release notes",
     metrics: [
@@ -1279,7 +1279,7 @@ export const tenantWorkspaceContent: Record<
     ],
     spotlightTitle: "Enablement focus",
     spotlightBody:
-      "The strongest tenant teams usually reduce friction by documenting repeat actions well. That matters just as much as adding more features.",
+        "The strongest tenant teams usually reduce friction by documenting repeat actions well. That matters just as much as adding more features.",
     spotlightPoints: [
       "Create a short SOP set for new front-desk hires",
       "Keep rollout notes near the actual work area",
@@ -1331,4 +1331,3 @@ export const tenantWorkspaceAccent = {
   automationTag: <BotIcon className="size-3.5" />,
   automationChip: "Automation-ready",
 };
-
