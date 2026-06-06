@@ -1,11 +1,11 @@
 "use client";
 
 import * as React from "react";
-import {Puck, Data} from "@puckeditor/core";
+import {Puck} from "@puckeditor/core";
 import "@puckeditor/core/dist/index.css";
 import {useTRPC} from "@/trpc/client";
 import {useQuery, useMutation} from "@tanstack/react-query";
-import {config} from "../../_lib/puck/puck-config";
+import {config, type PuckData} from "../../_lib/puck/puck-config";
 import {PUCK_PREVIEW_STORAGE_KEY} from "../../_lib/puck/puck-storage";
 import {getResortTemplate} from "../../_lib/puck/resort-templates";
 import {Button} from "@/components/ui/button";
@@ -45,9 +45,9 @@ type SiteBuilderViewProps = {
     templateSlug?: string;
 };
 
-const initialData: Data = {content: [], root: {theme: ""}};
+const initialData: PuckData = {content: [], root: {props: {theme: ""}}};
 
-type PageData = Record<string, Data>;
+type PageData = Record<string, PuckData>;
 
 function HeaderActions({
                            state,
@@ -56,8 +56,10 @@ function HeaderActions({
                            onPathChange,
                            onAddPage,
                            onDeletePage,
+                           onSaveDraft,
+                           isSaving,
                        }: {
-    state: { data: Data };
+    state: { data: PuckData };
     allPages: PageData;
     currentPath: string;
     onPathChange: (path: string) => void;
@@ -154,6 +156,8 @@ export function SiteBuilderView({
                                     resortName,
                                     templateSlug,
                                 }: SiteBuilderViewProps) {
+    void siteId;
+    void resortName;
     const trpc = useTRPC();
 
     const {data: siteData, isLoading: isLoadingSite} = useQuery(
@@ -212,7 +216,7 @@ export function SiteBuilderView({
         saveDraftMutation.mutate({data: allPages});
     };
 
-    const handlePublish = async (data: Data) => {
+    const handlePublish = async (data: PuckData) => {
         const updatedPages = {...allPages, [currentPath]: data};
         publishMutation.mutate({data: updatedPages});
     };
@@ -274,7 +278,7 @@ export function SiteBuilderView({
                     onChange={(newData) => {
                         setAllPages((prev) => ({...prev, [currentPath]: newData}));
                     }}
-                    renderHeaderActions={({children, state}) => (
+                    renderHeaderActions={({state}) => (
                         <div className="flex items-center gap-2">
                             <HeaderActions
                                 state={state}
@@ -289,7 +293,6 @@ export function SiteBuilderView({
                                 onSaveDraft={handleSaveDraft}
                                 isSaving={saveDraftMutation.isPending}
                             />
-                            {children}
                         </div>
                     )}
                 />

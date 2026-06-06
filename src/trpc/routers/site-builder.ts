@@ -1,10 +1,16 @@
 import { TRPCError } from "@trpc/server";
+import type { InputJsonValue } from "@prisma/client/runtime/client";
+import type { TRPCContext } from "@/trpc/init";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 
-const siteDataSchema = z.record(z.any());
+const siteDataSchema = z.record(z.string(), z.unknown());
 
-function requireTenantProfile(ctx: any) {
+function toJsonInput(value: unknown): InputJsonValue {
+  return value as InputJsonValue;
+}
+
+function requireTenantProfile(ctx: TRPCContext) {
   if (!ctx.currentUser || ctx.currentUser.role !== "TENANT") {
     throw new TRPCError({
       code: "FORBIDDEN",
@@ -45,11 +51,11 @@ export const siteBuilderRouter = createTRPCRouter({
           tenantProfileId: tenantProfile.id,
         },
         update: {
-          draftData: input.data,
+          draftData: toJsonInput(input.data),
         },
         create: {
           tenantProfileId: tenantProfile.id,
-          draftData: input.data,
+          draftData: toJsonInput(input.data),
         },
       });
 
@@ -66,13 +72,13 @@ export const siteBuilderRouter = createTRPCRouter({
           tenantProfileId: tenantProfile.id,
         },
         update: {
-          publishedData: input.data,
-          draftData: input.data, // Sync draft when publishing
+          publishedData: toJsonInput(input.data),
+          draftData: toJsonInput(input.data), // Sync draft when publishing
         },
         create: {
           tenantProfileId: tenantProfile.id,
-          publishedData: input.data,
-          draftData: input.data,
+          publishedData: toJsonInput(input.data),
+          draftData: toJsonInput(input.data),
         },
       });
 
@@ -169,7 +175,7 @@ export const siteBuilderRouter = createTRPCRouter({
       z.object({
         name: z.string(),
         type: z.string(),
-        content: z.any(),
+        content: z.unknown(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -180,7 +186,7 @@ export const siteBuilderRouter = createTRPCRouter({
           tenantProfileId: tenantProfile.id,
           name: input.name,
           type: input.type,
-          content: input.content,
+          content: toJsonInput(input.content),
         },
       });
 

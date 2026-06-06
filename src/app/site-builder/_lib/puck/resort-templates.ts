@@ -1,4 +1,4 @@
-import type { Data } from "@puckeditor/core";
+import type { PuckData } from "./puck-config";
 
 type ResortTemplateSeed = {
   slug: string;
@@ -13,10 +13,10 @@ type ResortTemplateSeed = {
 };
 
 export type ResortTemplate = ResortTemplateSeed & {
-  data: Record<string, Data>;
+  data: Record<string, PuckData>;
 };
 
-type TemplateBlock = Data["content"][number];
+type TemplateBlock = PuckData["content"][number] | { type: string; props: Record<string, unknown> };
 
 const resortSeeds: ResortTemplateSeed[] = [
   {
@@ -553,7 +553,7 @@ function createFooter(template: ResortTemplateSeed): TemplateBlock {
   };
 }
 
-function createTemplateData(template: ResortTemplateSeed, index: number): Record<string, Data> {
+function createTemplateData(template: ResortTemplateSeed, index: number): Record<string, PuckData> {
   const header = createHeader(template, index);
   const hero = createHero(template, index);
   const rooms = createRoomShowcase(template, index);
@@ -594,16 +594,16 @@ function createTemplateData(template: ResortTemplateSeed, index: number): Record
 
   return {
     "/": {
-      root: { theme },
-      content: layoutVariants[index % layoutVariants.length],
+      root: { props: { theme } },
+      content: layoutVariants[index % layoutVariants.length] as PuckData["content"],
     },
     "/rooms": {
-      root: { theme },
-      content: [header, hero, rooms, cta, footer],
+      root: { props: { theme } },
+      content: [header, hero, rooms, cta, footer] as PuckData["content"],
     },
     "/amenities": {
-      root: { theme },
-      content: [header, hero, amenities, stats, cta, footer],
+      root: { props: { theme } },
+      content: [header, hero, amenities, stats, cta, footer] as PuckData["content"],
     },
   };
 }

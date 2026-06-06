@@ -1,4 +1,4 @@
-import { Config } from "@puckeditor/core";
+import { Config, type Data } from "@puckeditor/core";
 import { HeadingBlock } from "@/components/puck/heading-block";
 import { HeroBlock } from "@/components/puck/hero-block";
 import { HeroCarouselBlock, type HeroCarouselBlockProps } from "@/components/puck/hero-carousel-block";
@@ -41,7 +41,7 @@ import {
   type TestimonialsBlockProps,
 } from "@/components/puck/marketing-sections";
 
-type Components = {
+export type Components = {
   HeadingBlock: { children: string };
   HeroBlock: {
     badge: { label: string; url: string };
@@ -55,10 +55,13 @@ type Components = {
     textColor: string;
     backgroundImageUrl: string;
     backgroundOverlayOpacity: number;
+    align?: "left" | "center";
   };
   HeroCarouselBlock: HeroCarouselBlockProps;
   HeaderBlock: {
     logo: string;
+    logoType?: "text" | "image";
+    logoImage?: string;
     navItems: {
       label: string;
       url: string;
@@ -72,6 +75,7 @@ type Components = {
     ctaPrimary: { label: string; url: string };
     ctaSecondary: { label: string; url: string };
     ctaTertiary: { label: string; url: string };
+    variant?: "centered" | "logo-left" | "logo-right";
   };
   FooterBlock: {
     logo: string;
@@ -120,10 +124,12 @@ type Components = {
   BlogsBlock: BlogsBlockProps;
 };
 
-type RootProps = {
+export type RootProps = {
   theme?: string;
   children: React.ReactNode;
 };
+
+export type PuckData = Data<Components, RootProps>;
 
 const sectionIntroFields = {
   eyebrow: { type: "text" },
@@ -184,7 +190,6 @@ export const config: Config<Components, RootProps> = {
         "FaqBlock",
         "CtaBlock",
         "PricingBlock",
-        "ReservationBlock",
         "ContactBlock",
         "TestimonialsBlock",
         "StatisticsBlock",
@@ -799,7 +804,7 @@ export const config: Config<Components, RootProps> = {
         },
         icon: {
           type: "custom",
-          render: (props: any) => <IconField {...props} label="Icon" />,
+          render: (props) => <IconField {...props} label="Icon" />,
         },
         stats: {
           type: "array",
@@ -809,7 +814,7 @@ export const config: Config<Components, RootProps> = {
             description: { type: "textarea" },
             icon: {
               type: "custom",
-              render: (props: any) => <IconField {...props} label="Icon" />,
+              render: (props) => <IconField {...props} label="Icon" />,
             },
           },
           defaultItemProps: { value: "99%", label: "Metric label", description: "Supporting details about this metric.", icon: "BarChart3" },
@@ -927,7 +932,16 @@ export const config: Config<Components, RootProps> = {
         },
         logoImage: {
           type: "custom",
-          render: (props) => <ExternalImageField {...props} label="Logo Image" />,
+          render: (props: {
+            value?: string;
+            onChange: (value: string) => void;
+          }) => (
+            <ExternalImageField
+              value={props.value ?? ""}
+              onChange={props.onChange}
+              label="Logo Image"
+            />
+          ),
         },
         variant: {
           type: "select",

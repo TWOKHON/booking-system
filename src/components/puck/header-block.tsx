@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-html-link-for-pages */
 "use client";
 
 import { ArrowRight } from "lucide-react";
@@ -27,6 +26,49 @@ type NavItem = {
   };
 };
 
+type RenderLink = (props: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+}) => React.ReactNode;
+
+function HeaderSmartLink({
+  href,
+  children,
+  className,
+  renderLink,
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+  renderLink?: RenderLink;
+}) {
+  if (renderLink) {
+    return renderLink({ href, children, className });
+  }
+
+  // In preview mode, we want to intercept links that are likely internal paths.
+  if (
+    typeof window !== "undefined" &&
+    window.location.pathname.startsWith("/preview")
+  ) {
+    const isInternal = href.startsWith("/") && !href.startsWith("//");
+    if (isInternal) {
+      return (
+        <a href={`/preview?path=${encodeURIComponent(href)}`} className={className}>
+          {children}
+        </a>
+      );
+    }
+  }
+
+  return (
+    <a href={href || "#"} className={className}>
+      {children}
+    </a>
+  );
+}
+
 export type HeaderBlockProps = {
   logo: string;
   logoType?: "text" | "image";
@@ -37,8 +79,8 @@ export type HeaderBlockProps = {
   ctaTertiary: { label: string; url: string };
   variant?: "centered" | "logo-left" | "logo-right";
   puck?: {
-    renderLink?: (props: { href: string; children: React.ReactNode; className?: string }) => React.ReactNode;
-  };
+    renderLink?: RenderLink;
+  } & Record<string, unknown>;
 };
 
 export function HeaderBlock({
@@ -52,34 +94,9 @@ export function HeaderBlock({
   variant = "centered",
   puck,
 }: HeaderBlockProps) {
-  const SmartLink = ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => {
-    if (puck?.renderLink) {
-      return puck.renderLink({ href, children, className });
-    }
-    
-    // In preview mode, we want to intercept links that are likely internal paths
-    if (typeof window !== "undefined" && window.location.pathname.startsWith("/preview")) {
-      const isInternal = href.startsWith("/") && !href.startsWith("//");
-      if (isInternal) {
-        return (
-          <a
-            href={`/preview?path=${encodeURIComponent(href)}`}
-            className={className}
-          >
-            {children}
-          </a>
-        );
-      }
-    }
+  const renderLink = puck?.renderLink;
 
-    return (
-      <a href={href || "#"} className={className}>
-        {children}
-      </a>
-    );
-  };
-
-  const NavLinks = () => (
+  const navLinks = (
     <NavigationMenu viewport={false} className="justify-start">
       <NavigationMenuList className="gap-1">
         {navItems?.map((item, i) => {
@@ -114,9 +131,12 @@ export function HeaderBlock({
                           </div>
                           {item.children!.cta?.label && (
                             <Button asChild size="sm" className="w-fit">
-                              <SmartLink href={item.children!.cta.url}>
+                              <HeaderSmartLink
+                                href={item.children!.cta.url}
+                                renderLink={renderLink}
+                              >
                                 {item.children!.cta.label}
-                              </SmartLink>
+                              </HeaderSmartLink>
                             </Button>
                           )}
                         </CardContent>
@@ -125,14 +145,15 @@ export function HeaderBlock({
                       {item.children!.links?.length > 0 && (
                         <div className="flex min-w-40 flex-col gap-1">
                           {item.children!.links.map((link, j) => (
-                            <SmartLink
+                            <HeaderSmartLink
                               key={`link-${i}-${j}-${link.label}`}
                               href={link.url}
+                              renderLink={renderLink}
                               className="flex items-center justify-between gap-6 rounded-md px-2.5 py-2 text-sm text-muted-foreground no-underline transition-colors hover:bg-muted hover:text-foreground"
                             >
                               {link.label}
                               <ArrowRight className="size-3.5 text-muted-foreground" />
-                            </SmartLink>
+                            </HeaderSmartLink>
                           ))}
                         </div>
                       )}
@@ -144,7 +165,9 @@ export function HeaderBlock({
                   asChild
                   className="h-8 rounded-md px-2.5 py-1.5 text-sm font-normal text-muted-foreground hover:text-foreground"
                 >
-                  <SmartLink href={item.url}>{item.label}</SmartLink>
+                  <HeaderSmartLink href={item.url} renderLink={renderLink}>
+                    {item.label}
+                  </HeaderSmartLink>
                 </NavigationMenuLink>
               )}
             </NavigationMenuItem>
@@ -154,9 +177,10 @@ export function HeaderBlock({
     </NavigationMenu>
   );
 
-  const Logo = () => (
-    <SmartLink
+  const logoNode = (
+    <HeaderSmartLink
       href="/"
+      renderLink={renderLink}
       className={cn(
         "flex items-center text-[15px] font-bold text-foreground no-underline",
         variant === "centered" && "absolute left-1/2 -translate-x-1/2"
@@ -171,24 +195,30 @@ export function HeaderBlock({
       ) : (
         logo
       )}
-    </SmartLink>
+    </HeaderSmartLink>
   );
 
-  const CTAs = () => (
+  const ctaNode = (
     <div className="flex items-center gap-1">
       {ctaTertiary?.label && (
         <Button asChild variant="ghost" size="sm">
-          <SmartLink href={ctaTertiary.url}>{ctaTertiary.label}</SmartLink>
+          <HeaderSmartLink href={ctaTertiary.url} renderLink={renderLink}>
+            {ctaTertiary.label}
+          </HeaderSmartLink>
         </Button>
       )}
       {ctaSecondary?.label && (
         <Button asChild variant="outline" size="sm">
-          <SmartLink href={ctaSecondary.url}>{ctaSecondary.label}</SmartLink>
+          <HeaderSmartLink href={ctaSecondary.url} renderLink={renderLink}>
+            {ctaSecondary.label}
+          </HeaderSmartLink>
         </Button>
       )}
       {ctaPrimary?.label && (
         <Button asChild size="sm">
-          <SmartLink href={ctaPrimary.url}>{ctaPrimary.label}</SmartLink>
+          <HeaderSmartLink href={ctaPrimary.url} renderLink={renderLink}>
+            {ctaPrimary.label}
+          </HeaderSmartLink>
         </Button>
       )}
     </div>
@@ -199,28 +229,28 @@ export function HeaderBlock({
       <div className="relative mx-auto flex h-14 max-w-screen-xl items-center justify-between px-6">
         {variant === "centered" && (
           <>
-            <NavLinks />
-            <Logo />
-            <CTAs />
+            {navLinks}
+            {logoNode}
+            {ctaNode}
           </>
         )}
 
         {variant === "logo-left" && (
           <div className="flex w-full items-center justify-between gap-8">
             <div className="flex items-center gap-8">
-              <Logo />
-              <NavLinks />
+              {logoNode}
+              {navLinks}
             </div>
-            <CTAs />
+            {ctaNode}
           </div>
         )}
 
         {variant === "logo-right" && (
           <div className="flex w-full items-center justify-between gap-8">
-            <CTAs />
+            {ctaNode}
             <div className="flex items-center gap-8">
-              <NavLinks />
-              <Logo />
+              {navLinks}
+              {logoNode}
             </div>
           </div>
         )}

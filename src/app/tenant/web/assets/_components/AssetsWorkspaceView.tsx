@@ -20,7 +20,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -34,7 +33,7 @@ import { Label } from "@/components/ui/label";
 import { useTRPC } from "@/trpc/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { config } from "@/app/site-builder/_lib/puck/puck-config";
+import { config, type PuckData } from "@/app/site-builder/_lib/puck/puck-config";
 import { Trash2Icon } from "lucide-react";
 
 type AssetsWorkspaceViewProps = {
@@ -43,11 +42,34 @@ type AssetsWorkspaceViewProps = {
   resortName: string;
 };
 
+type ThemeOption = {
+  label: string;
+  value: string;
+};
+
+type ComponentWithDefaults = {
+  defaultProps?: Record<string, unknown>;
+};
+
+function isThemeOptionArray(value: unknown): value is ThemeOption[] {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (option) =>
+        typeof option === "object" &&
+        option !== null &&
+        "label" in option &&
+        "value" in option,
+    )
+  );
+}
+
 export function AssetsWorkspaceView({
   siteId,
   userName,
   resortName,
 }: AssetsWorkspaceViewProps) {
+  void siteId;
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [isUploadOpen, setIsUploadOpen] = React.useState(false);
@@ -55,7 +77,6 @@ export function AssetsWorkspaceView({
   const [isBrandKitOpen, setIsBrandKitOpen] = React.useState(false);
   const [isRoomGalleryOpen, setIsRoomGalleryOpen] = React.useState(false);
   const [isHeroMediaOpen, setIsHeroMediaOpen] = React.useState(false);
-  const [tagFilter, setTagFilter] = React.useState<string | null>(null);
   
   // Asset Form states
   const [assetName, setAssetName] = React.useState("");
@@ -76,14 +97,20 @@ export function AssetsWorkspaceView({
 
   const logoAsset = assets?.find(a => a.name.toLowerCase().includes("logo"));
 
-  const { data: siteData } = useQuery(
-    trpc.siteBuilder.get.queryOptions({ siteId })
-  );
+  const { data: siteData } = useQuery(trpc.siteBuilder.get.queryOptions());
 
-  const currentTheme = siteData?.publishedData?.root?.props?.theme || siteData?.draftData?.root?.props?.theme || "";
-  const themeName = config.root.fields?.theme?.type === "select" 
-    ? (config.root.fields.theme as any).options.find((o: any) => o.value === currentTheme)?.label || "Default"
-    : "Default";
+  const publishedData = siteData?.publishedData as PuckData | null | undefined;
+  const draftData = siteData?.draftData as PuckData | null | undefined;
+  const currentTheme =
+    publishedData?.root?.props?.theme || draftData?.root?.props?.theme || "";
+  const themeField = config.root?.fields?.theme;
+  const themeOptions =
+    themeField?.type === "select" && isThemeOptionArray(themeField.options)
+      ? themeField.options
+      : [];
+  const themeName =
+    themeOptions.find((option) => option.value === currentTheme)?.label ||
+    "Default";
 
   const addAssetMutation = useMutation(
     trpc.siteBuilder.addAsset.mutationOptions({
@@ -159,8 +186,10 @@ export function AssetsWorkspaceView({
       return;
     }
 
-    const componentConfig = config.components[sectionType as keyof typeof config.components];
-    const defaultProps = (componentConfig as any)?.defaultProps || {};
+    const componentConfig = config.components[
+      sectionType as keyof typeof config.components
+    ] as ComponentWithDefaults | undefined;
+    const defaultProps = componentConfig?.defaultProps || {};
 
     addSectionMutation.mutate({
       name: sectionName,
@@ -196,7 +225,7 @@ export function AssetsWorkspaceView({
               Sections & Assets
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
-              Centralized library for your resort's visual content. Upload high-quality photos for your website, social media, and guest communications.
+              Centralized library for your resort&apos;s visual content. Upload high-quality photos for your website, social media, and guest communications.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -226,7 +255,13 @@ export function AssetsWorkspaceView({
             </DialogDescription>
           </DialogHeader>
 
-          <Tabs value={uploadMethod} onValueChange={(v) => setUploadMethod(v as any)} className="mt-4">
+          <Tabs
+            value={uploadMethod}
+            onValueChange={(value) =>
+              setUploadMethod(value === "upload" ? "upload" : "url")
+            }
+            className="mt-4"
+          >
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="url">Image URL</TabsTrigger>
               <TabsTrigger value="upload">Upload Image</TabsTrigger>
@@ -440,7 +475,7 @@ export function AssetsWorkspaceView({
           </DialogHeader>
           <div className="py-8 text-center border-2 border-dashed rounded-lg">
             <PlusIcon className="mx-auto mb-4 size-12 opacity-10" />
-            <p className="text-muted-foreground">Select assets from your library or upload new ones to tag as "Room Gallery".</p>
+            <p className="text-muted-foreground">Select assets from your library or upload new ones to tag as &quot;Room Gallery&quot;.</p>
             <div className="mt-6 grid grid-cols-4 gap-4 px-4">
               {assets?.filter(a => a.name.toLowerCase().includes("room")).slice(0, 4).map(asset => (
                 <div key={asset.id} className="aspect-square rounded border overflow-hidden relative group">

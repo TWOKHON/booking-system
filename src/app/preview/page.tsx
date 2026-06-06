@@ -1,16 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Render, type Data } from "@puckeditor/core";
-import { usePathname } from "next/navigation";
-import { config } from "../site-builder/_lib/puck/puck-config";
+import { Render } from "@puckeditor/core";
+import { config, type PuckData } from "../site-builder/_lib/puck/puck-config";
 import { PUCK_PREVIEW_STORAGE_KEY } from "../site-builder/_lib/puck/puck-storage";
 
-const emptyData: Data = { content: [], root: { theme: "" } };
+const emptyData: PuckData = { content: [], root: { props: { theme: "" } } };
 
-type PageData = Record<string, Data>;
+type PageData = Record<string, PuckData>;
 
-function readPreviewData(): PageData | Data {
+function readPreviewData(): PageData | PuckData {
   if (typeof window === "undefined") return { "/": emptyData };
   const stored = window.localStorage.getItem(PUCK_PREVIEW_STORAGE_KEY);
 
@@ -27,15 +26,16 @@ function readPreviewData(): PageData | Data {
 
 export default function PreviewPage() {
   const [pages, setPages] = useState<PageData | null>(null);
-  const pathname = usePathname();
 
   useEffect(() => {
-    const data = readPreviewData();
-    if (data && "content" in data) {
-      setPages({ "/": data as Data });
-    } else {
-      setPages(data as PageData);
-    }
+    queueMicrotask(() => {
+      const data = readPreviewData();
+      if (data && "content" in data) {
+        setPages({ "/": data as PuckData });
+      } else {
+        setPages(data as PageData);
+      }
+    });
   }, []);
 
   if (!pages) {
