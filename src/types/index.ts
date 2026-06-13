@@ -33,6 +33,7 @@ export type PricingPlan = {
   name: string;
   badge?: string;
   price: number;
+  yearlyPrice?: number;
   isFree?: boolean;
   includes?: string; // "Everything in Starter, plus:"
   description: string;

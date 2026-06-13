@@ -14,6 +14,18 @@ const signInSchema = z.object({
     .string()
     .min(8, "Password must be at least 8 characters.")
     .max(128, "Password is too long."),
+  plan: z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    z.enum(["starter", "growth", "enterprise"]).optional(),
+  ),
+  billing: z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    z.enum(["monthly", "yearly"]).optional(),
+  ),
+  checkout: z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    z.enum(["polar"]).optional(),
+  ),
 });
 
 export async function loginUserAction(
@@ -23,6 +35,9 @@ export async function loginUserAction(
   const payload = signInSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
+    plan: formData.get("plan"),
+    billing: formData.get("billing"),
+    checkout: formData.get("checkout"),
   });
 
   if (!payload.success) {
@@ -31,7 +46,7 @@ export async function loginUserAction(
     };
   }
 
-  const { email, password } = payload.data;
+  const { email, password, plan, billing, checkout } = payload.data;
 
   try {
     const result = await auth.api.signInEmail({
@@ -54,6 +69,21 @@ export async function loginUserAction(
       return {
         error: "Your account exists, but the workspace profile is missing. Please contact support.",
       };
+    }
+
+    const shouldResumeCheckout =
+      appUser.role === "TENANT" &&
+      checkout === "polar" &&
+      plan &&
+      appUser.tenantProfile?.subscriptionStatus !== "ACTIVE";
+
+    if (shouldResumeCheckout) {
+      const checkoutQuery = new URLSearchParams({
+        plan,
+        billing: billing ?? "monthly",
+      });
+
+      redirect(`/api/polar/checkout-plan?${checkoutQuery.toString()}`);
     }
 
     redirect(

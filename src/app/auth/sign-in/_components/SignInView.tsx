@@ -86,7 +86,17 @@ function SubmitButton() {
   );
 }
 
-export function SignInView() {
+export function SignInView({
+  initialEmail,
+  selectedPlan,
+  selectedBilling,
+  checkoutIntent,
+}: {
+  initialEmail?: string;
+  selectedPlan?: string;
+  selectedBilling?: string;
+  checkoutIntent?: string;
+}) {
   const [state, formAction] = useActionState(
     loginUserAction,
     initialSignInState,
@@ -127,6 +137,10 @@ export function SignInView() {
             </div>
 
             <form action={formAction} className="space-y-5">
+              <input type="hidden" name="plan" value={selectedPlan ?? ""} />
+              <input type="hidden" name="billing" value={selectedBilling ?? ""} />
+              <input type="hidden" name="checkout" value={checkoutIntent ?? ""} />
+
               <div className="space-y-2">
                 <Label
                   htmlFor="email"
@@ -138,6 +152,7 @@ export function SignInView() {
                   id="email"
                   name="email"
                   type="email"
+                  defaultValue={initialEmail ?? ""}
                   placeholder="Enter your email address"
                   className="h-9 rounded-xl border-zinc-200 px-4 text-sm"
                 />
@@ -172,6 +187,8 @@ export function SignInView() {
                     onClick={() => setShowPassword((value) => !value)}
                     className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-zinc-500"
                     aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-pressed={showPassword}
+                    title={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? (
                       <EyeOff className="size-4.5" />

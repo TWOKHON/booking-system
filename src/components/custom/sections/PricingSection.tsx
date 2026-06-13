@@ -3,7 +3,6 @@
 import Link from "next/link";
 import {
   PRICING_PLANS,
-  YEARLY_DISCOUNT,
   PRICING_FEATURES,
 } from "@/constants";
 import { Check } from "lucide-react";
@@ -11,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { getPolarCheckoutPlanPath } from "@/lib/subscription/polar";
 import NumberFlow from "@number-flow/react";
 import { useState } from "react";
 import { FeatureValue } from "@/types";
@@ -51,13 +51,6 @@ function FeatureLabel({
 export function PricingSection() {
   const [frequency, setFrequency] = useState<"monthly" | "yearly">("monthly");
 
-  function getPrice(basePrice: number): number {
-    if (frequency === "yearly") {
-      return Math.round(basePrice * (1 - YEARLY_DISCOUNT));
-    }
-    return basePrice;
-  }
-
   return (
     <section className="max-w-7xl flex flex-col items-center mx-auto px-6">
       <h3 className="text-4xl font-bold text-center">
@@ -78,14 +71,15 @@ export function PricingSection() {
         <ToggleGroupItem value="yearly">
           Yearly
           <span className="ml-2 text-xs font-medium text-green-700 bg-green-100 px-1.5 py-0.5">
-            -20%
+            Save up to 20%
           </span>
         </ToggleGroupItem>
       </ToggleGroup>
 
       <div className="mt-10 grid lg:grid-cols-4 gap-6 w-full">
         {PRICING_PLANS.map((plan) => {
-          const displayPrice = getPrice(plan.price);
+          const displayPrice =
+            frequency === "yearly" ? (plan.yearlyPrice ?? plan.price * 12) : plan.price;
 
           return (
             <div
@@ -124,7 +118,11 @@ export function PricingSection() {
                   />
                 )}
                 <p className="text-xs text-muted-foreground">
-                  {plan.isFree ? "7-day trial" : `/ ${frequency}`}
+                  {plan.isFree
+                    ? "7-day trial"
+                    : frequency === "yearly"
+                      ? "/ year"
+                      : "/ month"}
                 </p>
               </div>
 
@@ -135,7 +133,10 @@ export function PricingSection() {
                 variant={plan.featured ? "default" : "outline"}
               >
                 <Link
-                  href={`/auth/sign-up?userType=tenant&plan=${plan.key}&billing=${plan.key === "free_trial" ? "monthly" : frequency}`}
+                  href={getPolarCheckoutPlanPath({
+                    plan: plan.key,
+                    billing: frequency,
+                  })}
                 >
                   {plan.cta}
                 </Link>

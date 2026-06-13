@@ -338,7 +338,7 @@ export function BuilderWorkspaceView({
             </div>
             <h3 className="mt-4 text-lg font-semibold">Ready to continue?</h3>
             <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
-              Your site is already in progress. We've saved your latest changes
+              Your site is already in progress. We&apos;ve saved your latest changes
               automatically. Each account manages a single site to keep your
               brand consistent.
             </p>

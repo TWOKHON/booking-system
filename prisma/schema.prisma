@@ -31,6 +31,16 @@ enum TenantBillingCycle {
   YEARLY
 }
 
+enum TenantSubscriptionStatus {
+  PENDING
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  REVOKED
+  SUSPENDED
+}
+
 enum TenantPaymentMethod {
   CREDIT_CARD
   BANK_TRANSFER
@@ -353,7 +363,17 @@ model TenantProfile {
   website                 String?
   shortDescription        String?
   subscriptionPlan        TenantSubscriptionPlan         @default(STARTER)
+  subscriptionStatus      TenantSubscriptionStatus       @default(PENDING)
   billingCycle            TenantBillingCycle             @default(MONTHLY)
+  trialStartedAt          DateTime?
+  trialEndsAt             DateTime?
+  currentPeriodEnd        DateTime?
+  suspendedAt             DateTime?
+  stripeCustomerId        String?
+  stripeSubscriptionId    String?
+  polarCustomerId         String?
+  polarSubscriptionId     String?
+  polarProductId          String?
   businessName            String?
   billingEmail            String?
   billingPhoneCountryCode String?                        @default("+63")

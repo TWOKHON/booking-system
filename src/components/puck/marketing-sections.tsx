@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import {
   ArrowRight,
@@ -50,6 +51,14 @@ type SectionIntroProps = {
   description?: string;
   align?: "left" | "center";
 };
+
+function getLucideIcon(name: string | undefined, fallback: LucideIcon): LucideIcon {
+  if (!name) return fallback;
+
+  const candidate = LucideIcons[name as keyof typeof LucideIcons];
+
+  return typeof candidate === "function" ? (candidate as LucideIcon) : fallback;
+}
 
 function SectionIntro({
   eyebrow,
@@ -290,7 +299,7 @@ export function FeatureCardsBlock({
   features,
   icon = "Sparkles",
 }: FeatureCardsBlockProps) {
-  const Icon = (LucideIcons[icon as keyof typeof LucideIcons] as any) || Sparkles;
+  const Icon = getLucideIcon(icon, Sparkles);
 
   return (
     <SectionShell>
@@ -412,7 +421,7 @@ export function PricingBlock({
   plans,
   icon = "Check",
 }: PricingBlockProps) {
-  const Icon = (LucideIcons[icon as keyof typeof LucideIcons] as any) || Check;
+  const Icon = getLucideIcon(icon, Check);
 
   return (
     <SectionShell>
@@ -523,7 +532,7 @@ export function TestimonialsBlock({
   testimonials,
   icon = "Star",
 }: TestimonialsBlockProps) {
-  const Icon = (LucideIcons[icon as keyof typeof LucideIcons] as any) || Star;
+  const Icon = getLucideIcon(icon, Star);
 
   return (
     <SectionShell>
@@ -581,7 +590,7 @@ export function StatisticsBlock({
   icon = "BarChart3",
   variant = "cards",
 }: StatisticsBlockProps) {
-  const DefaultIcon = (LucideIcons[icon as keyof typeof LucideIcons] as any) || BarChart3;
+  const DefaultIcon = getLucideIcon(icon, BarChart3);
 
   if (variant === "split") {
     return (
@@ -593,9 +602,7 @@ export function StatisticsBlock({
             </div>
             <div className="grid gap-8 sm:grid-cols-2">
               {stats?.map((stat, index) => {
-                const ItemIcon = stat.icon 
-                  ? (LucideIcons[stat.icon as keyof typeof LucideIcons] as any) || DefaultIcon
-                  : DefaultIcon;
+                const ItemIcon = getLucideIcon(stat.icon, DefaultIcon);
                 
                 return (
                   <div key={`stat-${index}-${stat.label}`} className="flex flex-col gap-2">
@@ -628,9 +635,7 @@ export function StatisticsBlock({
           <SectionIntro eyebrow={eyebrow} heading={heading} description={description} />
           <div className="grid gap-8 border-y py-12 sm:grid-cols-2 lg:grid-cols-4">
             {stats?.map((stat, index) => {
-              const ItemIcon = stat.icon 
-                ? (LucideIcons[stat.icon as keyof typeof LucideIcons] as any) || DefaultIcon
-                : null;
+              const ItemIcon = stat.icon ? getLucideIcon(stat.icon, DefaultIcon) : null;
 
               return (
                 <div key={`stat-${index}-${stat.label}`} className="text-center">
@@ -659,9 +664,7 @@ export function StatisticsBlock({
         <SectionIntro eyebrow={eyebrow} heading={heading} description={description} />
         <div className="grid gap-4 md:grid-cols-4">
           {stats?.map((stat, index) => {
-            const ItemIcon = stat.icon 
-              ? (LucideIcons[stat.icon as keyof typeof LucideIcons] as any) || DefaultIcon
-              : DefaultIcon;
+            const ItemIcon = getLucideIcon(stat.icon, DefaultIcon);
 
             return (
               <Card key={`stat-${index}-${stat.label}`} className="border-none bg-muted/50 shadow-none transition-colors hover:bg-muted">

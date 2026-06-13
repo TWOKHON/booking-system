@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import { getTenantEntitlements } from "@/lib/subscription/entitlements";
 
 type AdvancedAnalyticsCategory =
   | "Commercial"
@@ -98,6 +99,18 @@ export const advancedAnalyticsRouter = createTRPCRouter({
       throw new TRPCError({
         code: "NOT_FOUND",
         message: "Tenant profile not found.",
+      });
+    }
+
+    const entitlements = getTenantEntitlements({
+      plan: profile.subscriptionPlan,
+      subscriptionStatus: profile.subscriptionStatus,
+    });
+
+    if (!entitlements.hasAdvancedAnalyticsAccess) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Advanced analytics requires the Growth plan or higher.",
       });
     }
 

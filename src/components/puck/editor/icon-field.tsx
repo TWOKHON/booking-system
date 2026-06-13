@@ -1,5 +1,7 @@
 "use client";
 
+import { createElement } from "react";
+import type { LucideIcon } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import {
   Select,
@@ -41,7 +43,13 @@ const popularIcons = [
   "ExternalLink",
 ] as const;
 
-type IconName = (typeof popularIcons)[number];
+function getLucideIcon(name?: string): LucideIcon | null {
+  if (!name) return null;
+
+  const candidate = LucideIcons[name as keyof typeof LucideIcons];
+
+  return typeof candidate === "function" ? (candidate as LucideIcon) : null;
+}
 
 type IconFieldProps = {
   value?: string;
@@ -50,6 +58,8 @@ type IconFieldProps = {
 };
 
 export function IconField({ value, onChange, label }: IconFieldProps) {
+  const SelectedIcon = getLucideIcon(value);
+
   return (
     <div className="flex flex-col gap-2 py-2">
       {label && (
@@ -61,12 +71,9 @@ export function IconField({ value, onChange, label }: IconFieldProps) {
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Select an icon">
             <div className="flex items-center gap-2">
-              {value && (LucideIcons[value as keyof typeof LucideIcons] as any) ? (
+              {SelectedIcon ? (
                 <div className="size-4">
-                  {(() => {
-                    const Icon = LucideIcons[value as keyof typeof LucideIcons] as any;
-                    return <Icon className="size-full" />;
-                  })()}
+                  {createElement(SelectedIcon, { className: "size-full" })}
                 </div>
               ) : null}
               <span>{value || "Select icon"}</span>
@@ -75,7 +82,10 @@ export function IconField({ value, onChange, label }: IconFieldProps) {
         </SelectTrigger>
         <SelectContent>
           {popularIcons.map((iconName) => {
-            const Icon = LucideIcons[iconName] as any;
+            const Icon = getLucideIcon(iconName);
+
+            if (!Icon) return null;
+
             return (
               <SelectItem key={iconName} value={iconName}>
                 <div className="flex items-center gap-2">

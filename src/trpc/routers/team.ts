@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import { isWithinStaffSeatLimit } from "@/lib/subscription/entitlements";
 
 const teamRoleValues = [
   "OWNER_ADMIN",
@@ -31,7 +32,10 @@ function buildInitials(name: string) {
 function requireTenantProfile(ctx: {
   currentUser: {
     role: "ADMIN" | "TENANT" | "CUSTOMER";
-    tenantProfile: { id: string } | null;
+    tenantProfile: {
+      id: string;
+      subscriptionPlan: "FREE_TRIAL" | "STARTER" | "GROWTH" | "ENTERPRISE";
+    } | null;
   } | null;
 }) {
   if (!ctx.currentUser || ctx.currentUser.role !== "TENANT") {
@@ -91,6 +95,24 @@ export const teamRouter = createTRPCRouter({
         throw new TRPCError({
           code: "CONFLICT",
           message: "A team member with that email already exists.",
+        });
+      }
+
+      const currentSeatCount = await ctx.db.tenantTeamMember.count({
+        where: {
+          tenantProfileId: tenantProfile.id,
+        },
+      });
+
+      if (
+        !isWithinStaffSeatLimit({
+          plan: tenantProfile.subscriptionPlan,
+          currentSeatCount,
+        })
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "This plan has reached its staff seat limit.",
         });
       }
 

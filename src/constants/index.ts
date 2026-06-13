@@ -254,6 +254,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     key: "free_trial",
     name: "Free Trial",
     price: 0,
+    yearlyPrice: 0,
     // isFree: true,
     description:
       "Try all core features risk-free for 7 days. No credit card required. Cancel anytime.",
@@ -262,7 +263,8 @@ export const PRICING_PLANS: PricingPlan[] = [
   {
     key: "starter",
     name: "Starter",
-    price: 999,
+    price: 1499,
+    yearlyPrice: 14990,
     description:
       "Everything you need to manage bookings and run daily resort operations.",
     cta: "Get started",
@@ -270,7 +272,8 @@ export const PRICING_PLANS: PricingPlan[] = [
   {
     key: "growth",
     name: "Growth",
-    price: 2499,
+    price: 2999,
+    yearlyPrice: 28990,
     includes: "Everything in Starter, plus:",
     description:
       "Scale your resort with advanced tools, multi-property support, and automation.",
@@ -281,7 +284,8 @@ export const PRICING_PLANS: PricingPlan[] = [
   {
     key: "enterprise",
     name: "Enterprise",
-    price: 5999,
+    price: 4999,
+    yearlyPrice: 47990,
     includes: "Everything in Growth, plus:",
     description:
       "Full-suite platform with AI, dedicated support, and enterprise-grade controls.",

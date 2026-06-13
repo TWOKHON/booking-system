@@ -3,6 +3,7 @@ import type { InputJsonValue } from "@prisma/client/runtime/client";
 import type { TRPCContext } from "@/trpc/init";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import { isWithinDomainLimit } from "@/lib/subscription/entitlements";
 
 const siteDataSchema = z.record(z.string(), z.unknown());
 
@@ -232,6 +233,24 @@ export const siteBuilderRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const tenantProfile = requireTenantProfile(ctx);
+
+      const currentDomainCount = await ctx.db.tenantDomain.count({
+        where: {
+          tenantProfileId: tenantProfile.id,
+        },
+      });
+
+      if (
+        !isWithinDomainLimit({
+          plan: tenantProfile.subscriptionPlan,
+          currentDomainCount,
+        })
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "This plan has reached its custom domain limit.",
+        });
+      }
 
       const domain = await ctx.db.tenantDomain.create({
         data: {

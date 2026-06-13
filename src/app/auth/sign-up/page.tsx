@@ -4,6 +4,7 @@ type SearchParams = Promise<{
   userType?: string | string[];
   plan?: string | string[];
   billing?: string | string[];
+  checkout?: string | string[];
 }>;
 
 function resolveUserType(userType: string | string[] | undefined) {
@@ -34,6 +35,7 @@ export default async function SignUpPage({
       userType={resolveUserType(params.userType)}
       selectedPlan={Array.isArray(params.plan) ? params.plan[0] : params.plan}
       selectedBilling={Array.isArray(params.billing) ? params.billing[0] : params.billing}
+      checkoutIntent={Array.isArray(params.checkout) ? params.checkout[0] : params.checkout}
     />
   );
 }

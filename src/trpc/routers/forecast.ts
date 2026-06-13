@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import { getTenantEntitlements } from "@/lib/subscription/entitlements";
 
 type ForecastCategory =
   | "Demand"
@@ -102,6 +103,18 @@ export const forecastRouter = createTRPCRouter({
       throw new TRPCError({
         code: "NOT_FOUND",
         message: "Tenant profile not found.",
+      });
+    }
+
+    const entitlements = getTenantEntitlements({
+      plan: profile.subscriptionPlan,
+      subscriptionStatus: profile.subscriptionStatus,
+    });
+
+    if (!entitlements.hasAiAccess) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "AI revenue forecasting requires the Enterprise plan.",
       });
     }
 

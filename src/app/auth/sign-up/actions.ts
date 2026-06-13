@@ -19,8 +19,18 @@ const signUpSchema = z
       .refine((value) => /[A-Z]/.test(value), "Password must include at least 1 uppercase letter.")
       .refine((value) => /[0-9]/.test(value), "Password must include at least 1 number."),
     role: z.enum(["admin", "tenant", "customer"]).default("customer"),
-    plan: z.enum(["free_trial", "starter", "growth", "enterprise"]).optional(),
-    billing: z.enum(["monthly", "yearly"]).optional(),
+    plan: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z.enum(["free_trial", "starter", "growth", "enterprise"]).optional(),
+    ),
+    billing: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z.enum(["monthly", "yearly"]).optional(),
+    ),
+    checkout: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z.enum(["polar"]).optional(),
+    ),
   })
   .transform((value) => ({
     ...value,
@@ -39,6 +49,7 @@ export async function registerUserAction(
     role: formData.get("role"),
     plan: formData.get("plan"),
     billing: formData.get("billing"),
+    checkout: formData.get("checkout"),
   });
 
   if (!payload.success) {
@@ -47,7 +58,48 @@ export async function registerUserAction(
     };
   }
 
-  const { firstName, lastName, name, email, password, role, plan, billing } = payload.data;
+  const { firstName, lastName, name, email, password, role, plan, billing, checkout } = payload.data;
+  const selectedPlan = role === "tenant" ? (plan ?? "free_trial") : plan;
+  const isFreeTrial = selectedPlan === "free_trial";
+  const isPaidTenantCheckout =
+    role === "tenant" &&
+    checkout === "polar" &&
+    selectedPlan &&
+    selectedPlan !== "free_trial";
+  const trialStartedAt = isFreeTrial ? new Date() : null;
+  const trialEndsAt = trialStartedAt
+    ? new Date(trialStartedAt.getTime() + 7 * 24 * 60 * 60 * 1000)
+    : null;
+
+  const existingAppUser = await db.appUser.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  if (existingAppUser) {
+    const signInQuery = new URLSearchParams({
+      email,
+    });
+
+    if (role === "tenant") {
+      signInQuery.set("userType", "tenant");
+    }
+
+    if (selectedPlan) {
+      signInQuery.set("plan", selectedPlan);
+    }
+
+    if (billing) {
+      signInQuery.set("billing", billing);
+    }
+
+    if (isPaidTenantCheckout) {
+      signInQuery.set("checkout", "polar");
+    }
+
+    redirect(`/auth/sign-in?${signInQuery.toString()}`);
+  }
 
   try {
     const result = await auth.api.signUpEmail({
@@ -71,12 +123,15 @@ export async function registerUserAction(
             ? {
                 create: {
                   onboardingStatus: "PENDING",
+                  subscriptionStatus: isFreeTrial ? "TRIALING" : "PENDING",
+                  trialStartedAt,
+                  trialEndsAt,
                   subscriptionPlan:
-                    plan === "free_trial"
+                    isFreeTrial
                       ? "FREE_TRIAL"
-                      : plan === "growth"
+                      : selectedPlan === "growth"
                         ? "GROWTH"
-                        : plan === "enterprise"
+                        : selectedPlan === "enterprise"
                           ? "ENTERPRISE"
                           : "STARTER",
                   billingCycle: billing === "yearly" ? "YEARLY" : "MONTHLY",
@@ -109,12 +164,16 @@ export async function registerUserAction(
   if (role === "tenant") {
     const query = new URLSearchParams();
 
-    if (plan) {
-      query.set("plan", plan);
+    if (selectedPlan) {
+      query.set("plan", selectedPlan);
     }
 
     if (billing) {
       query.set("billing", billing);
+    }
+
+    if (isPaidTenantCheckout) {
+      redirect(`/api/polar/checkout-plan?${query.toString()}`);
     }
 
     redirect(`/auth/onboarding${query.toString() ? `?${query.toString()}` : ""}`);

@@ -2,7 +2,7 @@
 
 import NumberFlow from "@number-flow/react";
 import { CircleHelp, Landmark, Sparkles, Wallet } from "lucide-react";
-import { PRICING_PLANS, YEARLY_DISCOUNT } from "@/constants";
+import { PRICING_PLANS } from "@/constants";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -41,14 +41,12 @@ export function PlanBillingStep({
 }) {
   const selectedPlan = PRICING_PLANS.find((plan) => plan.key === data.subscriptionPlan);
   const planName = selectedPlan?.name ?? "Starter";
-  const basePrice = selectedPlan?.price ?? 999;
+  const basePrice = selectedPlan?.price ?? 1499;
   const isYearly = data.billingCycle === "yearly";
-  const displayedPrice = isYearly
-    ? Math.round(basePrice * (1 - YEARLY_DISCOUNT))
-    : basePrice;
+  const yearlyPrice = selectedPlan?.yearlyPrice ?? basePrice * 12;
+  const displayedPrice = isYearly ? yearlyPrice : basePrice;
   const annualFullPrice = basePrice * 12;
-  const annualDiscountedPrice = Math.round(basePrice * (1 - YEARLY_DISCOUNT)) * 12;
-  const annualSavings = annualFullPrice - annualDiscountedPrice;
+  const annualSavings = annualFullPrice - yearlyPrice;
   const teamSeatLabel =
     data.subscriptionPlan === "free_trial"
       ? "Up to 3 included"
@@ -108,14 +106,14 @@ export function PlanBillingStep({
                     }}
                   />
                   <span className="text-base font-normal text-zinc-500">
-                    / {isYearly ? "yearly" : "month"}
+                    / {isYearly ? "year" : "month"}
                   </span>
                 </div>
                 <p className="mt-3 text-sm text-zinc-500">
                   {isYearly ? "Billed yearly" : "Billed monthly"}
                 </p>
                 <p className="mt-2 text-sm text-zinc-500">
-                  {formatPhp(annualDiscountedPrice)} billed every year
+                  {formatPhp(yearlyPrice)} billed every year
                 </p>
                 {isYearly ? (
                   <Badge
@@ -148,7 +146,7 @@ export function PlanBillingStep({
               </div>
               {isYearly ? (
                 <div className="flex items-center justify-between">
-                  <span>Annual Discount (20%)</span>
+                  <span>Annual Savings</span>
                   <span>- {formatPhp(annualSavings)} / year</span>
                 </div>
               ) : null}
@@ -156,7 +154,7 @@ export function PlanBillingStep({
                 <div className="flex items-center justify-between">
                   <span>Total</span>
                   <span>
-                    {formatPhp(isYearly ? annualDiscountedPrice : displayedPrice)} /{" "}
+                    {formatPhp(displayedPrice)} /{" "}
                     {isYearly ? "year" : "month"}
                   </span>
                 </div>

@@ -120,10 +120,12 @@ export function SignUpView({
   userType,
   selectedPlan,
   selectedBilling,
+  checkoutIntent,
 }: {
   userType: "admin" | "tenant" | "customer";
   selectedPlan?: string;
   selectedBilling?: string;
+  checkoutIntent?: string;
 }) {
   const [state, formAction] = useActionState(
     registerUserAction,
@@ -139,6 +141,9 @@ export function SignUpView({
   const strengthScore = useMemo(
     () => passwordStrength.filter((requirement) => requirement.met).length,
     [passwordStrength],
+  );
+  const strengthPercent = Math.round(
+    (strengthScore / passwordRequirements.length) * 100,
   );
 
   function getStrengthColor(score: number) {
@@ -193,6 +198,7 @@ export function SignUpView({
                 <input type="hidden" name="role" value={userType} />
                 <input type="hidden" name="plan" value={selectedPlan ?? ""} />
                 <input type="hidden" name="billing" value={selectedBilling ?? ""} />
+                <input type="hidden" name="checkout" value={checkoutIntent ?? ""} />
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
@@ -265,6 +271,8 @@ export function SignUpView({
                       onClick={() => setShowPassword((value) => !value)}
                       className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-zinc-400 hover:text-zinc-600"
                       aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-pressed={showPassword}
+                      title={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? (
                         <EyeOff className="size-4" />
@@ -274,18 +282,21 @@ export function SignUpView({
                     </button>
                   </div>
                   <div className="space-y-2 pt-1.5">
-                    <div className="flex h-1 w-full gap-1">
-                      {Array.from({ length: passwordRequirements.length }).map((_, index) => (
-                        <span
-                          key={index}
-                          className={cn(
-                            "h-full flex-1 rounded-full transition-all duration-500 ease-out",
-                            index < strengthScore
-                              ? getStrengthColor(strengthScore)
-                              : "bg-zinc-200",
-                          )}
-                        />
-                      ))}
+                    <div
+                      className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-200"
+                      role="progressbar"
+                      aria-label="Password strength"
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={strengthPercent}
+                    >
+                      <div
+                        className={cn(
+                          "h-full rounded-full transition-all duration-500 ease-out",
+                          getStrengthColor(strengthScore),
+                        )}
+                        style={{ width: `${strengthPercent}%` }}
+                      />
                     </div>
 
                     <p className="text-xs font-medium text-zinc-900">

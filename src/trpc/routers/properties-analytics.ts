@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import { getTenantEntitlements } from "@/lib/subscription/entitlements";
 
 type PropertiesAnalyticsCategory =
   | "Portfolio"
@@ -45,19 +46,6 @@ function makeRow(input: {
   updatedAt: Date;
 }) {
   return input;
-}
-
-function getPropertyAllowance(
-  plan: "FREE_TRIAL" | "STARTER" | "GROWTH" | "ENTERPRISE",
-) {
-  switch (plan) {
-    case "GROWTH":
-      return 2;
-    case "ENTERPRISE":
-      return 3;
-    default:
-      return 1;
-  }
 }
 
 export const propertiesAnalyticsRouter = createTRPCRouter({
@@ -114,7 +102,19 @@ export const propertiesAnalyticsRouter = createTRPCRouter({
       });
     }
 
-    const propertyAllowance = getPropertyAllowance(profile.subscriptionPlan);
+    const entitlements = getTenantEntitlements({
+      plan: profile.subscriptionPlan,
+      subscriptionStatus: profile.subscriptionStatus,
+    });
+
+    if (entitlements.multiPropertyLimit < 2) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Multi-property analytics requires the Growth plan or higher.",
+      });
+    }
+
+    const propertyAllowance = entitlements.multiPropertyLimit;
     const currentPropertyCount = 1;
     const acceptedTeamMembers = teamMembers.filter(
       (member) => member.status === "ACCEPTED",
