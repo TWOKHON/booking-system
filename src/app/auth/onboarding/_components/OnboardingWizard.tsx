@@ -3,7 +3,11 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { completeTenantOnboardingAction, saveTenantOnboardingAction } from "../actions";
-import { onboardingLocalDraftSchema, type OnboardingFormData } from "../_lib/schema";
+import {
+  defaultOnboardingFormData,
+  onboardingLocalDraftSchema,
+  type OnboardingFormData,
+} from "../_lib/schema";
 import { ShellHeader, SideLayout } from "./wizard/shared";
 import { CommunicationStep } from "./wizard/steps/CommunicationStep";
 import { CompleteStep } from "./wizard/steps/CompleteStep";
@@ -11,6 +15,61 @@ import { PlanBillingStep } from "./wizard/steps/PlanBillingStep";
 import { PropertyDetailsStep } from "./wizard/steps/PropertyDetailsStep";
 import { TeamSetupStep } from "./wizard/steps/TeamSetupStep";
 import { WelcomeStep } from "./wizard/steps/WelcomeStep";
+
+const ONBOARDING_DRAFT_VERSION = 3;
+
+function mergeOnboardingDraft(
+  base: OnboardingFormData,
+  draft: Partial<OnboardingFormData>,
+): OnboardingFormData {
+  return {
+    ...base,
+    ...draft,
+    property: {
+      ...base.property,
+      ...draft.property,
+    },
+    planBilling: {
+      ...base.planBilling,
+      ...draft.planBilling,
+    },
+    teamSetup: {
+      ...base.teamSetup,
+      ...draft.teamSetup,
+    },
+    communication: {
+      ...base.communication,
+      ...draft.communication,
+      channels: {
+        ...base.communication.channels,
+        ...draft.communication?.channels,
+      },
+      preferences: {
+        ...base.communication.preferences,
+        ...draft.communication?.preferences,
+      },
+    },
+  };
+}
+
+function readLocalDraft(rawDraft: string, initialData: OnboardingFormData) {
+  const parsedJson = JSON.parse(rawDraft) as {
+    data?: Partial<OnboardingFormData>;
+    currentStep?: unknown;
+  };
+
+  const mergedData = mergeOnboardingDraft(
+    mergeOnboardingDraft(defaultOnboardingFormData, initialData),
+    parsedJson.data ?? {},
+  );
+  const parsedDraft = onboardingLocalDraftSchema.safeParse({
+    version: ONBOARDING_DRAFT_VERSION,
+    data: mergedData,
+    currentStep: parsedJson.currentStep,
+  });
+
+  return parsedDraft.success ? parsedDraft.data : null;
+}
 
 export function OnboardingWizard({
   initialData,
@@ -36,22 +95,22 @@ export function OnboardingWizard({
         return;
       }
 
-      const parsedDraft = onboardingLocalDraftSchema.safeParse(JSON.parse(rawDraft));
+      const parsedDraft = readLocalDraft(rawDraft, initialData);
 
-      if (!parsedDraft.success) {
+      if (!parsedDraft) {
         window.localStorage.removeItem(storageKey);
         hasLoadedDraftRef.current = true;
         return;
       }
 
-      setFormData(parsedDraft.data.data);
-      setCurrentStep(parsedDraft.data.currentStep);
+      setFormData(parsedDraft.data);
+      setCurrentStep(parsedDraft.currentStep);
     } catch {
       window.localStorage.removeItem(storageKey);
     } finally {
       hasLoadedDraftRef.current = true;
     }
-  }, [storageKey]);
+  }, [initialData, storageKey]);
 
   useEffect(() => {
     if (!hasLoadedDraftRef.current) {
@@ -61,7 +120,7 @@ export function OnboardingWizard({
     window.localStorage.setItem(
       storageKey,
       JSON.stringify({
-        version: 2,
+        version: ONBOARDING_DRAFT_VERSION,
         data: formData,
         currentStep,
       }),

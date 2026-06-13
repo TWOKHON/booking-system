@@ -38,8 +38,8 @@ export const steps: StepDefinition[] = [
     subtitle: "Invite your team members",
   },
   {
-    title: "Plan & Billing",
-    subtitle: "Review your plan and billing details",
+    title: "Payment Connection",
+    subtitle: "Connect your resort payment rail",
   },
   {
     title: "Communication",
@@ -162,9 +162,9 @@ export const summaryCards = [
     stepIndex: 2,
   },
   {
-    title: "Plan & Billing",
-    subtitle: "Starter Plan (Monthly)",
-    detail: "Next billing on June 15, 2026",
+    title: "Payment Connection",
+    subtitle: "Primary payment account connected",
+    detail: "Used for guest collections and operations visibility",
     icon: CreditCard,
     stepIndex: 3,
   },
@@ -221,8 +221,8 @@ export const welcomeItems = [
     icon: Users,
   },
   {
-    title: "Review your plan",
-    description: "Confirm your plan and billing information",
+    title: "Connect payment method",
+    description: "Add your card, bank, or e-wallet account",
     icon: CreditCard,
   },
   {

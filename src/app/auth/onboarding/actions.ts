@@ -36,6 +36,40 @@ async function requireTenantUser() {
   };
 }
 
+async function syncDefaultPaymentAccount(
+  tx: Parameters<Parameters<typeof db.$transaction>[0]>[0],
+  tenantProfileId: string,
+  paymentAccount: ReturnType<typeof mapFormDataToTenantProfileUpdate>["paymentAccount"],
+) {
+  if (!paymentAccount) {
+    return;
+  }
+
+  await tx.tenantPaymentAccount.updateMany({
+    where: {
+      tenantProfileId,
+      isActive: true,
+    },
+    data: {
+      isDefault: false,
+    },
+  });
+
+  await tx.tenantPaymentAccount.upsert({
+    where: {
+      tenantProfileId_accountLabel: {
+        tenantProfileId,
+        accountLabel: paymentAccount.accountLabel,
+      },
+    },
+    update: paymentAccount,
+    create: {
+      tenantProfileId,
+      ...paymentAccount,
+    },
+  });
+}
+
 export async function saveTenantOnboardingAction(input: {
   data: OnboardingFormData;
   currentStep: number;
@@ -61,6 +95,12 @@ export async function saveTenantOnboardingAction(input: {
           onboardingCurrentStep: payload.data.currentStep,
         },
       });
+
+      await syncDefaultPaymentAccount(
+        tx,
+        appUser.tenantProfile.id,
+        mapped.paymentAccount,
+      );
 
       await tx.tenantTeamMember.deleteMany({
         where: { tenantProfileId: appUser.tenantProfile.id },
@@ -134,6 +174,12 @@ export async function completeTenantOnboardingAction(input: {
         onboardingCompletedAt: new Date(),
       },
     });
+
+    await syncDefaultPaymentAccount(
+      tx,
+      appUser.tenantProfile.id,
+      mapped.paymentAccount,
+    );
 
     await tx.tenantTeamMember.deleteMany({
       where: { tenantProfileId: appUser.tenantProfile.id },

@@ -18,6 +18,7 @@ type TenantNotificationFrequency = "INSTANT" | "DAILY" | "WEEKLY";
 type TenantSubscriptionPlan = "FREE_TRIAL" | "STARTER" | "GROWTH" | "ENTERPRISE";
 type TenantBillingCycle = "MONTHLY" | "YEARLY";
 type TenantPaymentMethod = "CREDIT_CARD" | "BANK_TRANSFER" | "E_WALLET" | "CASH_DEPOSIT";
+type TenantPaymentAccountType = "CREDIT_CARD" | "BANK_ACCOUNT" | "E_WALLET";
 
 type TenantProfileWithRelations = {
   resortName: string | null;
@@ -46,6 +47,15 @@ type TenantProfileWithRelations = {
   cardBrand: string | null;
   cardLastFour: string | null;
   cardExpiry: string | null;
+  paymentAccounts: Array<{
+    accountLabel: string;
+    accountType: TenantPaymentAccountType;
+    providerName: string;
+    accountName: string;
+    maskedDetails: string;
+    isDefault: boolean;
+    isActive: boolean;
+  }>;
   teamMembers: Array<{
     initials: string | null;
     name: string | null;
@@ -147,21 +157,6 @@ const billingCycleFromDb: Record<TenantBillingCycle, "monthly" | "yearly"> = {
   YEARLY: "yearly",
 };
 
-const subscriptionPlanToDb: Record<
-  "free_trial" | "starter" | "growth" | "enterprise",
-  TenantSubscriptionPlan
-> = {
-  free_trial: "FREE_TRIAL",
-  starter: "STARTER",
-  growth: "GROWTH",
-  enterprise: "ENTERPRISE",
-};
-
-const billingCycleToDb: Record<"monthly" | "yearly", TenantBillingCycle> = {
-  monthly: "MONTHLY",
-  yearly: "YEARLY",
-};
-
 const paymentMethodFromDb: Record<
   TenantPaymentMethod,
   "credit_card" | "bank_transfer" | "e_wallet" | "cash_deposit"
@@ -247,6 +242,26 @@ export function mapTenantProfileToFormData(
       paymentMethod: tenantProfile.paymentMethod
         ? paymentMethodFromDb[tenantProfile.paymentMethod]
         : "credit_card",
+      paymentAccountLabel:
+        tenantProfile.paymentAccounts.find((account) => account.isDefault && account.isActive)
+          ?.accountLabel ??
+        tenantProfile.paymentAccounts.find((account) => account.isActive)?.accountLabel ??
+        defaultOnboardingFormData.planBilling.paymentAccountLabel,
+      paymentProviderName:
+        tenantProfile.paymentAccounts.find((account) => account.isDefault && account.isActive)
+          ?.providerName ??
+        tenantProfile.paymentAccounts.find((account) => account.isActive)?.providerName ??
+        "",
+      paymentAccountName:
+        tenantProfile.paymentAccounts.find((account) => account.isDefault && account.isActive)
+          ?.accountName ??
+        tenantProfile.paymentAccounts.find((account) => account.isActive)?.accountName ??
+        "",
+      paymentMaskedDetails:
+        tenantProfile.paymentAccounts.find((account) => account.isDefault && account.isActive)
+          ?.maskedDetails ??
+        tenantProfile.paymentAccounts.find((account) => account.isActive)?.maskedDetails ??
+        "",
       cardholderName: tenantProfile.cardholderName ?? "",
       cardBrand: tenantProfile.cardBrand ?? "",
       cardLastFour: tenantProfile.cardLastFour ?? "",
@@ -263,6 +278,8 @@ export function mapTenantProfileToFormData(
 }
 
 export function mapFormDataToTenantProfileUpdate(data: OnboardingFormData) {
+  const paymentAccount = mapPaymentAccount(data);
+
   return {
     profile: {
       resortName: data.property.resortName,
@@ -275,8 +292,6 @@ export function mapFormDataToTenantProfileUpdate(data: OnboardingFormData) {
       phoneNumber: data.property.phoneNumber,
       website: data.property.website || null,
       shortDescription: data.property.shortDescription || null,
-      subscriptionPlan: subscriptionPlanToDb[data.planBilling.subscriptionPlan],
-      billingCycle: billingCycleToDb[data.planBilling.billingCycle],
       billingEmail: data.planBilling.billingEmail || null,
       billingPhoneCountryCode: data.planBilling.billingPhoneCountryCode || "+63",
       billingPhoneNumber: data.planBilling.billingPhoneNumber || null,
@@ -303,6 +318,7 @@ export function mapFormDataToTenantProfileUpdate(data: OnboardingFormData) {
           ? data.planBilling.cardExpiry || null
           : null,
     },
+    paymentAccount,
     teamMembers: data.teamSetup.members.map((member) => ({
       name: member.name,
       initials: member.initials,
@@ -319,5 +335,57 @@ export function mapFormDataToTenantProfileUpdate(data: OnboardingFormData) {
       enabled: data.communication.preferences[key].enabled,
       frequency: frequencyToDb[data.communication.preferences[key].frequency],
     })),
+  };
+}
+
+function mapPaymentAccount(data: OnboardingFormData) {
+  if (data.planBilling.paymentMethod === "cash_deposit") {
+    return null;
+  }
+
+  const accountType: TenantPaymentAccountType =
+    data.planBilling.paymentMethod === "bank_transfer"
+      ? "BANK_ACCOUNT"
+      : data.planBilling.paymentMethod === "e_wallet"
+        ? "E_WALLET"
+        : "CREDIT_CARD";
+
+  const accountLabel =
+    data.planBilling.paymentAccountLabel ||
+    (accountType === "BANK_ACCOUNT"
+      ? "Primary bank account"
+      : accountType === "E_WALLET"
+        ? "Primary e-wallet"
+        : "Primary card");
+
+  const providerName =
+    data.planBilling.paymentMethod === "credit_card"
+      ? data.planBilling.cardBrand || data.planBilling.paymentProviderName || "Card"
+      : data.planBilling.paymentProviderName;
+
+  const accountName =
+    data.planBilling.paymentMethod === "credit_card"
+      ? data.planBilling.cardholderName
+      : data.planBilling.paymentAccountName;
+
+  const maskedDetails =
+    data.planBilling.paymentMethod === "credit_card"
+      ? data.planBilling.cardLastFour
+        ? `•••• ${data.planBilling.cardLastFour}`
+        : ""
+      : data.planBilling.paymentMaskedDetails;
+
+  if (!providerName || !accountName || !maskedDetails) {
+    return null;
+  }
+
+  return {
+    accountLabel,
+    accountType,
+    providerName,
+    accountName,
+    maskedDetails,
+    isDefault: true,
+    isActive: true,
   };
 }

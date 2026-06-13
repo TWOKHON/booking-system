@@ -51,6 +51,10 @@ export type OnboardingFormData = {
     billingPostalCode: string;
     billingCountry: string;
     paymentMethod: "credit_card" | "bank_transfer" | "e_wallet" | "cash_deposit";
+    paymentAccountLabel: string;
+    paymentProviderName: string;
+    paymentAccountName: string;
+    paymentMaskedDetails: string;
     cardholderName: string;
     cardBrand: string;
     cardLastFour: string;
@@ -96,6 +100,10 @@ export const defaultOnboardingFormData: OnboardingFormData = {
     billingPostalCode: "",
     billingCountry: "Philippines",
     paymentMethod: "credit_card",
+    paymentAccountLabel: "Primary collection account",
+    paymentProviderName: "",
+    paymentAccountName: "",
+    paymentMaskedDetails: "",
     cardholderName: "",
     cardBrand: "",
     cardLastFour: "",
@@ -159,6 +167,10 @@ export const onboardingFormSchema = z.object({
       "e_wallet",
       "cash_deposit",
     ]),
+    paymentAccountLabel: z.string().trim().max(120),
+    paymentProviderName: z.string().trim().max(120),
+    paymentAccountName: z.string().trim().max(120),
+    paymentMaskedDetails: z.string().trim().max(120),
     cardholderName: z.string().trim(),
     cardBrand: z.string().trim(),
     cardLastFour: z.string().trim(),
@@ -205,7 +217,7 @@ export const saveOnboardingPayloadSchema = z.object({
 });
 
 export const onboardingLocalDraftSchema = z.object({
-  version: z.literal(2),
+  version: z.literal(3),
   data: onboardingFormSchema,
   currentStep: z.number().int().min(0).max(5),
 });

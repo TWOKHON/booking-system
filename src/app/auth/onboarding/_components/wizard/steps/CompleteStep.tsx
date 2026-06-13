@@ -89,15 +89,14 @@ export function CompleteStep({
       stepIndex: 2,
     },
     {
-      title: "Plan & Billing",
-      subtitle: `${data.planBilling.subscriptionPlan
-        .split("_")
-        .map((item) => item.charAt(0).toUpperCase() + item.slice(1))
-        .join(" ")} Plan (${data.planBilling.billingCycle === "yearly" ? "Yearly" : "Monthly"})`,
+      title: "Payment Connection",
+      subtitle:
+        data.planBilling.paymentAccountLabel ||
+        `${paymentMethodLabel} account ready`,
       detail:
-        data.planBilling.billingEmail || data.planBilling.cardLastFour
+        data.planBilling.paymentMaskedDetails || data.planBilling.cardLastFour
           ? `${paymentMethodLabel}${data.planBilling.cardLastFour ? ` ending in ${data.planBilling.cardLastFour}` : ""}`
-          : "Billing details are ready for review",
+          : "Default payment account is ready for review",
       icon: CreditCard,
       stepIndex: 3,
     },

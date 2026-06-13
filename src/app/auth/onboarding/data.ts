@@ -28,6 +28,9 @@ export async function getTenantOnboardingPageData(input?: {
           },
           communicationChannels: true,
           notificationPreferences: true,
+          paymentAccounts: {
+            orderBy: [{ isDefault: "desc" }, { updatedAt: "desc" }],
+          },
         },
       },
     },
