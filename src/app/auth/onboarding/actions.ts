@@ -164,59 +164,14 @@ export async function completeTenantOnboardingAction(input: {
 
   try {
     const appUser = await requireTenantUser();
-    const mapped = mapFormDataToTenantProfileUpdate(payload.data.data);
 
-    await db.$transaction(async (tx) => {
-      await tx.tenantProfile.update({
-        where: { appUserId: appUser.authUserId },
-        data: {
-          ...mapped.profile,
-          onboardingStatus: "COMPLETED",
-          onboardingCurrentStep: 5,
-          onboardingCompletedAt: new Date(),
-        },
-      });
-
-      await syncDefaultPaymentAccount(
-        tx,
-        appUser.tenantProfile.id,
-        mapped.paymentAccount,
-      );
-
-      await tx.tenantTeamMember.deleteMany({
-        where: { tenantProfileId: appUser.tenantProfile.id },
-      });
-
-      if (mapped.teamMembers.length > 0) {
-        await tx.tenantTeamMember.createMany({
-          data: mapped.teamMembers.map((member) => ({
-            tenantProfileId: appUser.tenantProfile.id,
-            ...member,
-          })),
-        });
-      }
-
-      await tx.tenantCommunicationChannel.deleteMany({
-        where: { tenantProfileId: appUser.tenantProfile.id },
-      });
-
-      await tx.tenantCommunicationChannel.createMany({
-        data: mapped.communicationChannels.map((channel) => ({
-          tenantProfileId: appUser.tenantProfile.id,
-          ...channel,
-        })),
-      });
-
-      await tx.tenantNotificationPreference.deleteMany({
-        where: { tenantProfileId: appUser.tenantProfile.id },
-      });
-
-      await tx.tenantNotificationPreference.createMany({
-        data: mapped.notificationPreferences.map((preference) => ({
-          tenantProfileId: appUser.tenantProfile.id,
-          ...preference,
-        })),
-      });
+    await db.tenantProfile.update({
+      where: { appUserId: appUser.authUserId },
+      data: {
+        onboardingStatus: "COMPLETED",
+        onboardingCurrentStep: 5,
+        onboardingCompletedAt: new Date(),
+      },
     });
 
     return {
