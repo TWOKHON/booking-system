@@ -6,6 +6,18 @@ import { db } from "@/lib/db";
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
+function getFallbackPeriodEnd(billingCycle: "MONTHLY" | "YEARLY" | undefined) {
+  const periodEnd = new Date();
+
+  if (billingCycle === "YEARLY") {
+    periodEnd.setFullYear(periodEnd.getFullYear() + 1);
+  } else {
+    periodEnd.setMonth(periodEnd.getMonth() + 1);
+  }
+
+  return periodEnd;
+}
+
 function copyPolarReturnParams(source: URL, target: URL) {
   const checkoutId = source.searchParams.get("checkoutId");
   const customerSessionToken = source.searchParams.get("customer_session_token");
@@ -44,6 +56,27 @@ export async function GET(request: NextRequest) {
 
   if (!appUser) {
     return NextResponse.redirect(new URL("/auth/sign-in", appUrl));
+  }
+
+  if (
+    appUser.role === "TENANT" &&
+    appUser.tenantProfile &&
+    appUser.tenantProfile.subscriptionStatus === "PENDING" &&
+    appUser.tenantProfile.subscriptionPlan !== "FREE_TRIAL"
+  ) {
+    await db.tenantProfile.update({
+      where: {
+        appUserId: session.user.id,
+      },
+      data: {
+        subscriptionStatus: "ACTIVE",
+        currentPeriodEnd:
+          appUser.tenantProfile.currentPeriodEnd ??
+          getFallbackPeriodEnd(appUser.tenantProfile.billingCycle),
+      },
+    });
+
+    appUser.tenantProfile.subscriptionStatus = "ACTIVE";
   }
 
   if (appUser.role === "TENANT" && appUser.tenantProfile?.onboardingStatus !== "COMPLETED") {
