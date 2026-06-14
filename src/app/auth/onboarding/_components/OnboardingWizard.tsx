@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { completeTenantOnboardingAction, saveTenantOnboardingAction } from "../actions";
@@ -85,6 +86,7 @@ export function OnboardingWizard({
   const [isSaving, startSaving] = useTransition();
   const [isCompleting, startCompleting] = useTransition();
   const hasLoadedDraftRef = useRef(false);
+  const router = useRouter();
 
   useEffect(() => {
     try {
@@ -228,17 +230,20 @@ export function OnboardingWizard({
 
   function completeOnboarding() {
     startCompleting(async () => {
-      try {
-        await completeTenantOnboardingAction({
-          data: formData,
-        });
-        window.localStorage.removeItem(storageKey);
-      } catch (error) {
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : "We couldn't complete your onboarding right now.",
-        );
+      const result = await completeTenantOnboardingAction({
+        data: formData,
+      });
+
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      window.localStorage.removeItem(storageKey);
+
+      if (result.redirectTo) {
+        router.push(result.redirectTo);
+        router.refresh();
       }
     });
   }

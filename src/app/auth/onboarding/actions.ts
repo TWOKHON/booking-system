@@ -1,7 +1,6 @@
 "use server";
 
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { mapFormDataToTenantProfileUpdate } from "./_lib/mappers";
@@ -151,71 +150,84 @@ export async function saveTenantOnboardingAction(input: {
 
 export async function completeTenantOnboardingAction(input: {
   data: OnboardingFormData;
-}): Promise<void> {
+}): Promise<ActionResult & { redirectTo?: string }> {
   const payload = saveOnboardingPayloadSchema.safeParse({
     data: input.data,
     currentStep: 5,
   });
 
   if (!payload.success) {
-    throw new Error(payload.error.issues[0]?.message ?? "Unable to complete onboarding.");
+    return {
+      error: payload.error.issues[0]?.message ?? "Unable to complete onboarding.",
+    };
   }
 
-  const appUser = await requireTenantUser();
-  const mapped = mapFormDataToTenantProfileUpdate(payload.data.data);
+  try {
+    const appUser = await requireTenantUser();
+    const mapped = mapFormDataToTenantProfileUpdate(payload.data.data);
 
-  await db.$transaction(async (tx) => {
-    await tx.tenantProfile.update({
-      where: { appUserId: appUser.authUserId },
-      data: {
-        ...mapped.profile,
-        onboardingStatus: "COMPLETED",
-        onboardingCurrentStep: 5,
-        onboardingCompletedAt: new Date(),
-      },
-    });
+    await db.$transaction(async (tx) => {
+      await tx.tenantProfile.update({
+        where: { appUserId: appUser.authUserId },
+        data: {
+          ...mapped.profile,
+          onboardingStatus: "COMPLETED",
+          onboardingCurrentStep: 5,
+          onboardingCompletedAt: new Date(),
+        },
+      });
 
-    await syncDefaultPaymentAccount(
-      tx,
-      appUser.tenantProfile.id,
-      mapped.paymentAccount,
-    );
+      await syncDefaultPaymentAccount(
+        tx,
+        appUser.tenantProfile.id,
+        mapped.paymentAccount,
+      );
 
-    await tx.tenantTeamMember.deleteMany({
-      where: { tenantProfileId: appUser.tenantProfile.id },
-    });
+      await tx.tenantTeamMember.deleteMany({
+        where: { tenantProfileId: appUser.tenantProfile.id },
+      });
 
-    if (mapped.teamMembers.length > 0) {
-      await tx.tenantTeamMember.createMany({
-        data: mapped.teamMembers.map((member) => ({
+      if (mapped.teamMembers.length > 0) {
+        await tx.tenantTeamMember.createMany({
+          data: mapped.teamMembers.map((member) => ({
+            tenantProfileId: appUser.tenantProfile.id,
+            ...member,
+          })),
+        });
+      }
+
+      await tx.tenantCommunicationChannel.deleteMany({
+        where: { tenantProfileId: appUser.tenantProfile.id },
+      });
+
+      await tx.tenantCommunicationChannel.createMany({
+        data: mapped.communicationChannels.map((channel) => ({
           tenantProfileId: appUser.tenantProfile.id,
-          ...member,
+          ...channel,
         })),
       });
-    }
 
-    await tx.tenantCommunicationChannel.deleteMany({
-      where: { tenantProfileId: appUser.tenantProfile.id },
+      await tx.tenantNotificationPreference.deleteMany({
+        where: { tenantProfileId: appUser.tenantProfile.id },
+      });
+
+      await tx.tenantNotificationPreference.createMany({
+        data: mapped.notificationPreferences.map((preference) => ({
+          tenantProfileId: appUser.tenantProfile.id,
+          ...preference,
+        })),
+      });
     });
 
-    await tx.tenantCommunicationChannel.createMany({
-      data: mapped.communicationChannels.map((channel) => ({
-        tenantProfileId: appUser.tenantProfile.id,
-        ...channel,
-      })),
-    });
-
-    await tx.tenantNotificationPreference.deleteMany({
-      where: { tenantProfileId: appUser.tenantProfile.id },
-    });
-
-    await tx.tenantNotificationPreference.createMany({
-      data: mapped.notificationPreferences.map((preference) => ({
-        tenantProfileId: appUser.tenantProfile.id,
-        ...preference,
-      })),
-    });
-  });
-
-  redirect("/tenant");
+    return {
+      redirectTo: "/tenant/dashboard",
+    };
+  } catch (error) {
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : "We couldn't complete your onboarding right now.",
+    };
+  }
 }
